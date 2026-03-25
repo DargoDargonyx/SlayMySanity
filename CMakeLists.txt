@@ -20,6 +20,7 @@ add_executable(
     src/main.c
     src/util/error.c
     src/util/window.c
+    src/core/engine.c
     src/core/ui/font.c
 )
 

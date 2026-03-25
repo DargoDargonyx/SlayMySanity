@@ -44,10 +44,13 @@ char* getErrorStatusDesc(Error* err) {
     static char str[20];
     switch(err->statusNum) {
         case ESTAT_NONE:
-            sprintf(str, "No status");
+            sprintf(str, "No Status");
             break;
         case ESTAT_WINDOW:
             sprintf(str, "Window Error");
+            break;
+        case ESTAT_GAME_LOOP:
+            sprintf(str, "Game Loop Error");
             break;
         default:
             break;

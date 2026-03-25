@@ -10,6 +10,7 @@
 
 #define ESTAT_NONE 0
 #define ESTAT_WINDOW 1
+#define ESTAT_GAME_LOOP 2
 
 typedef struct {
     int statusNum;

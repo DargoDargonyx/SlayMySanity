@@ -6,13 +6,11 @@
  */
 
 #include "util/window.h"
-#include "util/error.h"
 
+#include "core/engine.h"
 #include "core/ui/font.h"
 
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 
 
 /**
@@ -190,19 +188,21 @@ Error initGameWindow(WindowManager* wManager) {
 Error runGameWindow(char* name, int wWidth, int wHeight) {
     WindowManager* wManager = createWindowManager(name, wWidth, wHeight);
     Error err;
+    
     err = initGameWindow(wManager);
     if (err.statusNum != ESTAT_NONE) {
         cleanWindowManager(wManager);
+        free(wManager);
         return err;
     }
 
-    SDL_Event event;
-    int running = 1;
-    while (running) {
-        while (SDL_PollEvent(&event))
-            if (event.type == SDL_QUIT) running = 0;
+    err = runGameLoop(wManager);
+    if (err.statusNum != ESTAT_NONE) {
+        cleanWindowManager(wManager);
+        free(wManager);
+        return err;
     }
-    
+
     cleanWindowManager(wManager);
     free(wManager);
     return createError(ESTAT_NONE, NULL);
