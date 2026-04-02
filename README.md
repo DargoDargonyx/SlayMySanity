@@ -7,3 +7,4 @@ The project is being written in C with as little libraries as I can reasonabley 
 
 - SDL2
 - SDL2/TTF
+- SDL2/Image
