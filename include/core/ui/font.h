@@ -8,15 +8,18 @@
 #ifndef FONT_H
 #define FONT_H
 
+#include <SDL2/SDL_ttf.h>
+
 #define F_JETBRAINS_MONO 1
 
 typedef struct {
-    char* filename;
+    TTF_Font* font;
     int size;
 } Font;
 
 
 Font createFont(int fontNum, int size);
+void destroyFont(Font* font);
 
 
 #endif

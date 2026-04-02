@@ -10,8 +10,6 @@
 
 #include "util/error.h"
 
-#include "core/ui/font.h"
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
@@ -19,17 +17,15 @@ typedef struct {
     char* name;
     int wWidth;
     int wHeight;
-    TTF_Font* font;
     SDL_Window* window;
     SDL_Renderer* renderer;
 } WindowManager;
 
 
 WindowManager* createWindowManager(char* name, int wWidth, int wHeight);
-void cleanWindowManager(WindowManager* wManager);
+void destroyWindowManager(WindowManager* wManager);
 
 Error checkSDLInit();
-Error createTTFFont(WindowManager* wManager, Font* font);
 Error createWindow(WindowManager* wManager);
 Error createRenderer(WindowManager* wManager);
 

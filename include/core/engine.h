@@ -11,10 +11,14 @@
 #include "util/error.h"
 #include "util/window.h"
 
+#include "core/render.h"
+
 #include <SDL2/SDL.h>
 
 
 Error runGameLoop(WindowManager* wManager);
+
+Error drawStartMenu(WindowManager* wManager, StartMenuScene* scene);
 
 
 #endif

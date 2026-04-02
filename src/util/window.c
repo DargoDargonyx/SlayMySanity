@@ -8,7 +8,6 @@
 #include "util/window.h"
 
 #include "core/engine.h"
-#include "core/ui/font.h"
 
 #include <stdio.h>
 
@@ -39,9 +38,7 @@ WindowManager* createWindowManager(char* name, int wWidth, int wHeight) {
  *
  * @param wManager : WindowManager struct pointer
  */
-void cleanWindowManager(WindowManager* wManager) {
-    if (wManager->font)
-        TTF_CloseFont(wManager->font);
+void destroyWindowManager(WindowManager* wManager) {
     if (wManager->window) 
         SDL_DestroyWindow(wManager->window);
     if (wManager->renderer) 
@@ -63,31 +60,6 @@ Error checkSDLInit() {
     if (TTF_Init() != 0)
         createError(ESTAT_WINDOW, "Couldn't initialize TTF");
 
-    return createError(ESTAT_NONE, NULL);
-}
-
-
-/**
- * @author DargoDargonyx
- * @date 03/25/2026
- * @brief Creates a TTF font for a window manager.
- *
- * @param wManager : WindowManager struct pointer
- * @param font : Font struct pointer
- * @return An Error struct describing whether or not the
- * font was successfully created
- */
-Error createTTFFont(WindowManager* wManager, Font* font) {
-    TTF_Font* ttfFont;
-    ttfFont = TTF_OpenFont(
-        font->filename,
-        font->size
-    );
-
-    if (!ttfFont)
-        return createError(ESTAT_WINDOW, "Couldn't create TTF font");
-
-    wManager->font = ttfFont;
     return createError(ESTAT_NONE, NULL);
 }
 
@@ -159,9 +131,6 @@ Error initGameWindow(WindowManager* wManager) {
     err = checkSDLInit();
     if (err.statusNum != ESTAT_NONE) return err;
     
-    Font font = createFont(F_JETBRAINS_MONO, 12);
-    err = createTTFFont(wManager, &font);
-    if (err.statusNum != ESTAT_NONE) return err;
 
     err = createWindow(wManager);
     if (err.statusNum != ESTAT_NONE) return err;
@@ -191,19 +160,20 @@ Error runGameWindow(char* name, int wWidth, int wHeight) {
     
     err = initGameWindow(wManager);
     if (err.statusNum != ESTAT_NONE) {
-        cleanWindowManager(wManager);
+        destroyWindowManager(wManager);
         free(wManager);
         return err;
     }
 
     err = runGameLoop(wManager);
     if (err.statusNum != ESTAT_NONE) {
-        cleanWindowManager(wManager);
+        destroyWindowManager(wManager);
         free(wManager);
         return err;
     }
 
-    cleanWindowManager(wManager);
+    destroyWindowManager(wManager);
     free(wManager);
+    SDL_Quit();
     return createError(ESTAT_NONE, NULL);
 }

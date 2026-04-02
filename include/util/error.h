@@ -11,15 +11,16 @@
 #define ESTAT_NONE 0
 #define ESTAT_WINDOW 1
 #define ESTAT_GAME_LOOP 2
+#define ESTAT_LOAD_IMG 3
+#define ESTAT_TXT 4
+#define ESTAT_CREATE_BUTTON 5
 
 typedef struct {
-    int statusNum;
-    char* msg;
+  int statusNum;
+  char *msg;
 } Error;
 
-
-Error createError(int statusNum, char* msg);
-char* getErrorStatusDesc(Error* err);
-
+Error createError(int statusNum, char *msg);
+char *getErrorStatusDesc(Error *err);
 
 #endif

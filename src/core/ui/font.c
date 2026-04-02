@@ -28,13 +28,31 @@
 Font createFont(int fontNum, int size) {
     Font font;
     font.size = size;
+    const char* filename;
     switch (fontNum) {
         case F_JETBRAINS_MONO:
-            font.filename = "../assets/fonts/JetBrainsMono-Regular.ttf";
+            filename = "../assets/fonts/JetBrainsMono-Regular.ttf";
             break;
         default:
-            font.filename = "../assets/fonts/JetBrainsMono-Regular.ttf";
+            filename = "../assets/fonts/JetBrainsMono-Regular.ttf";
             break;
     }
+    font.font = TTF_OpenFont(filename, font.size);
     return font;
+}
+
+
+/**
+ * @author DargoDargonyx
+ * @date 03/25/2026
+ * @brief Destroys the fields of a Font struct.
+ *
+ * @param font : Font struct pointer
+ */
+void destroyFont(Font* font) {
+    if (!font) return;
+    if (font->font) {
+        TTF_CloseFont(font->font);
+        font->font = NULL;
+    }
 }
