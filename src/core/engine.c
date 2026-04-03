@@ -1,23 +1,24 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Handles the logic for the game engine.
  */
 
 #include "core/engine.h"
 #include "core/render.h"
+#include "core/ui/widget.h"
 
 #include <SDL2/SDL_image.h>
 
 /**
  * @author DargoDargonyx
- * @date 03/25/26
- * @brief Handles teh logic for the main game loop.
+ * @date 04/03/26
+ * @brief Handles the logic for running the main game loop.
  *
- * @param event : SDL_Event pointer
- * @return An Error struct describing whether or not the
- * game loop ran without issue
+ * @param wManager : WindowManager struct pointer
+ * @return An Error struct that describes whether or not the
+ * game loop ran successfully
  */
 Error runGameLoop(WindowManager* wManager) {
     SDL_Event event;
@@ -25,9 +26,9 @@ Error runGameLoop(WindowManager* wManager) {
 
     Error err;
     StartMenuScene startMenuScene;
-    err = createStartMenuScene(wManager, &startMenuScene);
-    if (err.statusNum != ESTAT_NONE) {
-        destroyStartMenuScene(&startMenuScene);
+    err = initStartMenuScene(wManager, &startMenuScene);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        destroyStartMenuScene((Scene*) &startMenuScene);
         return err;
     }
 
@@ -37,51 +38,63 @@ Error runGameLoop(WindowManager* wManager) {
                 running = 0;
 
         err = drawStartMenu(wManager, &startMenuScene);
-        if (err.statusNum != ESTAT_NONE) {
+        if (err.statusNum != ESTAT_MAIN_NONE) {
             IMG_Quit();
             return err;
         }
         SDL_RenderPresent(wManager->renderer);
     }
 
-    destroyStartMenuScene(&startMenuScene);
+    destroyStartMenuScene((Scene*) &startMenuScene);
     IMG_Quit();
-    return createError(ESTAT_NONE, NULL);
+    return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Handles the logic for drawing the game start menu.
  *
  * @param wManager : WindowManager struct pointer
- * @return An error struct describing whether or not the
- * menu was created without issue
+ * @param scene : StartMenuScene struct pointer
+ * @return An Error struct that describes whether or not the
+ * start menu was successfully drawn
  */
 Error drawStartMenu(WindowManager* wManager, StartMenuScene* scene) {
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+
     SDL_RenderClear(wManager->renderer);
-    SDL_RenderCopy(wManager->renderer, scene->bgTexture, NULL, NULL);
+    SDL_RenderCopy(wManager->renderer, scene->base.bgTexture, NULL, NULL);
 
-    SDL_RenderCopy(wManager->renderer, scene->sbTexture, NULL,
-                   &scene->sButton.rect);
-    int txtW, txtH;
-    SDL_QueryTexture(scene->sButton.texture, NULL, NULL, &txtW, &txtH);
-    SDL_Rect sbTxtRect = {
-        scene->sButton.rect.x + (scene->sButton.rect.w - txtW) / 2,
-        scene->sButton.rect.y + (scene->sButton.rect.h - txtH) / 2, txtW, txtH};
-    SDL_RenderCopy(wManager->renderer, scene->sButton.texture, NULL,
-                   &sbTxtRect);
+    for (int i = 0; i < scene->base.btnCount; i++) {
+        Button* btn = scene->base.btns[i];
+        switch (btn->type) {
+            case BTN_TYPE_IMG: {
+                IMG_Button* imgBtn = (IMG_Button*) btn;
+                SDL_RenderCopy(wManager->renderer, imgBtn->base.bgTexture, NULL,
+                               &imgBtn->base.rect);
+                break;
+            }
+            case BTN_TYPE_TXT: {
+                TXT_Button* txtBtn = (TXT_Button*) btn;
+                SDL_RenderCopy(wManager->renderer, txtBtn->base.bgTexture, NULL,
+                               &txtBtn->base.rect);
 
-    SDL_RenderCopy(wManager->renderer, scene->obTexture, NULL,
-                   &scene->oButton.rect);
-    int obTxtW, obTxtH;
-    SDL_QueryTexture(scene->oButton.texture, NULL, NULL, &obTxtW, &obTxtH);
-    SDL_Rect obTxtRect = {
-        scene->oButton.rect.x + (scene->oButton.rect.w - obTxtW) / 2,
-        scene->oButton.rect.y + (scene->oButton.rect.h - obTxtH) / 2, obTxtW,
-        obTxtH};
-    SDL_RenderCopy(wManager->renderer, scene->oButton.texture, NULL,
-                   &obTxtRect);
+                int txtW, txtH;
+                SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
+                SDL_Rect txtDest;
+                txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
+                txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
+                txtDest.w = txtW;
+                txtDest.h = txtH;
+                SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
+                               &txtDest);
+                break;
+            }
+            default:
+                break;
+        }
+    }
 
-    return createError(ESTAT_NONE, NULL);
+    return err;
 }

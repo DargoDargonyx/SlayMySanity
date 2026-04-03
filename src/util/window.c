@@ -1,26 +1,27 @@
 /**
  * @file window.c
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Handles the logic for the window pop up.
  */
 
 #include "util/window.h"
-
 #include "core/engine.h"
+#include "util/error.h"
 
 #include <stdio.h>
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Creates a WindowManager struct.
  *
- * @param name : string pointer
- * @param width : integer
+ * @param name : c-style string constant
+ * @param wWidth : integer
+ * @param wHeight : integer
  * @return A pointer to the created WindowManager struct
  */
-WindowManager* createWindowManager(char* name, int wWidth, int wHeight) {
+WindowManager* createWindowManager(const char* name, int wWidth, int wHeight) {
     WindowManager* wManager = (WindowManager*) malloc(sizeof(WindowManager));
     wManager->name = name;
     wManager->wWidth = wWidth;
@@ -30,19 +31,21 @@ WindowManager* createWindowManager(char* name, int wWidth, int wHeight) {
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
- * @brief Cleans up a WindowManager struct.
+ * @date 04/03/2026
+ * @brief Handles the logic for destroying a WindowManager struct.
  *
  * @param wManager : WindowManager struct pointer
  */
 void destroyWindowManager(WindowManager* wManager) {
-    if (wManager->window) SDL_DestroyWindow(wManager->window);
-    if (wManager->renderer) SDL_DestroyRenderer(wManager->renderer);
+    if (wManager->window)
+        SDL_DestroyWindow(wManager->window);
+    if (wManager->renderer)
+        SDL_DestroyRenderer(wManager->renderer);
 }
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Checks whether or not SDL initialized correctly.
  *
  * @return An Error struct describing whether or not SDL
@@ -50,15 +53,16 @@ void destroyWindowManager(WindowManager* wManager) {
  */
 Error checkSDLInit() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
-        createError(ESTAT_WINDOW, "Couldn't initialize SDL_VIDEO");
-    if (TTF_Init() != 0) createError(ESTAT_WINDOW, "Couldn't initialize TTF");
+        createError(ESTAT_WINDOW_INIT, "Couldn't initialize SDL_VIDEO");
+    if (TTF_Init() != 0)
+        createError(ESTAT_WINDOW_INIT, "Couldn't initialize TTF");
 
-    return createError(ESTAT_NONE, NULL);
+    return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Creates an SDL window for a window manager.
  *
  * @param wManager: WindowManager struct pointer
@@ -67,22 +71,20 @@ Error checkSDLInit() {
  */
 Error createWindow(WindowManager* wManager) {
     SDL_Window* window;
-    window = SDL_CreateWindow(wManager->name,
-                              SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED,
-                              wManager->wWidth,
-                              wManager->wHeight,
-                              0);
+    window = SDL_CreateWindow(wManager->name, SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED, wManager->wWidth,
+                              wManager->wHeight, 0);
 
-    if (!window) return createError(ESTAT_WINDOW, "Couldn't create SDL window");
+    if (!window)
+        return createError(ESTAT_WINDOW_INIT, "Couldn't create SDL window");
 
     wManager->window = window;
-    return createError(ESTAT_NONE, NULL);
+    return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Creates an SDL renderer for a window manager.
  *
  * @param wManager : WindowManager struct pointer
@@ -95,15 +97,15 @@ Error createRenderer(WindowManager* wManager) {
         SDL_CreateRenderer(wManager->window, -1, SDL_RENDERER_ACCELERATED);
 
     if (!renderer)
-        return createError(ESTAT_WINDOW, "Couldn't create SDL renderer");
+        return createError(ESTAT_WINDOW_INIT, "Couldn't create SDL renderer");
 
     wManager->renderer = renderer;
-    return createError(ESTAT_NONE, NULL);
+    return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Initializes the main game window.
  *
  * @param wManager : WindowManager struct pointer
@@ -111,44 +113,48 @@ Error createRenderer(WindowManager* wManager) {
  * initialization of the game window was successful
  */
 Error initGameWindow(WindowManager* wManager) {
-    Error err;
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+
     err = checkSDLInit();
-    if (err.statusNum != ESTAT_NONE) return err;
+    if (err.statusNum != ESTAT_MAIN_NONE)
+        return err;
 
     err = createWindow(wManager);
-    if (err.statusNum != ESTAT_NONE) return err;
+    if (err.statusNum != ESTAT_MAIN_NONE)
+        return err;
 
     err = createRenderer(wManager);
-    if (err.statusNum != ESTAT_NONE) return err;
+    if (err.statusNum != ESTAT_MAIN_NONE)
+        return err;
 
     printf("Successfully initilized the game window.\n");
-    return createError(ESTAT_NONE, NULL);
+    return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Runs the game window loop.
  *
- * @param name : string pointer
+ * @param name : c-style string constant
  * @param wWidth : integer
  * @param wHeight : integer
  * @return An Error struct describing whether or not the
  * window loop ran into an issue
  */
-Error runGameWindow(char* name, int wWidth, int wHeight) {
+Error runGameWindow(const char* name, int wWidth, int wHeight) {
     WindowManager* wManager = createWindowManager(name, wWidth, wHeight);
-    Error err;
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
 
     err = initGameWindow(wManager);
-    if (err.statusNum != ESTAT_NONE) {
+    if (err.statusNum != ESTAT_MAIN_NONE) {
         destroyWindowManager(wManager);
         free(wManager);
         return err;
     }
 
     err = runGameLoop(wManager);
-    if (err.statusNum != ESTAT_NONE) {
+    if (err.statusNum != ESTAT_MAIN_NONE) {
         destroyWindowManager(wManager);
         free(wManager);
         return err;
@@ -157,5 +163,5 @@ Error runGameWindow(char* name, int wWidth, int wHeight) {
     destroyWindowManager(wManager);
     free(wManager);
     SDL_Quit();
-    return createError(ESTAT_NONE, NULL);
+    return err;
 }
