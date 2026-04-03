@@ -1,0 +1,16 @@
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+
+PointerAlignment: Left
+QualifierAlignment: Left
+SpaceAfterCStyleCast: true
+
+SpaceBeforeParens: ControlStatements
+IndentCaseLabels: true
+
+BinPackArguments: true
+AllowAllArgumentsOnNextLine: true
+AllowShortFunctionsOnASingleLine: true
+BreakBeforeBraces: Attach

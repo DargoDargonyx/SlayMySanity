@@ -15,10 +15,8 @@
 
 #include <SDL2/SDL.h>
 
+Error runGameLoop(WindowManager *wManager);
 
-Error runGameLoop(WindowManager* wManager);
-
-Error drawStartMenu(WindowManager* wManager, StartMenuScene* scene);
-
+Error drawStartMenu(WindowManager *wManager, StartMenuScene *scene);
 
 #endif

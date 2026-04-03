@@ -7,9 +7,8 @@
 
 #include "core/ui/widget.h"
 
-#include <string.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 /**
  * @author DargoDargonyx
@@ -24,9 +23,14 @@
  * @param texture : SDL_Texture pointer
  * @return The Button struct created
  */
-Button createButton(SDL_Renderer* renderer, SDL_Texture* bgTexture, const char* text,
-        TTF_Font* font, SDL_Color color, int x, int y) {
-    
+Button createButton(SDL_Renderer* renderer,
+                    SDL_Texture* bgTexture,
+                    const char* text,
+                    TTF_Font* font,
+                    SDL_Color color,
+                    int x,
+                    int y) {
+
     Button btn;
     btn.bgTexture = bgTexture;
     int w, h;
@@ -47,7 +51,6 @@ Button createButton(SDL_Renderer* renderer, SDL_Texture* bgTexture, const char* 
     return btn;
 }
 
-
 /**
  * @author DargoDargonyx
  * @date 03/25/2026
@@ -57,7 +60,7 @@ Button createButton(SDL_Renderer* renderer, SDL_Texture* bgTexture, const char* 
  */
 void destroyButton(Button* button) {
     if (!button) return;
-    
+
     if (button->texture) {
         SDL_DestroyTexture(button->texture);
         button->texture = NULL;

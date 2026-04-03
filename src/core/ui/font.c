@@ -7,7 +7,6 @@
 
 #include "core/ui/font.h"
 
-
 /**
  * @author DargoDargonyx
  * @date 03/25/2026
@@ -40,7 +39,6 @@ Font createFont(int fontNum, int size) {
     font.font = TTF_OpenFont(filename, font.size);
     return font;
 }
-
 
 /**
  * @author DargoDargonyx

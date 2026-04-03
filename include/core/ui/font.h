@@ -13,13 +13,11 @@
 #define F_JETBRAINS_MONO 1
 
 typedef struct {
-    TTF_Font* font;
-    int size;
+  TTF_Font *font;
+  int size;
 } Font;
 
-
 Font createFont(int fontNum, int size);
-void destroyFont(Font* font);
-
+void destroyFont(Font *font);
 
 #endif

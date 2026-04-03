@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 
-
 /**
  * @author DargoDargonyx
  * @date 03/25/2026
@@ -22,14 +21,12 @@
  * @return A pointer to the created WindowManager struct
  */
 WindowManager* createWindowManager(char* name, int wWidth, int wHeight) {
-    WindowManager* wManager = 
-        (WindowManager*) malloc(sizeof(WindowManager));
+    WindowManager* wManager = (WindowManager*) malloc(sizeof(WindowManager));
     wManager->name = name;
     wManager->wWidth = wWidth;
     wManager->wHeight = wHeight;
     return wManager;
 }
-
 
 /**
  * @author DargoDargonyx
@@ -39,12 +36,9 @@ WindowManager* createWindowManager(char* name, int wWidth, int wHeight) {
  * @param wManager : WindowManager struct pointer
  */
 void destroyWindowManager(WindowManager* wManager) {
-    if (wManager->window) 
-        SDL_DestroyWindow(wManager->window);
-    if (wManager->renderer) 
-        SDL_DestroyRenderer(wManager->renderer);
+    if (wManager->window) SDL_DestroyWindow(wManager->window);
+    if (wManager->renderer) SDL_DestroyRenderer(wManager->renderer);
 }
-
 
 /**
  * @author DargoDargonyx
@@ -57,12 +51,10 @@ void destroyWindowManager(WindowManager* wManager) {
 Error checkSDLInit() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
         createError(ESTAT_WINDOW, "Couldn't initialize SDL_VIDEO");
-    if (TTF_Init() != 0)
-        createError(ESTAT_WINDOW, "Couldn't initialize TTF");
+    if (TTF_Init() != 0) createError(ESTAT_WINDOW, "Couldn't initialize TTF");
 
     return createError(ESTAT_NONE, NULL);
 }
-
 
 /**
  * @author DargoDargonyx
@@ -75,22 +67,18 @@ Error checkSDLInit() {
  */
 Error createWindow(WindowManager* wManager) {
     SDL_Window* window;
-    window = SDL_CreateWindow(
-        wManager->name,
-        SDL_WINDOWPOS_CENTERED, 
-        SDL_WINDOWPOS_CENTERED, 
-        wManager->wWidth,
-        wManager->wHeight,
-        0
-    );
+    window = SDL_CreateWindow(wManager->name,
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
+                              wManager->wWidth,
+                              wManager->wHeight,
+                              0);
 
-    if (!window)
-        return createError(ESTAT_WINDOW, "Couldn't create SDL window");
-    
+    if (!window) return createError(ESTAT_WINDOW, "Couldn't create SDL window");
+
     wManager->window = window;
     return createError(ESTAT_NONE, NULL);
 }
-
 
 /**
  * @author DargoDargonyx
@@ -103,19 +91,15 @@ Error createWindow(WindowManager* wManager) {
  */
 Error createRenderer(WindowManager* wManager) {
     SDL_Renderer* renderer;
-    renderer = SDL_CreateRenderer(
-        wManager->window, 
-        -1, 
-        SDL_RENDERER_ACCELERATED
-    );
+    renderer =
+        SDL_CreateRenderer(wManager->window, -1, SDL_RENDERER_ACCELERATED);
 
-    if (!renderer) 
+    if (!renderer)
         return createError(ESTAT_WINDOW, "Couldn't create SDL renderer");
 
     wManager->renderer = renderer;
     return createError(ESTAT_NONE, NULL);
 }
-
 
 /**
  * @author DargoDargonyx
@@ -130,18 +114,16 @@ Error initGameWindow(WindowManager* wManager) {
     Error err;
     err = checkSDLInit();
     if (err.statusNum != ESTAT_NONE) return err;
-    
 
     err = createWindow(wManager);
     if (err.statusNum != ESTAT_NONE) return err;
 
     err = createRenderer(wManager);
     if (err.statusNum != ESTAT_NONE) return err;
-    
+
     printf("Successfully initilized the game window.\n");
     return createError(ESTAT_NONE, NULL);
 }
-
 
 /**
  * @author DargoDargonyx
@@ -151,13 +133,13 @@ Error initGameWindow(WindowManager* wManager) {
  * @param name : string pointer
  * @param wWidth : integer
  * @param wHeight : integer
- * @return An Error struct describing whether or not the 
+ * @return An Error struct describing whether or not the
  * window loop ran into an issue
  */
 Error runGameWindow(char* name, int wWidth, int wHeight) {
     WindowManager* wManager = createWindowManager(name, wWidth, wHeight);
     Error err;
-    
+
     err = initGameWindow(wManager);
     if (err.statusNum != ESTAT_NONE) {
         destroyWindowManager(wManager);

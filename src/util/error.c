@@ -18,11 +18,11 @@
  * @param msg : string pointer
  * @return The new Error struct
  */
-Error createError(int statusNum, char *msg) {
-  Error err;
-  err.statusNum = statusNum;
-  err.msg = msg;
-  return err;
+Error createError(int statusNum, char* msg) {
+    Error err;
+    err.statusNum = statusNum;
+    err.msg = msg;
+    return err;
 }
 
 /**
@@ -38,28 +38,28 @@ Error createError(int statusNum, char *msg) {
  * @param err : Error struct
  * @return The description of the error as a string pointer
  */
-char *getErrorStatusDesc(Error *err) {
-  static char str[31];
-  switch (err->statusNum) {
-  case ESTAT_NONE:
-    sprintf(str, "Null Status");
-    break;
-  case ESTAT_WINDOW:
-    sprintf(str, "Window Error");
-    break;
-  case ESTAT_GAME_LOOP:
-    sprintf(str, "Game Loop Error");
-    break;
-  case ESTAT_LOAD_IMG:
-    sprintf(str, "Load Image File Error");
-    break;
-  case ESTAT_TXT:
-    sprintf(str, "Load/Create Text Error");
-    break;
-  case ESTAT_CREATE_BUTTON:
-    sprintf(str, "Create Button Error");
-  default:
-    break;
-  }
-  return str;
+char* getErrorStatusDesc(Error* err) {
+    static char str[31];
+    switch (err->statusNum) {
+        case ESTAT_NONE:
+            sprintf(str, "Null Status");
+            break;
+        case ESTAT_WINDOW:
+            sprintf(str, "Window Error");
+            break;
+        case ESTAT_GAME_LOOP:
+            sprintf(str, "Game Loop Error");
+            break;
+        case ESTAT_LOAD_IMG:
+            sprintf(str, "Load Image File Error");
+            break;
+        case ESTAT_TXT:
+            sprintf(str, "Load/Create Text Error");
+            break;
+        case ESTAT_CREATE_BUTTON:
+            sprintf(str, "Create Button Error");
+        default:
+            break;
+    }
+    return str;
 }
