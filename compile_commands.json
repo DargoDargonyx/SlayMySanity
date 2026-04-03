@@ -1,0 +1,142 @@
+[
+  {
+    "file": "src/main.c",
+    "arguments": [
+      "gcc",
+      "-c",
+      "src/main.c",
+      "-o",
+      "build/main.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/main.o"
+  },
+  {
+    "file": "src/core/ui/font.c",
+    "arguments": [
+      "gcc",
+      "-c",
+      "src/core/ui/font.c",
+      "-o",
+      "build/core/ui/font.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/core/ui/font.o"
+  },
+  {
+    "file": "src/core/ui/widget.c",
+    "arguments": [
+      "gcc",
+      "-c",
+      "src/core/ui/widget.c",
+      "-o",
+      "build/core/ui/widget.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/core/ui/widget.o"
+  },
+  {
+    "file": "src/core/engine.c",
+    "arguments": [
+      "gcc",
+      "-c",
+      "src/core/engine.c",
+      "-o",
+      "build/core/engine.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/core/engine.o"
+  },
+  {
+    "file": "src/core/render.c",
+    "arguments": [
+      "gcc",
+      "-c",
+      "src/core/render.c",
+      "-o",
+      "build/core/render.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/core/render.o"
+  },
+  {
+    "file": "src/util/error.c",
+    "arguments": [
+      "gcc",
+      "-c",
+      "src/util/error.c",
+      "-o",
+      "build/util/error.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/util/error.o"
+  },
+  {
+    "file": "src/util/window.c",
+    "arguments": [
+      "gcc",
+      "-c",
+      "src/util/window.c",
+      "-o",
+      "build/util/window.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/util/window.o"
+  }
+]

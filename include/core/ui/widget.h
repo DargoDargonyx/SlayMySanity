@@ -13,21 +13,21 @@
 #include <SDL2/SDL.h>
 
 typedef struct {
-    char* txt;
-    Font* font;
-    int x;
-    int y;
-    int w;
-    int h;
-    SDL_Texture* bgTexture;
-    SDL_Texture* texture;
-    SDL_Rect rect;
+  char *txt;
+  Font *font;
+  int x;
+  int y;
+  int w;
+  int h;
+  SDL_Texture *bgTexture;
+  SDL_Texture *texture;
+  SDL_Rect rect;
 } Button;
 
-Button createButton(SDL_Renderer* renderer, SDL_Texture* bgTexture, 
-        const char* text, TTF_Font* font, SDL_Color color, int x, int y);
+Button createButton(SDL_Renderer *renderer, SDL_Texture *bgTexture,
+                    const char *text, TTF_Font *font, SDL_Color color, int x,
+                    int y);
 
-void destroyButton(Button* button);
-
+void destroyButton(Button *button);
 
 #endif
