@@ -1,7 +1,7 @@
 /**
  * @file window.c
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Handles the logic for the window pop up.
  */
 
@@ -13,7 +13,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Creates a WindowManager struct.
  *
  * @param name : c-style string constant
@@ -23,25 +23,59 @@
  */
 WindowManager* createWindowManager(const char* name, int wWidth, int wHeight) {
     WindowManager* wManager = (WindowManager*) malloc(sizeof(WindowManager));
+    wManager->running = 1;
     wManager->name = name;
     wManager->wWidth = wWidth;
     wManager->wHeight = wHeight;
     wManager->currentScene = NULL;
+    wManager->errContainer = createErrorContainer();
     return wManager;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Handles the logic for destroying a WindowManager struct.
  *
  * @param wManager : WindowManager struct pointer
+ * @return An Error struct describing whether or not the
+ * WindowManager struct in question was successfully destroyed
  */
-void destroyWindowManager(WindowManager* wManager) {
+Error destroyWindowManager(WindowManager* wManager) {
     if (wManager->window)
         SDL_DestroyWindow(wManager->window);
     if (wManager->renderer)
         SDL_DestroyRenderer(wManager->renderer);
+
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    if (wManager->errContainer) {
+        err = destroyErrorContainer(wManager->errContainer);
+    }
+    return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/04/2026
+ * @brief Handles the logic for clearing the current scene
+ * from a WindowManager struct.
+ *
+ * @param wManager : WindowManager struct pointer
+ * @return An Error struct describing whether or not the
+ * current scene from the WindowManager struct was
+ * successfully cleared
+ */
+Error clearCurrentScene(WindowManager* wManager) {
+    if (!wManager)
+        return createError(
+            ESTAT_WINDOW_SCENE_CLEAR,
+            "Could not clear the scenes from a NULL window manager");
+
+    if (wManager->currentScene) {
+        wManager->currentScene->destroy(wManager->currentScene);
+        wManager->currentScene = NULL;
+    }
+    return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
@@ -161,7 +195,7 @@ Error runGameWindow(const char* name, int wWidth, int wHeight) {
         return err;
     }
 
-    destroyWindowManager(wManager);
+    err = destroyWindowManager(wManager);
     free(wManager);
     SDL_Quit();
     return err;

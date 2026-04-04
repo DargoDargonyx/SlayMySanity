@@ -21,6 +21,5 @@ typedef struct {
 } Font;
 
 Font createFont(int fontNum, int size, SDL_Color color);
-Error destroyFont(Font* font);
 
 #endif

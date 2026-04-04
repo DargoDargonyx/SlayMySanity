@@ -157,7 +157,6 @@ Error destroyTxtButton(Button* self) {
     TXT_Button* btn = (TXT_Button*) self;
     SDL_DestroyTexture(btn->base.bgTexture);
     SDL_DestroyTexture(btn->txtTexture);
-    err = destroyFont(btn->font);
     free(btn);
     return err;
 }

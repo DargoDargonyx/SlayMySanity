@@ -1,7 +1,7 @@
 /**
  * @file window.h
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Handles the logic for the window pop up.
  */
 
@@ -14,17 +14,22 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
+typedef struct Scene Scene;
+
 typedef struct {
+    int running;
     const char* name;
     int wWidth;
     int wHeight;
     Scene* currentScene;
     SDL_Window* window;
     SDL_Renderer* renderer;
+    ErrorContainer* errContainer;
 } WindowManager;
 
 WindowManager* createWindowManager(const char* name, int wWidth, int wHeight);
-void destroyWindowManager(WindowManager* wManager);
+Error destroyWindowManager(WindowManager* wManager);
+Error clearCurrentScene(WindowManager* wManager);
 
 Error checkSDLInit();
 Error createWindow(WindowManager* wManager);

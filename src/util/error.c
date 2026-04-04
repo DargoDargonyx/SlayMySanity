@@ -1,7 +1,7 @@
 /**
  * @file error.c
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Handles the logic for error handling.
  */
 
@@ -28,7 +28,7 @@ Error createError(int statusNum, const char* msg) {
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Gets a quick description of an error.
  *
  * This function gets a quick description of an error
@@ -68,6 +68,9 @@ char* getErrorStatusDesc(Error* err) {
             break;
         case ESTAT_WINDOW_MANAGER_DESTROY:
             sprintf(str, "Window Manager Destruction Error");
+            break;
+        case ESTAT_WINDOW_SCENE_CLEAR:
+            sprintf(str, "Window Manager Scene Clearing Error");
             break;
         // engine
         case ESTAT_ENGINE_START_LOOP:
