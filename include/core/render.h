@@ -1,24 +1,22 @@
+/**
+ * @file render.h
+ * @author DargoDargonyx
+ * @date 04/03/2026
+ * @brief Handles the logic for rendering the game.
+ */
+
 #ifndef RENDER_H
 #define RENDER_H
 
+#include "core/scene.h"
 #include "util/error.h"
 #include "util/window.h"
 
-#include "core/ui/widget.h"
+Error initStartMenuScene(WindowManager* wManager, StartMenuScene* scene);
 
-#include <SDL2/SDL.h>
+Error drawScene(WindowManager* wManager);
+Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene);
 
-typedef struct {
-  int w;
-  int h;
-  SDL_Texture *bgTexture;
-  Button sButton;
-  SDL_Texture *sbTexture;
-  Button oButton;
-  SDL_Texture *obTexture;
-} StartMenuScene;
-
-Error createStartMenuScene(WindowManager *wManager, StartMenuScene *scene);
-void destroyStartMenuScene(StartMenuScene *scene);
+Error renderMainButtonSprite(SDL_Renderer* renderer, Button* btn);
 
 #endif

@@ -1,7 +1,7 @@
 /**
  * @file engine.h
  * @author DargoDargonyx
- * @date 03/25/2026
+ * @date 04/03/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -11,12 +11,15 @@
 #include "util/error.h"
 #include "util/window.h"
 
-#include "core/render.h"
-
 #include <SDL2/SDL.h>
 
-Error runGameLoop(WindowManager *wManager);
+Error runGameLoop(WindowManager* wManager);
 
-Error drawStartMenu(WindowManager *wManager, StartMenuScene *scene);
+int pointInRect(int x, int y, SDL_Rect* r);
+void handleButtonEvent(Button* btn, SDL_Event* e);
+Button** getSceneButtons(Scene* scene);
+
+void testStartButton(void*);
+void testOptionButton(void*);
 
 #endif
