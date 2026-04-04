@@ -105,12 +105,10 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
         x = e->button.x;
         y = e->button.y;
         if (btn->state == BTN_PRESSED && pointInRect(x, y, &btn->rect)) {
-            if (btn->onClick) {
+            if (btn->onClick)
                 btn->onClick(NULL);
-            }
+            btn->state = BTN_HOVER;
         }
-
-        btn->state = BTN_IDLE;
     }
 }
 

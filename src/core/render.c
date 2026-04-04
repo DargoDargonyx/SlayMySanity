@@ -45,8 +45,9 @@ Error initStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
     scene->base.h = wManager->wHeight;
     SDL_Color white = {255, 255, 255, 255};
     Font font = createFont(F_JETBRAINS_MONO, 36, white);
+    int menuButtonSpriteNum = 3;
 
-    SDL_Surface* bgSurface = IMG_Load("../assets/sprites/MiniStartMenu.png");
+    SDL_Surface* bgSurface = IMG_Load("../assets/sprites/start_menu/bgImg.png");
     if (!bgSurface)
         return createError(ESTAT_RENDER_LOAD_IMG,
                            "Failed to load mini start menu image");
@@ -55,20 +56,22 @@ Error initStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
     SDL_FreeSurface(bgSurface);
     scene->base.bgTexture = bgTexture;
 
-    const char* sbImgPath = "../assets/sprites/MiniStartMenu_PlayButton.png";
+    const char* sbImgPath = "../assets/sprites/start_menu/MainButton.png";
     const char* sbText = "Start Game";
     TXT_Button* sButton =
         createTxtButton(scene->base.errContainer, wManager->renderer, sbImgPath,
-                        scene->base.w / 2, scene->base.h / 2, sbText, &font);
+                        scene->base.w / 2, scene->base.h / 2,
+                        menuButtonSpriteNum, sbText, &font);
     sButton->base.onClick = testStartButton;
     addBtnToScene(&scene->base, (Button*) sButton);
 
-    const char* obImgPath = "../assets/sprites/MiniStartMenu_PlayButton.png";
+    const char* obImgPath = "../assets/sprites/start_menu/MainButton.png";
     const char* obText = "Options";
     int obVertSpacing = 100;
-    TXT_Button* oButton = createTxtButton(
-        scene->base.errContainer, wManager->renderer, obImgPath,
-        scene->base.w / 2, (scene->base.h / 2) + obVertSpacing, obText, &font);
+    TXT_Button* oButton =
+        createTxtButton(scene->base.errContainer, wManager->renderer, obImgPath,
+                        scene->base.w / 2, (scene->base.h / 2) + obVertSpacing,
+                        menuButtonSpriteNum, obText, &font);
     oButton->base.onClick = testOptionButton;
     addBtnToScene(&scene->base, (Button*) oButton);
 
@@ -120,18 +123,13 @@ Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         Button* btn = scene->base.btns[i];
+        err = renderMainButtonSprite(wManager->renderer, btn);
         switch (btn->type) {
             case BTN_TYPE_IMG: {
-                IMG_Button* imgBtn = (IMG_Button*) btn;
-                SDL_RenderCopy(wManager->renderer, imgBtn->base.bgTexture, NULL,
-                               &imgBtn->base.rect);
                 break;
             }
             case BTN_TYPE_TXT: {
                 TXT_Button* txtBtn = (TXT_Button*) btn;
-                SDL_RenderCopy(wManager->renderer, txtBtn->base.bgTexture, NULL,
-                               &txtBtn->base.rect);
-
                 int txtW, txtH;
                 SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
                 SDL_Rect txtDest;
@@ -148,6 +146,35 @@ Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
                 break;
         }
     }
-
     return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/03/2026
+ * @brief Handles the logic for drawing the game start menu.
+ *
+ * @param wManager : WindowManager struct pointer
+ * @param scene : StartMenuScene struct pointer
+ * @return An Error struct that describes whether or not the
+ * start menu was successfully drawn
+ */
+Error renderMainButtonSprite(SDL_Renderer* renderer, Button* btn) {
+    SDL_Rect src = {0, 0, btn->rect.w, btn->rect.h};
+    switch (btn->state) {
+        case BTN_IDLE:
+            src.y = 0;
+            break;
+        case BTN_HOVER:
+            src.y = btn->rect.h;
+            break;
+        case BTN_PRESSED:
+            src.y = 2 * btn->rect.h;
+            break;
+        default:
+            return createError(ESTAT_RENDER_BTN_SPRITE, "Unknown button state");
+            break;
+    }
+    SDL_RenderCopy(renderer, btn->bgTexture, &src, &btn->rect);
+    return createError(ESTAT_MAIN_NONE, NULL);
 }

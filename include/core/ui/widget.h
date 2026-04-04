@@ -25,10 +25,6 @@ struct Button {
     ButtonState state;
     void (*onClick)(void* data);
     void* userData;
-    int x;
-    int y;
-    int w;
-    int h;
     SDL_Texture* bgTexture;
     SDL_Rect rect;
 };
@@ -47,12 +43,13 @@ typedef struct {
 
 IMG_Button* createImgButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y);
+                            int x, int y, int spriteNum);
 Error destroyImgButton(Button* self);
 
 TXT_Button* createTxtButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y, const char* txt, Font* font);
+                            int x, int y, int spriteNum, const char* txt,
+                            Font* font);
 Error destroyTxtButton(Button* self);
 
 #endif

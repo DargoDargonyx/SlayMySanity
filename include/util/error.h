@@ -28,6 +28,7 @@
 // render
 #define ESTAT_RENDER_LOAD_IMG 0x30
 #define ESTAT_RENDER_SCENE_DRAW 0x31
+#define ESTAT_RENDER_BTN_SPRITE 0x32
 
 // scene
 #define ESTAT_SCENE_CREATE 0x40

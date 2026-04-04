@@ -29,7 +29,7 @@
  */
 IMG_Button* createImgButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y) {
+                            int x, int y, int spriteNum) {
 
     IMG_Button* btn = (IMG_Button*) malloc(sizeof(IMG_Button));
     btn->base.type = BTN_TYPE_IMG;
@@ -50,9 +50,9 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
 
     btn->base.bgTexture = bgTexture;
     btn->base.rect.x = x - (bgSurface->w / 2);
-    btn->base.rect.y = y - (bgSurface->h / 2);
+    btn->base.rect.y = y - (bgSurface->h / (2 * spriteNum));
     btn->base.rect.w = w;
-    btn->base.rect.h = h;
+    btn->base.rect.h = h / spriteNum;
 
     return btn;
 }
@@ -96,7 +96,8 @@ Error destroyImgButton(Button* self) {
  */
 TXT_Button* createTxtButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y, const char* txt, Font* font) {
+                            int x, int y, int spriteNum, const char* txt,
+                            Font* font) {
 
     TXT_Button* btn = (TXT_Button*) malloc(sizeof(TXT_Button));
     btn->base.type = BTN_TYPE_TXT;
@@ -115,11 +116,13 @@ TXT_Button* createTxtButton(ErrorContainer* errContainer,
     SDL_QueryTexture(bgTexture, NULL, NULL, &w, &h);
     btn->base.bgTexture = bgTexture;
     btn->base.rect.x = x - (bgSurface->w / 2);
-    btn->base.rect.y = y - (bgSurface->h / 2);
+    btn->base.rect.y = y - (bgSurface->h / (2 * spriteNum));
     btn->base.rect.w = w;
-    btn->base.rect.h = h;
+    btn->base.rect.h = h / spriteNum;
     SDL_FreeSurface(bgSurface);
 
+    btn->font = font;
+    btn->txt = txt;
     SDL_Surface* txtSurface =
         TTF_RenderText_Blended(font->font, txt, font->color);
     if (!txtSurface) {

@@ -17,4 +17,6 @@ Error initStartMenuScene(WindowManager* wManager, StartMenuScene* scene);
 Error drawScene(WindowManager* wManager);
 Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene);
 
+Error renderMainButtonSprite(SDL_Renderer* renderer, Button* btn);
+
 #endif

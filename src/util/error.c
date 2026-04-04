@@ -77,9 +77,11 @@ char* getErrorStatusDesc(Error* err) {
         case ESTAT_RENDER_LOAD_IMG:
             sprintf(str, "Image Asset Loading Error");
             break;
-
         case ESTAT_RENDER_SCENE_DRAW:
             sprintf(str, "Scene Drawing Error");
+            break;
+        case ESTAT_RENDER_BTN_SPRITE:
+            sprintf(str, "Button Rendering Error");
             break;
         // scene
         case ESTAT_SCENE_CREATE:
