@@ -26,6 +26,7 @@ WindowManager* createWindowManager(const char* name, int wWidth, int wHeight) {
     wManager->name = name;
     wManager->wWidth = wWidth;
     wManager->wHeight = wHeight;
+    wManager->currentScene = NULL;
     return wManager;
 }
 

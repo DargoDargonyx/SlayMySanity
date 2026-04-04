@@ -32,6 +32,11 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
                             int x, int y) {
 
     IMG_Button* btn = (IMG_Button*) malloc(sizeof(IMG_Button));
+    btn->base.type = BTN_TYPE_IMG;
+    btn->base.destroy = destroyImgButton;
+    btn->base.onClick = NULL;
+    btn->base.state = BTN_IDLE;
+
     SDL_Surface* bgSurface = IMG_Load(bgImagePath);
     if (!bgSurface)
         addErrorToContainer(
@@ -49,8 +54,6 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
     btn->base.rect.w = w;
     btn->base.rect.h = h;
 
-    btn->base.type = BTN_TYPE_IMG;
-    btn->base.destroy = destroyImgButton;
     return btn;
 }
 
@@ -98,6 +101,8 @@ TXT_Button* createTxtButton(ErrorContainer* errContainer,
     TXT_Button* btn = (TXT_Button*) malloc(sizeof(TXT_Button));
     btn->base.type = BTN_TYPE_TXT;
     btn->base.destroy = destroyTxtButton;
+    btn->base.onClick = NULL;
+    btn->base.state = BTN_IDLE;
 
     SDL_Surface* bgSurface = IMG_Load(bgImagePath);
     if (!bgSurface)
@@ -145,10 +150,11 @@ Error destroyTxtButton(Button* self) {
         return createError(ESTAT_WIDGET_BTN_DESTROY,
                            "Could not destroy a NULL Text Button");
 
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
     TXT_Button* btn = (TXT_Button*) self;
     SDL_DestroyTexture(btn->base.bgTexture);
     SDL_DestroyTexture(btn->txtTexture);
-    destroyFont(btn->font);
+    err = destroyFont(btn->font);
     free(btn);
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return err;
 }

@@ -8,7 +8,6 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include "core/render.h"
 #include "util/error.h"
 #include "util/window.h"
 
@@ -16,6 +15,11 @@
 
 Error runGameLoop(WindowManager* wManager);
 
-Error drawStartMenu(WindowManager* wManager, StartMenuScene* scene);
+int pointInRect(int x, int y, SDL_Rect* r);
+void handleButtonEvent(Button* btn, SDL_Event* e);
+Button** getSceneButtons(Scene* scene);
+
+void testStartButton(void*);
+void testOptionButton(void*);
 
 #endif

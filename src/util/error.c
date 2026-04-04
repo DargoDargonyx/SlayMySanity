@@ -77,13 +77,18 @@ char* getErrorStatusDesc(Error* err) {
         case ESTAT_RENDER_LOAD_IMG:
             sprintf(str, "Image Asset Loading Error");
             break;
-        case ESTAT_RENDER_SCENE_CREATE:
+
+        case ESTAT_RENDER_SCENE_DRAW:
+            sprintf(str, "Scene Drawing Error");
+            break;
+        // scene
+        case ESTAT_SCENE_CREATE:
             sprintf(str, "Scene Creation Error");
             break;
-        case ESTAT_RENDER_SCENE_DESTROY:
+        case ESTAT_SCENE_DESTROY:
             sprintf(str, "Scene Destruction Error");
             break;
-        case ESTAT_RENDER_SCENE_ADD_BTN:
+        case ESTAT_SCENE_ADD_BTN:
             sprintf(str, "Scene Button Addition Error");
             break;
         // font

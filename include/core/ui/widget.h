@@ -16,10 +16,15 @@
 #define BTN_TYPE_IMG 1
 #define BTN_TYPE_TXT 2
 
+typedef enum { BTN_IDLE, BTN_HOVER, BTN_PRESSED } ButtonState;
+
 typedef struct Button Button;
 struct Button {
     int type;
-    Error (*destroy)(Button* btn);
+    Error (*destroy)(Button* self);
+    ButtonState state;
+    void (*onClick)(void* data);
+    void* userData;
     int x;
     int y;
     int w;

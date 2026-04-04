@@ -7,8 +7,10 @@
 
 #include "core/engine.h"
 #include "core/render.h"
+#include "core/scene.h"
 #include "core/ui/widget.h"
 
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 /**
@@ -24,20 +26,26 @@ Error runGameLoop(WindowManager* wManager) {
     SDL_Event event;
     int running = 1;
 
-    Error err;
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
     StartMenuScene startMenuScene;
     err = initStartMenuScene(wManager, &startMenuScene);
     if (err.statusNum != ESTAT_MAIN_NONE) {
-        destroyStartMenuScene((Scene*) &startMenuScene);
+        startMenuScene.base.destroy((Scene*) &startMenuScene);
         return err;
     }
 
+    wManager->currentScene = (Scene*) &startMenuScene;
     while (running) {
-        while (SDL_PollEvent(&event))
+        while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 running = 0;
 
-        err = drawStartMenu(wManager, &startMenuScene);
+            for (int i = 0; i < wManager->currentScene->btnCount; i++) {
+                handleButtonEvent(wManager->currentScene->btns[i], &event);
+            }
+        }
+
+        err = drawScene(wManager);
         if (err.statusNum != ESTAT_MAIN_NONE) {
             IMG_Quit();
             return err;
@@ -45,56 +53,67 @@ Error runGameLoop(WindowManager* wManager) {
         SDL_RenderPresent(wManager->renderer);
     }
 
-    destroyStartMenuScene((Scene*) &startMenuScene);
+    err = wManager->currentScene->destroy(wManager->currentScene);
     IMG_Quit();
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return err;
 }
 
 /**
  * @author DargoDargonyx
  * @date 04/03/2026
- * @brief Handles the logic for drawing the game start menu.
+ * @brief Helper function to check whether or not a point in the scene
+ * in inside of a given SDL_Rect.
  *
- * @param wManager : WindowManager struct pointer
- * @param scene : StartMenuScene struct pointer
- * @return An Error struct that describes whether or not the
- * start menu was successfully drawn
+ * @param x : integer
+ * @param y : integer
+ * @param r : SDL_Rect pointer
+ * @return An integer representation of a boolean for whether or not
+ * the given point is inside of the SDL_Rect in question
  */
-Error drawStartMenu(WindowManager* wManager, StartMenuScene* scene) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+int pointInRect(int x, int y, SDL_Rect* r) {
+    return x >= r->x && x <= r->x + r->w && y >= r->y && y <= r->y + r->h;
+}
 
-    SDL_RenderClear(wManager->renderer);
-    SDL_RenderCopy(wManager->renderer, scene->base.bgTexture, NULL, NULL);
+/**
+ * @author DargoDargonyx
+ * @date 04/03/2026
+ * @brief Helper function to handle button events.
+ *
+ * @param btn : Button struct pointer
+ * @param e : SDL_Event pointer
+ */
+void handleButtonEvent(Button* btn, SDL_Event* e) {
+    int x, y;
 
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        Button* btn = scene->base.btns[i];
-        switch (btn->type) {
-            case BTN_TYPE_IMG: {
-                IMG_Button* imgBtn = (IMG_Button*) btn;
-                SDL_RenderCopy(wManager->renderer, imgBtn->base.bgTexture, NULL,
-                               &imgBtn->base.rect);
-                break;
-            }
-            case BTN_TYPE_TXT: {
-                TXT_Button* txtBtn = (TXT_Button*) btn;
-                SDL_RenderCopy(wManager->renderer, txtBtn->base.bgTexture, NULL,
-                               &txtBtn->base.rect);
-
-                int txtW, txtH;
-                SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
-                SDL_Rect txtDest;
-                txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
-                txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
-                txtDest.w = txtW;
-                txtDest.h = txtH;
-                SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
-                               &txtDest);
-                break;
-            }
-            default:
-                break;
-        }
+    if (e->type == SDL_MOUSEMOTION) {
+        x = e->motion.x;
+        y = e->motion.y;
+        if (pointInRect(x, y, &btn->rect))
+            btn->state = BTN_HOVER;
+        else
+            btn->state = BTN_IDLE;
     }
 
-    return err;
+    if (e->type == SDL_MOUSEBUTTONDOWN) {
+        x = e->button.x;
+        y = e->button.y;
+        if (pointInRect(x, y, &btn->rect))
+            btn->state = BTN_PRESSED;
+    }
+
+    if (e->type == SDL_MOUSEBUTTONUP) {
+        x = e->button.x;
+        y = e->button.y;
+        if (btn->state == BTN_PRESSED && pointInRect(x, y, &btn->rect)) {
+            if (btn->onClick) {
+                btn->onClick(NULL);
+            }
+        }
+
+        btn->state = BTN_IDLE;
+    }
 }
+
+// temporary test functions
+void testStartButton(void* arg) { printf("Pressed Start Button!\n"); }
+void testOptionButton(void* arg) { printf("Pressed Option Button!\n"); }

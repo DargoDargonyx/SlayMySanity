@@ -8,6 +8,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include "core/scene.h"
 #include "util/error.h"
 
 #include <SDL2/SDL.h>
@@ -17,6 +18,7 @@ typedef struct {
     const char* name;
     int wWidth;
     int wHeight;
+    Scene* currentScene;
     SDL_Window* window;
     SDL_Renderer* renderer;
 } WindowManager;

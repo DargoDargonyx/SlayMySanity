@@ -6,6 +6,8 @@
  */
 
 #include "core/render.h"
+#include "core/engine.h"
+#include "core/scene.h"
 #include "core/ui/font.h"
 #include "core/ui/widget.h"
 #include "util/error.h"
@@ -28,8 +30,10 @@
  */
 Error initStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
     scene->base.type = SCENE_TYPE_START_MENU;
+    scene->base.destroy = destroyStartMenuScene;
     scene->base.btnCount = 0;
     scene->base.btnCap = SCENE_BTN_INIT_CAP;
+    scene->base.btns = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
 
     scene->base.errContainer = createErrorContainer();
     if (!scene->base.errContainer)
@@ -56,7 +60,8 @@ Error initStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
     TXT_Button* sButton =
         createTxtButton(scene->base.errContainer, wManager->renderer, sbImgPath,
                         scene->base.w / 2, scene->base.h / 2, sbText, &font);
-    addBtnToStartMenuScene(scene, (Button*) sButton);
+    sButton->base.onClick = testStartButton;
+    addBtnToScene(&scene->base, (Button*) sButton);
 
     const char* obImgPath = "../assets/sprites/MiniStartMenu_PlayButton.png";
     const char* obText = "Options";
@@ -64,83 +69,85 @@ Error initStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
     TXT_Button* oButton = createTxtButton(
         scene->base.errContainer, wManager->renderer, obImgPath,
         scene->base.w / 2, (scene->base.h / 2) + obVertSpacing, obText, &font);
-    addBtnToStartMenuScene(scene, (Button*) oButton);
+    oButton->base.onClick = testOptionButton;
+    addBtnToScene(&scene->base, (Button*) oButton);
 
     // If an error happened along the way, return the
     // first one to occur
     if (scene->base.errContainer->errCount > 0)
         return scene->base.errContainer->errs[0];
-    destroyFont(&font);
     return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/03/26
- * @brief Handles the logic for destroying a StartMenuScene struct.
+ * @date 04/03/2026
+ * @brief Intermediary helper function to draw scenes.
  *
- * @param self : Scene struct pointer
- * @return An Error struct that describes whether or not the
- * StartMenuScene struct in question was successfully destroyed
- */
-Error destroyStartMenuScene(Scene* self) {
-    if (!self)
-        return createError(ESTAT_RENDER_SCENE_DESTROY,
-                           "Could not destroy a NULL scene");
-
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
-    StartMenuScene* scene = (StartMenuScene*) self;
-    SDL_DestroyTexture(scene->base.bgTexture);
-
-    err = destroyErrorContainer(scene->base.errContainer);
-    if (err.statusNum != ESTAT_MAIN_NONE)
-        return err;
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        return err;
-    }
-
-    free(scene->base.btns);
-    free(self);
-    return err;
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/03/26
- * @brief Handles the logic for adding a Button struct to a
- * StartMenuScene struct.
- *
+ * @param wManager : WindowManager struct pointer
  * @param scene : StartMenuScene struct pointer
- * @param btn : Button struct pointer
  * @return An Error struct that describes whether or not the
- * Button struct was successfully added to the StartMenuScene
+ * scene was successfully drawn
  */
-Error addBtnToStartMenuScene(StartMenuScene* scene, Button* btn) {
-    if (!scene)
-        return createError(ESTAT_RENDER_SCENE_ADD_BTN,
-                           "Could not add a Button to a NULL scene");
-    if (!btn)
-        return createError(ESTAT_RENDER_SCENE_ADD_BTN,
-                           "Could not add a NULL button to a scene");
+Error drawScene(WindowManager* wManager) {
+    switch (wManager->currentScene->type) {
+        case SCENE_TYPE_START_MENU:
+            return drawStartMenuScene(wManager,
+                                      (StartMenuScene*) wManager->currentScene);
+            break;
+        default:
+            return createError(ESTAT_RENDER_SCENE_DRAW,
+                               "Could not draw a NULL scene");
+            break;
+    }
+}
 
-    if (scene->base.btnCount == scene->base.btnCap) {
-        scene->base.btnCap = (scene->base.btnCount + 1) * 2;
-        Button** orig = scene->base.btns;
-        Button** temp = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
-        if (!temp)
-            return createError(
-                ESTAT_RENDER_SCENE_ADD_BTN,
-                "Could not reallocate a larger Button array field");
+/**
+ * @author DargoDargonyx
+ * @date 04/03/2026
+ * @brief Handles the logic for drawing the game start menu.
+ *
+ * @param wManager : WindowManager struct pointer
+ * @param scene : StartMenuScene struct pointer
+ * @return An Error struct that describes whether or not the
+ * start menu was successfully drawn
+ */
+Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
 
-        for (int i = 0; i < scene->base.btnCount; i++) {
-            temp[i] = orig[i];
+    SDL_RenderClear(wManager->renderer);
+    SDL_RenderCopy(wManager->renderer, scene->base.bgTexture, NULL, NULL);
+
+    for (int i = 0; i < scene->base.btnCount; i++) {
+        Button* btn = scene->base.btns[i];
+        switch (btn->type) {
+            case BTN_TYPE_IMG: {
+                IMG_Button* imgBtn = (IMG_Button*) btn;
+                SDL_RenderCopy(wManager->renderer, imgBtn->base.bgTexture, NULL,
+                               &imgBtn->base.rect);
+                break;
+            }
+            case BTN_TYPE_TXT: {
+                TXT_Button* txtBtn = (TXT_Button*) btn;
+                SDL_RenderCopy(wManager->renderer, txtBtn->base.bgTexture, NULL,
+                               &txtBtn->base.rect);
+
+                int txtW, txtH;
+                SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
+                SDL_Rect txtDest;
+                txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
+                txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
+                txtDest.w = txtW;
+                txtDest.h = txtH;
+                SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
+                               &txtDest);
+
+                break;
+            }
+            default:
+                break;
         }
-        free(orig);
-        scene->base.btns = temp;
     }
 
-    scene->base.btns[scene->base.btnCount] = btn;
-    scene->base.btnCount++;
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return err;
 }
