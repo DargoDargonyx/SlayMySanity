@@ -11,8 +11,9 @@ LDFLAGS := $(shell sdl2-config --libs) \
 
 SRC := $(SRC_DIR)/main.c $(SRC_DIR)/core/ui/font.c \
 	   $(SRC_DIR)/core/ui/widget.c $(SRC_DIR)/core/engine.c \
-	   $(SRC_DIR)/core/render.c $(SRC_DIR)/core/scene.c \
-	   $(SRC_DIR)/util/error.c $(SRC_DIR)/util/window.c
+	   $(SRC_DIR)/core/map.c $(SRC_DIR)/core/render.c \
+	   $(SRC_DIR)/core/scene.c $(SRC_DIR)/util/error.c \
+	   $(SRC_DIR)/util/window.c
 
 OBJ := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 
