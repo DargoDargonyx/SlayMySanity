@@ -44,13 +44,6 @@ typedef struct {
     int* tiles;
 } Map;
 
-// Helper struct to clean up some clutter and to intuitively
-// show when an x and y relate to the world/map position
-typedef struct {
-    int x;
-    int y;
-} Pos;
-
 Map* createTestMap(SDL_Renderer* renderer);
 Error destroyMap(Map* self);
 

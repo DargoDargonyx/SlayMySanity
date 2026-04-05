@@ -9,12 +9,13 @@
 #include "core/scene.h"
 #include "ui/widget.h"
 #include "util/error.h"
+#include "world/physics.h"
 
 #include <SDL2/SDL_image.h>
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Intermediary helper function to draw scenes.
  *
  * @param wManager : WindowManager struct pointer
