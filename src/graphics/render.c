@@ -222,11 +222,12 @@ Error drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
 
     for (int row = startRow; row <= endRow; row++) {
         for (int col = startCol; col <= endCol; col++) {
-            int sX = (int) (col * tileWidth * cam->zoom) - cam->pos.x;
-            int sY = (int) (row * tileHeight * cam->zoom) - cam->pos.y;
+            Pos sPos;
+            sPos.x = col * tileWidth;
+            sPos.y = row * tileHeight;
             int index = (row * map->size.w) + col;
             int tileId = map->tiles[index];
-            err = drawTile(renderer, cam, map->tileset, tileId, (Pos){sX, sY});
+            err = drawTile(renderer, cam, map->tileset, tileId, sPos);
             if (err.statusNum != ESTAT_MAIN_NONE)
                 return err;
         }

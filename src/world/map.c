@@ -23,8 +23,8 @@
  */
 Map* createTestMap(SDL_Renderer* renderer) {
     Map* map = (Map*) malloc(sizeof(Map));
-    map->size.w = 10;
-    map->size.h = 10;
+    map->size.w = 100;
+    map->size.h = 100;
     map->tiles = (int*) calloc(map->size.w * map->size.h, sizeof(int));
 
     for (int y = 0; y < map->size.h; y++) {

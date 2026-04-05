@@ -1,7 +1,7 @@
 /**
  * @file engine.h
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -13,6 +13,8 @@
 #include "util/window.h"
 
 #include <SDL2/SDL.h>
+
+#define TARGET_FPS 60
 
 Error runGameLoop(WindowManager* wManager);
 
