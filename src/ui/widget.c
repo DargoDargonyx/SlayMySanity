@@ -5,7 +5,7 @@
  * @brief Handles the logic for UI widgets.
  */
 
-#include "core/ui/widget.h"
+#include "ui/widget.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>

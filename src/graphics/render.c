@@ -5,9 +5,9 @@
  * @brief Handles the logic for rendering the game.
  */
 
-#include "core/render.h"
+#include "graphics/render.h"
 #include "core/scene.h"
-#include "core/ui/widget.h"
+#include "ui/widget.h"
 #include "util/error.h"
 
 #include <SDL2/SDL_image.h>

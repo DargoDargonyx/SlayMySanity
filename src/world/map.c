@@ -5,7 +5,7 @@
  * @brief Handles the logic for maps and tiles.
  */
 
-#include "core/map.h"
+#include "world/map.h"
 #include "util/error.h"
 
 #include <SDL2/SDL.h>

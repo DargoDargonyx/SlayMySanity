@@ -8,8 +8,6 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include "util/error.h"
-
 #include <SDL2/SDL_ttf.h>
 
 #define F_JETBRAINS_MONO 1

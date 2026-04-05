@@ -8,9 +8,9 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "core/map.h"
-#include "core/ui/widget.h"
+#include "ui/widget.h"
 #include "util/error.h"
+#include "world/map.h"
 
 #include <SDL2/SDL.h>
 

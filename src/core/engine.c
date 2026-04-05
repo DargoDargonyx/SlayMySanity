@@ -6,9 +6,9 @@
  */
 
 #include "core/engine.h"
-#include "core/render.h"
 #include "core/scene.h"
-#include "core/ui/widget.h"
+#include "graphics/render.h"
+#include "ui/widget.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>

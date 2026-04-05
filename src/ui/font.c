@@ -5,8 +5,7 @@
  * @brief Handles the logic for fonts.
  */
 
-#include "core/ui/font.h"
-#include "util/error.h"
+#include "ui/font.h"
 
 #include <SDL2/SDL_ttf.h>
 

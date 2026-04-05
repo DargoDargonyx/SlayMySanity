@@ -7,10 +7,10 @@
 
 #include "core/scene.h"
 #include "core/engine.h"
-#include "core/map.h"
-#include "core/ui/widget.h"
+#include "ui/widget.h"
 #include "util/error.h"
 #include "util/window.h"
+#include "world/map.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
