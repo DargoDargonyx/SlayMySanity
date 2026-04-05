@@ -8,10 +8,16 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include "core/ui/font.h"
+#include "ui/font.h"
 #include "util/error.h"
 
 #include <SDL2/SDL.h>
+
+// Orderered verticallu such that,
+// { IDLE }
+// { HOVER }
+// { PRESSED }
+#define BTN_SPRITESHEET_SIZE 3
 
 #define BTN_TYPE_IMG 1
 #define BTN_TYPE_TXT 2

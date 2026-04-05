@@ -19,7 +19,9 @@ int pointInRect(int x, int y, SDL_Rect* r);
 void handleButtonEvent(Button* btn, SDL_Event* e);
 Button** getSceneButtons(Scene* scene);
 
-void testStartButton(void*);
-void testOptionButton(void*);
+void loadStartMenuScene(void* wManager);
+void loadOptionsMenuScene(void* wManager);
+void loadPlayScene(void* wManager);
+void exitGameLoop(void* wManager);
 
 #endif

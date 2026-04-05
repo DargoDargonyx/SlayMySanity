@@ -5,7 +5,7 @@
  * @brief Handles the logic for UI widgets.
  */
 
-#include "core/ui/widget.h"
+#include "ui/widget.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -49,10 +49,10 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
     SDL_QueryTexture(bgTexture, NULL, NULL, &w, &h);
 
     btn->base.bgTexture = bgTexture;
-    btn->base.rect.x = x - (bgSurface->w / 2);
-    btn->base.rect.y = y - (bgSurface->h / (2 * spriteNum));
+    btn->base.rect.x = (int) (x - (bgSurface->w / 2));
+    btn->base.rect.y = (int) (y - (bgSurface->h / (2 * spriteNum)));
     btn->base.rect.w = w;
-    btn->base.rect.h = h / spriteNum;
+    btn->base.rect.h = (int) (h / spriteNum);
 
     return btn;
 }
@@ -115,10 +115,10 @@ TXT_Button* createTxtButton(ErrorContainer* errContainer,
     int w, h;
     SDL_QueryTexture(bgTexture, NULL, NULL, &w, &h);
     btn->base.bgTexture = bgTexture;
-    btn->base.rect.x = x - (bgSurface->w / 2);
-    btn->base.rect.y = y - (bgSurface->h / (2 * spriteNum));
+    btn->base.rect.x = (int) (x - (bgSurface->w / 2));
+    btn->base.rect.y = (int) (y - (bgSurface->h / (2 * spriteNum)));
     btn->base.rect.w = w;
-    btn->base.rect.h = h / spriteNum;
+    btn->base.rect.h = (int) (h / spriteNum);
     SDL_FreeSurface(bgSurface);
 
     btn->font = font;
@@ -157,7 +157,6 @@ Error destroyTxtButton(Button* self) {
     TXT_Button* btn = (TXT_Button*) self;
     SDL_DestroyTexture(btn->base.bgTexture);
     SDL_DestroyTexture(btn->txtTexture);
-    err = destroyFont(btn->font);
     free(btn);
     return err;
 }

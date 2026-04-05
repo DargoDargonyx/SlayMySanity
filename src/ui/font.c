@@ -5,8 +5,7 @@
  * @brief Handles the logic for fonts.
  */
 
-#include "core/ui/font.h"
-#include "util/error.h"
+#include "ui/font.h"
 
 #include <SDL2/SDL_ttf.h>
 
@@ -43,23 +42,4 @@ Font createFont(int fontNum, int size, SDL_Color color) {
     font.font = TTF_OpenFont(filename, font.size);
     font.color = color;
     return font;
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/03/2026
- * @brief Handles the logic for destroying the fields of a Font struct.
- *
- * @param self : Font struct pointer
- * @return An Error struct that describes whether or not the Font
- * struct in question was successfully destroyed
- */
-Error destroyFont(Font* self) {
-    if (!self)
-        return createError(ESTAT_FONT_DESTROY, "Could not destroy a NULL font");
-    if (self->font) {
-        TTF_CloseFont(self->font);
-        self->font = NULL;
-    }
-    return createError(ESTAT_MAIN_NONE, NULL);
 }

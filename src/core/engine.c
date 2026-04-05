@@ -1,21 +1,21 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Handles the logic for the game engine.
  */
 
 #include "core/engine.h"
-#include "core/render.h"
 #include "core/scene.h"
-#include "core/ui/widget.h"
+#include "graphics/render.h"
+#include "ui/widget.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 /**
  * @author DargoDargonyx
- * @date 04/03/26
+ * @date 04/04/26
  * @brief Handles the logic for running the main game loop.
  *
  * @param wManager : WindowManager struct pointer
@@ -24,27 +24,26 @@
  */
 Error runGameLoop(WindowManager* wManager) {
     SDL_Event event;
-    int running = 1;
-
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    StartMenuScene startMenuScene;
-    err = initStartMenuScene(wManager, &startMenuScene);
-    if (err.statusNum != ESTAT_MAIN_NONE) {
-        startMenuScene.base.destroy((Scene*) &startMenuScene);
-        return err;
-    }
 
-    wManager->currentScene = (Scene*) &startMenuScene;
-    while (running) {
+    // Initializing the current scene to the start menu
+    loadStartMenuScene((void*) wManager);
+    while (wManager->running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
-                running = 0;
+                wManager->running = 0;
 
             for (int i = 0; i < wManager->currentScene->btnCount; i++) {
                 handleButtonEvent(wManager->currentScene->btns[i], &event);
             }
         }
 
+        if (wManager->errContainer->errCount > 0) {
+            Error tmpErr = clearCurrentScene(wManager);
+            if (tmpErr.statusNum != ESTAT_MAIN_NONE)
+                return tmpErr;
+            return wManager->errContainer->errs[0];
+        }
         err = drawScene(wManager);
         if (err.statusNum != ESTAT_MAIN_NONE) {
             IMG_Quit();
@@ -53,7 +52,7 @@ Error runGameLoop(WindowManager* wManager) {
         SDL_RenderPresent(wManager->renderer);
     }
 
-    err = wManager->currentScene->destroy(wManager->currentScene);
+    err = clearCurrentScene(wManager);
     IMG_Quit();
     return err;
 }
@@ -76,7 +75,7 @@ int pointInRect(int x, int y, SDL_Rect* r) {
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Helper function to handle button events.
  *
  * @param btn : Button struct pointer
@@ -106,12 +105,80 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
         y = e->button.y;
         if (btn->state == BTN_PRESSED && pointInRect(x, y, &btn->rect)) {
             if (btn->onClick)
-                btn->onClick(NULL);
+                btn->onClick(btn->userData);
             btn->state = BTN_HOVER;
         }
     }
 }
 
-// temporary test functions
-void testStartButton(void* arg) { printf("Pressed Start Button!\n"); }
-void testOptionButton(void* arg) { printf("Pressed Option Button!\n"); }
+/**
+ * @author DargoDargonyx
+ * @date 04/04/2026
+ * @brief Helper function to handle loading the start menu.
+ *
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ *
+ * @param wManager : void pointer
+ */
+void loadStartMenuScene(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    clearCurrentScene(manager);
+    manager->currentScene = (Scene*) createStartMenuScene(
+        wManager, manager->errContainer, manager->renderer, manager->wWidth,
+        manager->wHeight);
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/04/2026
+ * @brief Helper function to handle loading the main options menu.
+ *
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ *
+ * @param wManager : void pointer
+ */
+void loadOptionsMenuScene(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    clearCurrentScene(manager);
+    manager->currentScene = (Scene*) createOptionsMenuScene(
+        wManager, manager->errContainer, manager->renderer, manager->wWidth,
+        manager->wHeight);
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/04/2026
+ * @brief Helper function to handle loading the playing scene.
+ *
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ *
+ * @param wManager : void pointer
+ */
+void loadPlayScene(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    clearCurrentScene(manager);
+    manager->currentScene = (Scene*) createPlayScene(
+        wManager, manager->errContainer, manager->renderer, manager->wWidth,
+        manager->wHeight);
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/04/2026
+ * @brief Helper function to handle quitting the game.
+ *
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ * @param wManager : void pointer
+ */
+void exitGameLoop(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    manager->running = 0;
+}

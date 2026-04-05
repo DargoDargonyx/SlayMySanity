@@ -1,7 +1,7 @@
 /**
  * @file error.h
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/04/2026
  * @brief Handles the logic for error handling.
  */
 
@@ -21,6 +21,7 @@
 #define ESTAT_WINDOW_INIT 0x10
 #define ESTAT_WINDOW_MANAGER_CREATE 0x11
 #define ESTAT_WINDOW_MANAGER_DESTROY 0x12
+#define ESTAT_WINDOW_SCENE_CLEAR 0x13
 
 // engine
 #define ESTAT_ENGINE_START_LOOP 0x20
