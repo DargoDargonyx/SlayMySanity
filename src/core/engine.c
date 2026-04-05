@@ -119,6 +119,7 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
  * @note The window manager is passed as a void pointer because
  * this function is usually called from the scene.c file where
  * window is not within scope.
+ *
  * @param wManager : void pointer
  */
 void loadStartMenuScene(void* wManager) {
@@ -137,12 +138,32 @@ void loadStartMenuScene(void* wManager) {
  * @note The window manager is passed as a void pointer because
  * this function is usually called from the scene.c file where
  * window is not within scope.
+ *
  * @param wManager : void pointer
  */
 void loadOptionsMenuScene(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     clearCurrentScene(manager);
     manager->currentScene = (Scene*) createOptionsMenuScene(
+        wManager, manager->errContainer, manager->renderer, manager->wWidth,
+        manager->wHeight);
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/04/2026
+ * @brief Helper function to handle loading the playing scene.
+ *
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ *
+ * @param wManager : void pointer
+ */
+void loadPlayScene(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    clearCurrentScene(manager);
+    manager->currentScene = (Scene*) createPlayScene(
         wManager, manager->errContainer, manager->renderer, manager->wWidth,
         manager->wHeight);
 }
@@ -161,6 +182,3 @@ void exitGameLoop(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     manager->running = 0;
 }
-
-// temporary test function
-void testStartButton(void* arg) { printf("Pressed Start Button!\n"); }

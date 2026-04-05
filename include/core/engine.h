@@ -21,9 +21,7 @@ Button** getSceneButtons(Scene* scene);
 
 void loadStartMenuScene(void* wManager);
 void loadOptionsMenuScene(void* wManager);
+void loadPlayScene(void* wManager);
 void exitGameLoop(void* wManager);
-
-void testStartButton(void*);
-void testOptionButton(void*);
 
 #endif

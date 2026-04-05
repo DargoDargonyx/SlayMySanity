@@ -49,10 +49,10 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
     SDL_QueryTexture(bgTexture, NULL, NULL, &w, &h);
 
     btn->base.bgTexture = bgTexture;
-    btn->base.rect.x = x - (bgSurface->w / 2);
-    btn->base.rect.y = y - (bgSurface->h / (2 * spriteNum));
+    btn->base.rect.x = (int) (x - (bgSurface->w / 2));
+    btn->base.rect.y = (int) (y - (bgSurface->h / (2 * spriteNum)));
     btn->base.rect.w = w;
-    btn->base.rect.h = h / spriteNum;
+    btn->base.rect.h = (int) (h / spriteNum);
 
     return btn;
 }
@@ -115,10 +115,10 @@ TXT_Button* createTxtButton(ErrorContainer* errContainer,
     int w, h;
     SDL_QueryTexture(bgTexture, NULL, NULL, &w, &h);
     btn->base.bgTexture = bgTexture;
-    btn->base.rect.x = x - (bgSurface->w / 2);
-    btn->base.rect.y = y - (bgSurface->h / (2 * spriteNum));
+    btn->base.rect.x = (int) (x - (bgSurface->w / 2));
+    btn->base.rect.y = (int) (y - (bgSurface->h / (2 * spriteNum)));
     btn->base.rect.w = w;
-    btn->base.rect.h = h / spriteNum;
+    btn->base.rect.h = (int) (h / spriteNum);
     SDL_FreeSurface(bgSurface);
 
     btn->font = font;

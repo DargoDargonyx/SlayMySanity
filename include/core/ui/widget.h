@@ -13,6 +13,12 @@
 
 #include <SDL2/SDL.h>
 
+// Orderered verticallu such that,
+// { IDLE }
+// { HOVER }
+// { PRESSED }
+#define BTN_SPRITESHEET_SIZE 3
+
 #define BTN_TYPE_IMG 1
 #define BTN_TYPE_TXT 2
 
