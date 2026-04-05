@@ -1,7 +1,7 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -15,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/04/26
+ * @date 04/05/26
  * @brief Handles the logic for running the main game loop.
  *
  * @param wManager : WindowManager struct pointer
@@ -44,7 +44,7 @@ Error runGameLoop(WindowManager* wManager) {
                 return tmpErr;
             return wManager->errContainer->errs[0];
         }
-        err = drawScene(wManager);
+        err = drawCurrentScene(wManager);
         if (err.statusNum != ESTAT_MAIN_NONE) {
             IMG_Quit();
             return err;
@@ -59,51 +59,51 @@ Error runGameLoop(WindowManager* wManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Helper function to check whether or not a point in the scene
  * in inside of a given SDL_Rect.
  *
- * @param x : integer
- * @param y : integer
- * @param r : SDL_Rect pointer
+ * @param pos : Pos struct
+ * @param rect : SDL_Rect pointer
  * @return An integer representation of a boolean for whether or not
  * the given point is inside of the SDL_Rect in question
  */
-int pointInRect(int x, int y, SDL_Rect* r) {
-    return x >= r->x && x <= r->x + r->w && y >= r->y && y <= r->y + r->h;
+int pointInRect(Pos pos, SDL_Rect* rect) {
+    return (pos.x >= rect->x) && (pos.x <= rect->x + rect->w) &&
+           (pos.y >= rect->y) && (pos.y <= rect->y + rect->h);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Helper function to handle button events.
  *
  * @param btn : Button struct pointer
  * @param e : SDL_Event pointer
  */
 void handleButtonEvent(Button* btn, SDL_Event* e) {
-    int x, y;
+    Pos pos;
 
     if (e->type == SDL_MOUSEMOTION) {
-        x = e->motion.x;
-        y = e->motion.y;
-        if (pointInRect(x, y, &btn->rect))
+        pos.x = e->motion.x;
+        pos.y = e->motion.y;
+        if (pointInRect(pos, &btn->rect))
             btn->state = BTN_HOVER;
         else
             btn->state = BTN_IDLE;
     }
 
     if (e->type == SDL_MOUSEBUTTONDOWN) {
-        x = e->button.x;
-        y = e->button.y;
-        if (pointInRect(x, y, &btn->rect))
+        pos.x = e->button.x;
+        pos.y = e->button.y;
+        if (pointInRect(pos, &btn->rect))
             btn->state = BTN_PRESSED;
     }
 
     if (e->type == SDL_MOUSEBUTTONUP) {
-        x = e->button.x;
-        y = e->button.y;
-        if (btn->state == BTN_PRESSED && pointInRect(x, y, &btn->rect)) {
+        pos.x = e->button.x;
+        pos.y = e->button.y;
+        if (btn->state == BTN_PRESSED && pointInRect(pos, &btn->rect)) {
             if (btn->onClick)
                 btn->onClick(btn->userData);
             btn->state = BTN_HOVER;
@@ -113,7 +113,7 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Helper function to handle loading the start menu.
  *
  * @note The window manager is passed as a void pointer because
@@ -126,13 +126,12 @@ void loadStartMenuScene(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     clearCurrentScene(manager);
     manager->currentScene = (Scene*) createStartMenuScene(
-        wManager, manager->errContainer, manager->renderer, manager->wWidth,
-        manager->wHeight);
+        wManager, manager->errContainer, manager->renderer, manager->wSize);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Helper function to handle loading the main options menu.
  *
  * @note The window manager is passed as a void pointer because
@@ -145,13 +144,12 @@ void loadOptionsMenuScene(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     clearCurrentScene(manager);
     manager->currentScene = (Scene*) createOptionsMenuScene(
-        wManager, manager->errContainer, manager->renderer, manager->wWidth,
-        manager->wHeight);
+        wManager, manager->errContainer, manager->renderer, manager->wSize);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Helper function to handle loading the playing scene.
  *
  * @note The window manager is passed as a void pointer because
@@ -164,13 +162,12 @@ void loadPlayScene(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     clearCurrentScene(manager);
     manager->currentScene = (Scene*) createPlayScene(
-        wManager, manager->errContainer, manager->renderer, manager->wWidth,
-        manager->wHeight);
+        wManager, manager->errContainer, manager->renderer, manager->wSize);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Helper function to handle quitting the game.
  *
  * @note The window manager is passed as a void pointer because

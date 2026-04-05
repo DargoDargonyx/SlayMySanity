@@ -19,15 +19,14 @@ typedef struct Scene Scene;
 typedef struct {
     int running;
     const char* name;
-    int wWidth;
-    int wHeight;
+    Size wSize;
     Scene* currentScene;
     SDL_Window* window;
     SDL_Renderer* renderer;
     ErrorContainer* errContainer;
 } WindowManager;
 
-WindowManager* createWindowManager(const char* name, int wWidth, int wHeight);
+WindowManager* createWindowManager(const char* name, Size wSize);
 Error destroyWindowManager(WindowManager* wManager);
 Error clearCurrentScene(WindowManager* wManager);
 
@@ -36,6 +35,6 @@ Error createWindow(WindowManager* wManager);
 Error createRenderer(WindowManager* wManager);
 
 Error initGameWindow(WindowManager* manager);
-Error runGameWindow(const char* name, int wWidth, int wHeight);
+Error runGameWindow(const char* name, Size wSize);
 
 #endif

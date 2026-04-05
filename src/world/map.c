@@ -1,12 +1,13 @@
 /**
  * @file map.c
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for maps and tiles.
  */
 
 #include "world/map.h"
 #include "util/error.h"
+#include "util/helper.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -14,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for creating a Map struct.
  *
  * @param renderer : SDL_Renderer pointer
@@ -22,22 +23,22 @@
  */
 Map* createTestMap(SDL_Renderer* renderer) {
     Map* map = (Map*) malloc(sizeof(Map));
-    map->type = MAP_TYPE_TEST;
-    map->w = 10;
-    map->h = 10;
-    map->tiles = (int*) calloc(map->w * map->h, sizeof(int));
+    map->size.w = 10;
+    map->size.h = 10;
+    map->tiles = (int*) calloc(map->size.w * map->size.h, sizeof(int));
 
-    for (int y = 0; y < map->h; y++) {
-        for (int x = 0; x < map->w; x++) {
-            int index = (y * map->w) + x;
+    for (int y = 0; y < map->size.h; y++) {
+        for (int x = 0; x < map->size.w; x++) {
+            int index = (y * map->size.w) + x;
             map->tiles[index] = TILE_TYPE_GRASS;
         }
     }
 
     const char* spritesheetPath = "../assets/sprites/tiles/test_tiles.png";
+    Size tileSize = {TEST_TILE_W, TEST_TILE_H};
+    Size sheetSize = {TEST_TILESET_ROWS, TEST_TILESET_COLS};
     map->tileset =
-        createTileset(renderer, spritesheetPath, TEST_TILE_W, TEST_TILE_H,
-                      TEST_TILESET_ROWS, TEST_TILESET_COLS);
+        createTileset(renderer, spritesheetPath, tileSize, sheetSize);
 
     return map;
 }
@@ -64,19 +65,17 @@ Error destroyMap(Map* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for creating a Tileset struct.
  *
  * @param renderer : SDL_Renderer pointer
  * @param spritesheetPath : c-style string literal
- * @param iW : integer
- * @param iH : integer
- * @param r : integer
- * @param c : integer
+ * @param tileSize : Size struct
+ * @param sheetSize : Size struct
  * @return A pointer to the newly created Tileset struct
  */
 Tileset* createTileset(SDL_Renderer* renderer, const char* spritesheetPath,
-                       int tW, int tH, int r, int c) {
+                       Size tileSize, Size sheetSize) {
 
     Tileset* tileset = (Tileset*) malloc(sizeof(Tileset));
     SDL_Surface* surface = IMG_Load(spritesheetPath);
@@ -84,10 +83,8 @@ Tileset* createTileset(SDL_Renderer* renderer, const char* spritesheetPath,
     SDL_FreeSurface(surface);
 
     tileset->texture = texture;
-    tileset->tW = tW;
-    tileset->tH = tH;
-    tileset->rows = r;
-    tileset->cols = c;
+    tileset->tileSize = tileSize;
+    tileset->sheetSize = sheetSize;
 
     return tileset;
 }

@@ -10,6 +10,7 @@
 
 #include "ui/font.h"
 #include "util/error.h"
+#include "util/helper.h"
 
 #include <SDL2/SDL.h>
 
@@ -19,14 +20,12 @@
 // { PRESSED }
 #define BTN_SPRITESHEET_SIZE 3
 
-#define BTN_TYPE_IMG 1
-#define BTN_TYPE_TXT 2
-
+typedef enum { IMG, TXT } ButtonType;
 typedef enum { BTN_IDLE, BTN_HOVER, BTN_PRESSED } ButtonState;
 
 typedef struct Button Button;
 struct Button {
-    int type;
+    ButtonType type;
     Error (*destroy)(Button* self);
     ButtonState state;
     void (*onClick)(void* data);
@@ -49,12 +48,12 @@ typedef struct {
 
 IMG_Button* createImgButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y, int spriteNum);
+                            Pos pos, int spriteNum);
 Error destroyImgButton(Button* self);
 
 TXT_Button* createTxtButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y, int spriteNum, const char* txt,
+                            Pos pos, int spriteNum, const char* txt,
                             Font* font);
 Error destroyTxtButton(Button* self);
 

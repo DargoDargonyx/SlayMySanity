@@ -1,7 +1,7 @@
 /**
  * @file camera.c
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for the scene viewing.
  */
 
@@ -11,20 +11,20 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for creating a new Cam struct.
  *
  * @param origPos : Pos struct
- * @param viewWidth : integer
- * @param viewHeight : integer
+ * @param size : Size struct
+ * @param zoom : integer
  * @return An Error struct that describes whether or not the
  * Cam struct was successfully created
  */
-Cam* createCamera(Pos origPos, int viewWidth, int viewHeight) {
+Cam* createCamera(Pos origPos, Size size, int zoom) {
     Cam* cam = (Cam*) malloc(sizeof(Cam));
     cam->pos = origPos;
-    cam->viewWidth = viewWidth;
-    cam->viewHeight = viewHeight;
+    cam->size = size;
+    cam->zoom = zoom;
     return cam;
 }
 

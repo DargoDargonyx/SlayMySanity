@@ -9,13 +9,14 @@
 #define ENGINE_H
 
 #include "util/error.h"
+#include "util/helper.h"
 #include "util/window.h"
 
 #include <SDL2/SDL.h>
 
 Error runGameLoop(WindowManager* wManager);
 
-int pointInRect(int x, int y, SDL_Rect* r);
+int pointInRect(Pos pos, SDL_Rect* rect);
 void handleButtonEvent(Button* btn, SDL_Event* e);
 Button** getSceneButtons(Scene* scene);
 

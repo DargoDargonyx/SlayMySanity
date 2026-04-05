@@ -9,15 +9,15 @@
 #define CAMERA_H
 
 #include "util/error.h"
-#include "world/physics.h"
+#include "util/helper.h"
 
 typedef struct {
     Pos pos;
-    int viewWidth;
-    int viewHeight;
+    Size size;
+    int zoom;
 } Cam;
 
-Cam* createCamera(Pos origPos, int viewWidth, int viewHeight);
+Cam* createCamera(Pos origPos, Size size, int zoom);
 Error destroyCamera(Cam* self);
 
 #endif

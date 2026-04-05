@@ -8,9 +8,4 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-typedef struct {
-    int x;
-    int y;
-} Pos;
-
 #endif
