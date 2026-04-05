@@ -10,7 +10,7 @@
 
 #include <SDL2/SDL_ttf.h>
 
-#define F_JETBRAINS_MONO 1
+typedef enum { JETBRAINS_MONO } FontType;
 
 typedef struct {
     TTF_Font* font;
@@ -18,6 +18,6 @@ typedef struct {
     int size;
 } Font;
 
-Font createFont(int fontNum, int size, SDL_Color color);
+Font createFont(FontType type, int size, SDL_Color color);
 
 #endif

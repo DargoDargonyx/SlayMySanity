@@ -1,12 +1,13 @@
 /**
  * @file scene.c
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for scenes.
  */
 
 #include "core/scene.h"
 #include "core/engine.h"
+#include "graphics/camera.h"
 #include "ui/widget.h"
 #include "util/error.h"
 #include "util/window.h"
@@ -57,7 +58,7 @@ Error addBtnToScene(Scene* scene, Button* btn) {
 
 /**
  * @author DargoDargonyx
- * @date 04/04/26
+ * @date 04/05/26
  * @brief Handles the logic for creating a StartMenuScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -66,28 +67,26 @@ Error addBtnToScene(Scene* scene, Button* btn) {
  * @param wManager : void pointer
  * @param errContainer : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
- * @param w : integer
- * @param h : integer
+ * @param size : Size struct
  * @return An Error struct that describes whether or not the
  * StartMenuScene struct in question was successfully created
  */
 StartMenuScene* createStartMenuScene(void* wManager,
                                      ErrorContainer* errContainer,
-                                     SDL_Renderer* renderer, int w, int h) {
+                                     SDL_Renderer* renderer, Size size) {
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
 
     StartMenuScene* scene = (StartMenuScene*) malloc(sizeof(StartMenuScene));
-    scene->base.type = SCENE_TYPE_START_MENU;
+    scene->base.type = START_MENU;
     scene->base.destroy = destroyStartMenuScene;
     scene->base.btnCount = 0;
     scene->base.btnCap = SCENE_BTN_INIT_CAP;
     scene->base.btns = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
 
-    scene->base.w = w;
-    scene->base.h = h;
+    scene->base.size = size;
     SDL_Color white = {255, 255, 255, 255};
-    Font font = createFont(F_JETBRAINS_MONO, 36, white);
+    Font font = createFont(JETBRAINS_MONO, 36, white);
 
     // Background
     SDL_Surface* bgSurface =
@@ -99,15 +98,16 @@ StartMenuScene* createStartMenuScene(void* wManager,
                         "Failed to load start menu background image"));
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
-    scene->base.bgTexture = bgTexture;
+    scene->bgTexture = bgTexture;
 
     // Start Button
     const char* sbImgPath = "../assets/sprites/ui/start_menu/main_button.png";
     const char* sbText = "Start Game";
     int sbVertSpacing = -35;
+    Pos sbPos = {scene->base.size.w / 2,
+                 (scene->base.size.h / 2) + sbVertSpacing};
     TXT_Button* sButton =
-        createTxtButton(errContainer, renderer, sbImgPath, scene->base.w / 2,
-                        (scene->base.h / 2) + sbVertSpacing,
+        createTxtButton(errContainer, renderer, sbImgPath, sbPos,
                         BTN_SPRITESHEET_SIZE, sbText, &font);
     sButton->base.onClick = loadPlayScene;
     sButton->base.userData = wManager;
@@ -119,9 +119,10 @@ StartMenuScene* createStartMenuScene(void* wManager,
     const char* obImgPath = "../assets/sprites/ui/start_menu/main_button.png";
     const char* obText = "Options";
     int obVertSpacing = 65;
+    Pos obPos = {scene->base.size.w / 2,
+                 (scene->base.size.h / 2) + obVertSpacing};
     TXT_Button* oButton =
-        createTxtButton(errContainer, renderer, obImgPath, scene->base.w / 2,
-                        (scene->base.h / 2) + obVertSpacing,
+        createTxtButton(errContainer, renderer, obImgPath, obPos,
                         BTN_SPRITESHEET_SIZE, obText, &font);
     oButton->base.onClick = loadOptionsMenuScene;
     oButton->base.userData = wManager;
@@ -130,13 +131,14 @@ StartMenuScene* createStartMenuScene(void* wManager,
         addErrorToContainer(errContainer, err);
 
     // Exit Button
-    const char* exitImgPath = "../assets/sprites/ui/start_menu/main_button.png";
-    const char* exitText = "Exit";
-    int exitVertSpacing = 165;
+    const char* ebImgPath = "../assets/sprites/ui/start_menu/main_button.png";
+    const char* ebText = "Exit";
+    int ebVertSpacing = 165;
+    Pos ebPos = {scene->base.size.w / 2,
+                 (scene->base.size.h / 2) + ebVertSpacing};
     TXT_Button* exitButton =
-        createTxtButton(errContainer, renderer, exitImgPath, scene->base.w / 2,
-                        (scene->base.h / 2) + exitVertSpacing,
-                        BTN_SPRITESHEET_SIZE, exitText, &font);
+        createTxtButton(errContainer, renderer, ebImgPath, ebPos,
+                        BTN_SPRITESHEET_SIZE, ebText, &font);
     exitButton->base.onClick = exitGameLoop;
     exitButton->base.userData = wManager;
     err = addBtnToScene(&scene->base, (Button*) exitButton);
@@ -162,7 +164,7 @@ Error destroyStartMenuScene(Scene* self) {
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
     StartMenuScene* scene = (StartMenuScene*) self;
-    SDL_DestroyTexture(scene->base.bgTexture);
+    SDL_DestroyTexture(scene->bgTexture);
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
@@ -176,7 +178,7 @@ Error destroyStartMenuScene(Scene* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/04/26
+ * @date 04/05/26
  * @brief Handles the logic for creating an OptionsMenuScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -185,29 +187,27 @@ Error destroyStartMenuScene(Scene* self) {
  * @param wManager : void pointer
  * @param errContainer : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
- * @param w : integer
- * @param h : integer
+ * @param size : Size struct
  * @return An Error struct that describes whether or not the
  * OptionsMenuScene struct in question was successfully created
  */
 OptionsMenuScene* createOptionsMenuScene(void* wManager,
                                          ErrorContainer* errContainer,
-                                         SDL_Renderer* renderer, int w, int h) {
+                                         SDL_Renderer* renderer, Size size) {
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
 
     OptionsMenuScene* scene =
         (OptionsMenuScene*) malloc(sizeof(OptionsMenuScene));
-    scene->base.type = SCENE_TYPE_OPTIONS_MENU;
+    scene->base.type = OPTIONS_MENU;
     scene->base.destroy = destroyOptionsMenuScene;
     scene->base.btnCount = 0;
     scene->base.btnCap = SCENE_BTN_INIT_CAP;
     scene->base.btns = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
 
-    scene->base.w = w;
-    scene->base.h = h;
+    scene->base.size = size;
     SDL_Color white = {255, 255, 255, 255};
-    Font font = createFont(F_JETBRAINS_MONO, 36, white);
+    Font font = createFont(JETBRAINS_MONO, 36, white);
 
     // Background
     SDL_Surface* bgSurface =
@@ -219,18 +219,18 @@ OptionsMenuScene* createOptionsMenuScene(void* wManager,
                         "Failed to load start menu background image"));
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
-    scene->base.bgTexture = bgTexture;
+    scene->bgTexture = bgTexture;
 
     // Return button
-    const char* retButtonImgPath =
-        "../assets/sprites/ui/options_menu/main_button.png";
-    const char* retText = "Return";
-    TXT_Button* retButton = createTxtButton(
-        errContainer, renderer, retButtonImgPath, scene->base.w / 2,
-        scene->base.h / 2, BTN_SPRITESHEET_SIZE, retText, &font);
-    retButton->base.onClick = loadStartMenuScene;
-    retButton->base.userData = wManager;
-    err = addBtnToScene(&scene->base, (Button*) retButton);
+    const char* rbImgPath = "../assets/sprites/ui/options_menu/main_button.png";
+    const char* rbText = "Return";
+    Pos rbPos = {scene->base.size.w / 2, scene->base.size.h / 2};
+    TXT_Button* rButton =
+        createTxtButton(errContainer, renderer, rbImgPath, rbPos,
+                        BTN_SPRITESHEET_SIZE, rbText, &font);
+    rButton->base.onClick = loadStartMenuScene;
+    rButton->base.userData = wManager;
+    err = addBtnToScene(&scene->base, (Button*) rButton);
     if (err.statusNum != ESTAT_MAIN_NONE)
         addErrorToContainer(errContainer, err);
 
@@ -253,7 +253,7 @@ Error destroyOptionsMenuScene(Scene* self) {
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
     OptionsMenuScene* scene = (OptionsMenuScene*) self;
-    SDL_DestroyTexture(scene->base.bgTexture);
+    SDL_DestroyTexture(scene->bgTexture);
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
@@ -267,7 +267,7 @@ Error destroyOptionsMenuScene(Scene* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/04/26
+ * @date 04/05/26
  * @brief Handles the logic for creating a PlayScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -276,36 +276,37 @@ Error destroyOptionsMenuScene(Scene* self) {
  * @param wManager : void pointer
  * @param errContainer : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
- * @param w : integer
- * @param h : integer
+ * @param size : Size struct
  * @return An Error struct that describes whether or not the
  * PlayScene struct in question was successfully created
  */
 PlayScene* createPlayScene(void* wManager, ErrorContainer* errContainer,
-                           SDL_Renderer* renderer, int w, int h) {
+                           SDL_Renderer* renderer, Size size) {
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
 
     PlayScene* scene = (PlayScene*) malloc(sizeof(PlayScene));
-    scene->base.type = SCENE_TYPE_PLAY;
+    scene->base.type = PLAY;
     scene->base.destroy = destroyPlayScene;
     scene->base.btnCount = 0;
     scene->base.btnCap = SCENE_BTN_INIT_CAP;
     scene->base.btns = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
-
-    scene->base.w = w;
-    scene->base.h = h;
+    scene->base.size = size;
 
     // map
     scene->map = createTestMap(renderer);
+    int mapWidthPixels = scene->map->tileset->tileSize.w * scene->map->size.w;
+    int mapHeightPixels = scene->map->tileset->tileSize.h * scene->map->size.h;
+    Pos initCamPos = {(mapWidthPixels / 2) - (scene->base.size.w / 2),
+                      (mapHeightPixels / 2) - (scene->base.size.h / 2)};
+    scene->cam = createCamera(initCamPos, scene->base.size, 2);
 
     // Back button
-    int disX = 40;
-    int disY = 40;
+    Pos disPos = {40, 40};
     const char* backButtonImgPath =
         "../assets/sprites/ui/play_scene/back_button.png";
     IMG_Button* backButton =
-        createImgButton(errContainer, renderer, backButtonImgPath, disX, disY,
+        createImgButton(errContainer, renderer, backButtonImgPath, disPos,
                         BTN_SPRITESHEET_SIZE);
     backButton->base.onClick = loadStartMenuScene;
     backButton->base.userData = wManager;
@@ -332,7 +333,6 @@ Error destroyPlayScene(Scene* self) {
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
     PlayScene* scene = (PlayScene*) self;
-    SDL_DestroyTexture(scene->base.bgTexture);
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
@@ -340,6 +340,7 @@ Error destroyPlayScene(Scene* self) {
             return err;
     }
 
+    destroyCamera(scene->cam);
     destroyMap(scene->map);
     free(scene->base.btns);
     return err;

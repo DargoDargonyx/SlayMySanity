@@ -8,4 +8,16 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "util/error.h"
+#include "util/helper.h"
+
+typedef struct {
+    Pos pos;
+    Size size;
+    int zoom;
+} Cam;
+
+Cam* createCamera(Pos origPos, Size size, int zoom);
+Error destroyCamera(Cam* self);
+
 #endif

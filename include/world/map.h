@@ -9,10 +9,9 @@
 #define MAP_H
 
 #include "util/error.h"
+#include "util/helper.h"
 
 #include <SDL2/SDL.h>
-
-#define MAP_TYPE_TEST 1
 
 #define TEST_TILE_W 32
 #define TEST_TILE_H 32
@@ -29,33 +28,22 @@
 #define TILE_TYPE_LAVA 7
 
 typedef struct {
-    int tW;
-    int tH;
-    int rows;
-    int cols;
+    Size tileSize;
+    Size sheetSize;
     SDL_Texture* texture;
 } Tileset;
 
 typedef struct {
-    int type;
-    int w;
-    int h;
+    Size size;
     Tileset* tileset;
     int* tiles;
 } Map;
-
-// Helper struct to clean up some clutter and to intuitively
-// show when an x and y relate to the world/map position
-typedef struct {
-    int x;
-    int y;
-} Pos;
 
 Map* createTestMap(SDL_Renderer* renderer);
 Error destroyMap(Map* self);
 
 Tileset* createTileset(SDL_Renderer* renderer, const char* spritesheetPath,
-                       int tW, int tH, int r, int c);
+                       Size tileSize, Size sheetSize);
 Error destroyTileset(Tileset* self);
 
 #endif

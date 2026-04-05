@@ -1,32 +1,31 @@
 /**
  * @file window.c
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Handles the logic for the window pop up.
  */
 
 #include "util/window.h"
 #include "core/engine.h"
 #include "util/error.h"
+#include "util/helper.h"
 
 #include <stdio.h>
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/05/2026
  * @brief Creates a WindowManager struct.
  *
  * @param name : c-style string constant
- * @param wWidth : integer
- * @param wHeight : integer
+ * @param wSize : Size struct
  * @return A pointer to the created WindowManager struct
  */
-WindowManager* createWindowManager(const char* name, int wWidth, int wHeight) {
+WindowManager* createWindowManager(const char* name, Size wSize) {
     WindowManager* wManager = (WindowManager*) malloc(sizeof(WindowManager));
     wManager->running = 1;
     wManager->name = name;
-    wManager->wWidth = wWidth;
-    wManager->wHeight = wHeight;
+    wManager->wSize = wSize;
     wManager->currentScene = NULL;
     wManager->errContainer = createErrorContainer();
     return wManager;
@@ -97,7 +96,7 @@ Error checkSDLInit() {
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Creates an SDL window for a window manager.
  *
  * @param wManager: WindowManager struct pointer
@@ -107,8 +106,8 @@ Error checkSDLInit() {
 Error createWindow(WindowManager* wManager) {
     SDL_Window* window;
     window = SDL_CreateWindow(wManager->name, SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED, wManager->wWidth,
-                              wManager->wHeight, 0);
+                              SDL_WINDOWPOS_CENTERED, wManager->wSize.w,
+                              wManager->wSize.h, 0);
 
     if (!window)
         return createError(ESTAT_WINDOW_INIT, "Couldn't create SDL window");
@@ -168,17 +167,16 @@ Error initGameWindow(WindowManager* wManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Runs the game window loop.
  *
  * @param name : c-style string constant
- * @param wWidth : integer
- * @param wHeight : integer
+ * @param wSize : Size struct
  * @return An Error struct describing whether or not the
  * window loop ran into an issue
  */
-Error runGameWindow(const char* name, int wWidth, int wHeight) {
-    WindowManager* wManager = createWindowManager(name, wWidth, wHeight);
+Error runGameWindow(const char* name, Size wSize) {
+    WindowManager* wManager = createWindowManager(name, wSize);
     Error err = createError(ESTAT_MAIN_NONE, NULL);
 
     err = initGameWindow(wManager);

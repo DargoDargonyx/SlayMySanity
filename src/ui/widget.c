@@ -1,11 +1,12 @@
 /**
  * @file widget.c
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Handles the logic for UI widgets.
  */
 
 #include "ui/widget.h"
+#include "util/helper.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -14,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Handles the logic for creating an IMG_Button struct.
  *
  * @note The position of the x and y is assumed to be the center of
@@ -23,16 +24,15 @@
  * @param errContainer : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param bgImagePath : c-style string literal
- * @param x : integer
- * @param y : integer
+ * @param pos : Pos struct
  * @return A pointer to the newly created IMG_Button struct
  */
 IMG_Button* createImgButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y, int spriteNum) {
+                            Pos pos, int spriteNum) {
 
     IMG_Button* btn = (IMG_Button*) malloc(sizeof(IMG_Button));
-    btn->base.type = BTN_TYPE_IMG;
+    btn->base.type = IMG;
     btn->base.destroy = destroyImgButton;
     btn->base.onClick = NULL;
     btn->base.state = BTN_IDLE;
@@ -45,14 +45,14 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
 
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
-    int w, h;
-    SDL_QueryTexture(bgTexture, NULL, NULL, &w, &h);
+    Size size;
+    SDL_QueryTexture(bgTexture, NULL, NULL, &size.w, &size.h);
 
     btn->base.bgTexture = bgTexture;
-    btn->base.rect.x = (int) (x - (bgSurface->w / 2));
-    btn->base.rect.y = (int) (y - (bgSurface->h / (2 * spriteNum)));
-    btn->base.rect.w = w;
-    btn->base.rect.h = (int) (h / spriteNum);
+    btn->base.rect.x = (int) (pos.x - (bgSurface->w / 2));
+    btn->base.rect.y = (int) (pos.y - (bgSurface->h / (2 * spriteNum)));
+    btn->base.rect.w = size.w;
+    btn->base.rect.h = (int) (size.h / spriteNum);
 
     return btn;
 }
@@ -79,7 +79,7 @@ Error destroyImgButton(Button* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Handles the logic for creating a TXT_Button struct.
  *
  * @note The position of the x and y is assumed to be the center of
@@ -88,19 +88,18 @@ Error destroyImgButton(Button* self) {
  * @param errContainer : ErroContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param bgImagePath : c-style string literal
- * @param x : integer
- * @param y : integer
+ * @param pos : Pos struct
  * @param txt : c-style string literal
  * @param font : Font struct pointer
  * @return A pointer to the newly created TXT_Button struct
  */
 TXT_Button* createTxtButton(ErrorContainer* errContainer,
                             SDL_Renderer* renderer, const char* bgImagePath,
-                            int x, int y, int spriteNum, const char* txt,
+                            Pos pos, int spriteNum, const char* txt,
                             Font* font) {
 
     TXT_Button* btn = (TXT_Button*) malloc(sizeof(TXT_Button));
-    btn->base.type = BTN_TYPE_TXT;
+    btn->base.type = TXT;
     btn->base.destroy = destroyTxtButton;
     btn->base.onClick = NULL;
     btn->base.state = BTN_IDLE;
@@ -111,14 +110,14 @@ TXT_Button* createTxtButton(ErrorContainer* errContainer,
             errContainer, createError(ESTAT_RENDER_LOAD_IMG,
                                       "Couldn't load button background image"));
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
+    Size size;
+    SDL_QueryTexture(bgTexture, NULL, NULL, &size.w, &size.h);
 
-    int w, h;
-    SDL_QueryTexture(bgTexture, NULL, NULL, &w, &h);
     btn->base.bgTexture = bgTexture;
-    btn->base.rect.x = (int) (x - (bgSurface->w / 2));
-    btn->base.rect.y = (int) (y - (bgSurface->h / (2 * spriteNum)));
-    btn->base.rect.w = w;
-    btn->base.rect.h = (int) (h / spriteNum);
+    btn->base.rect.x = (int) (pos.x - (bgSurface->w / 2));
+    btn->base.rect.y = (int) (pos.y - (bgSurface->h / (2 * spriteNum)));
+    btn->base.rect.w = size.w;
+    btn->base.rect.h = (int) (size.h / spriteNum);
     SDL_FreeSurface(bgSurface);
 
     btn->font = font;

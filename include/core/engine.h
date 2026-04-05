@@ -1,7 +1,7 @@
 /**
  * @file engine.h
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/05/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -9,13 +9,16 @@
 #define ENGINE_H
 
 #include "util/error.h"
+#include "util/helper.h"
 #include "util/window.h"
 
 #include <SDL2/SDL.h>
 
+#define TARGET_FPS 60
+
 Error runGameLoop(WindowManager* wManager);
 
-int pointInRect(int x, int y, SDL_Rect* r);
+int pointInRect(Pos pos, SDL_Rect* rect);
 void handleButtonEvent(Button* btn, SDL_Event* e);
 Button** getSceneButtons(Scene* scene);
 
