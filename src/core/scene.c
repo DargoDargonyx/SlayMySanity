@@ -1,7 +1,7 @@
 /**
  * @file scene.c
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/08/2026
  * @brief Handles the logic for scenes.
  */
 
@@ -18,7 +18,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/03/26
+ * @date 04/08/26
  * @brief Handles the logic for adding a Button struct to a
  * StartMenuScene struct.
  *
@@ -44,15 +44,12 @@ Error addBtnToScene(Scene* scene, Button* btn) {
                 ESTAT_SCENE_ADD_BTN,
                 "Could not reallocate a larger Button array field");
 
-        for (int i = 0; i < scene->btnCount; i++) {
-            temp[i] = orig[i];
-        }
+        for (int i = 0; i < scene->btnCount; i++) { temp[i] = orig[i]; }
         free(orig);
         scene->btns = temp;
     }
 
-    scene->btns[scene->btnCount] = btn;
-    scene->btnCount++;
+    scene->btns[scene->btnCount++] = btn;
     return createError(ESTAT_MAIN_NONE, NULL);
 }
 
@@ -168,8 +165,7 @@ Error destroyStartMenuScene(Scene* self) {
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err.statusNum != ESTAT_MAIN_NONE)
-            return err;
+        if (err.statusNum != ESTAT_MAIN_NONE) return err;
     }
 
     free(scene->base.btns);
@@ -257,8 +253,7 @@ Error destroyOptionsMenuScene(Scene* self) {
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err.statusNum != ESTAT_MAIN_NONE)
-            return err;
+        if (err.statusNum != ESTAT_MAIN_NONE) return err;
     }
 
     free(scene->base.btns);
@@ -336,8 +331,7 @@ Error destroyPlayScene(Scene* self) {
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err.statusNum != ESTAT_MAIN_NONE)
-            return err;
+        if (err.statusNum != ESTAT_MAIN_NONE) return err;
     }
 
     destroyCamera(scene->cam);

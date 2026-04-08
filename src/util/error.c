@@ -1,7 +1,7 @@
 /**
  * @file error.c
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/08/2026
  * @brief Handles the logic for error handling.
  */
 
@@ -28,7 +28,7 @@ Error createError(int statusNum, const char* msg) {
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/08/2026
  * @brief Gets a quick description of an error.
  *
  * This function gets a quick description of an error
@@ -58,6 +58,16 @@ char* getErrorStatusDesc(Error* err) {
             break;
         case ESTAT_ERR_CONTAINER_ADD:
             sprintf(str, "Error Container Addition Error");
+            break;
+        // animation
+        case ESTAT_ANIM_SEQ_ADD_FRAME:
+            sprintf(str, "Animation Sequence Addition Error");
+            break;
+        case ESTAT_ANIM_MANAGER_ADD_SEQ:
+            sprintf(str, "Animation Manager Addition Error");
+            break;
+        case ESTAT_ANIM_LOAD_IMG:
+            sprintf(str, "Animation Image Loading Error");
             break;
         // window
         case ESTAT_WINDOW_INIT:
@@ -154,7 +164,7 @@ Error destroyErrorContainer(ErrorContainer* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/08/2026
  * @brief Handles the logic for adding an Error struct to an
  * Error Container struct.
  *
@@ -175,14 +185,11 @@ Error addErrorToContainer(ErrorContainer* container, Error err) {
                 ESTAT_ERR_CONTAINER_ADD,
                 "Could not reallocate a larger Error array field");
 
-        for (int i = 0; i < container->errCount; i++) {
-            temp[i] = orig[i];
-        }
+        for (int i = 0; i < container->errCount; i++) { temp[i] = orig[i]; }
         free(orig);
         container->errs = temp;
     }
 
-    container->errs[container->errCount] = err;
-    container->errCount++;
+    container->errs[container->errCount++] = err;
     return createError(ESTAT_MAIN_NONE, NULL);
 }
