@@ -1,7 +1,7 @@
 /**
  * @file input.c
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/08/2026
  * @brief Handles the logic for user input.
  */
 
@@ -9,6 +9,7 @@
 #include "graphics/camera.h"
 #include "ui/widget.h"
 #include "util/helper.h"
+#include "world/player.h"
 
 #include <SDL2/SDL.h>
 
@@ -30,6 +31,28 @@ int pointInRect(Pos pos, SDL_Rect* rect) {
 
 /**
  * @author DargoDargonyx
+ * @date 04/08/2026
+ * @brief Handles the logic for player events.
+ *
+ * @param player : Player struct pointer
+ * @param dt : float
+ */
+void handlePlayerEvent(Player* player, float dt) {
+    const Uint8* keys = SDL_GetKeyboardState(NULL);
+    float distance = 10.0f * dt * player->speed;
+
+    if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP])
+        player->worldPos.y -= distance;
+    if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN])
+        player->worldPos.y += distance;
+    if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT])
+        player->worldPos.x -= distance;
+    if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT])
+        player->worldPos.x += distance;
+}
+
+/**
+ * @author DargoDargonyx
  * @date 04/05/2026
  * @brief Handles the logic for button events.
  *
@@ -42,25 +65,21 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
     if (e->type == SDL_MOUSEMOTION) {
         pos.x = e->motion.x;
         pos.y = e->motion.y;
-        if (pointInRect(pos, &btn->rect))
-            btn->state = BTN_HOVER;
-        else
-            btn->state = BTN_IDLE;
+        if (pointInRect(pos, &btn->rect)) btn->state = BTN_HOVER;
+        else btn->state = BTN_IDLE;
     }
 
     if (e->type == SDL_MOUSEBUTTONDOWN) {
         pos.x = e->button.x;
         pos.y = e->button.y;
-        if (pointInRect(pos, &btn->rect))
-            btn->state = BTN_PRESSED;
+        if (pointInRect(pos, &btn->rect)) btn->state = BTN_PRESSED;
     }
 
     if (e->type == SDL_MOUSEBUTTONUP) {
         pos.x = e->button.x;
         pos.y = e->button.y;
         if (btn->state == BTN_PRESSED && pointInRect(pos, &btn->rect)) {
-            if (btn->onClick)
-                btn->onClick(btn->userData);
+            if (btn->onClick) btn->onClick(btn->userData);
             btn->state = BTN_HOVER;
         }
     }
@@ -68,33 +87,50 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/08/2026
  * @brief Handles the logic for checking whether or not
  * the user inputted a key to move the camera.
  *
  * @param cam : Camera struct pointer
- * @param maxBounds : Pos struct
- * @param deltaTime : float
+ * @param maxBounds : Size struct
+ * @param dt : float
  */
-void checkCameraMovement(Cam* cam, Pos maxBounds, float deltaTime) {
-    const Uint8* keys = SDL_GetKeyboardState(NULL);
-    float speed = (500.0f * deltaTime) / cam->zoom;
+void handleCameraMovement(Cam* cam, Size maxWorldBounds, float dt) {
+    float movement = (500.0f * dt) / cam->zoom;
 
-    if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP])
-        cam->pos.y -= speed;
-    if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN])
-        cam->pos.y += speed;
-    if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT])
-        cam->pos.x -= speed;
-    if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT])
-        cam->pos.x += speed;
+    if (cam->player) {
+        float distX = cam->player->worldPos.x - cam->worldPos.x;
+        float distY = cam->player->worldPos.y - cam->worldPos.y;
+        printf("Distance {%f, %f}", distX, distY);
+        if (distX < 0) {
+            if (0 - distX < movement) cam->worldPos.x += distX;
+            else cam->worldPos.x -= movement;
+        }
+        if (distX > 0) {
+            if (distX < movement) cam->worldPos.x += distX;
+            else cam->worldPos.x -= movement;
+        }
+        if (distY < 0) {
+            if (0 - distY < movement) cam->worldPos.y += distY;
+            else cam->worldPos.y -= movement;
+        }
+        if (distY > 0) {
+            if (distY < movement) cam->worldPos.y += distY;
+            else cam->worldPos.y -= movement;
+        }
+    }
 
-    if (cam->pos.x < 0)
-        cam->pos.x = 0;
-    if (cam->pos.y < 0)
-        cam->pos.y = 0;
-    if (cam->pos.x > maxBounds.x)
-        cam->pos.x = maxBounds.x;
-    if (cam->pos.y > maxBounds.y)
-        cam->pos.y = maxBounds.y;
+    printf("PlayerPos {%f, %f}\n", cam->player->worldPos.x,
+           cam->player->worldPos.y);
+    printf("WorldPos {%f, %f}\n", cam->worldPos.x, cam->worldPos.y);
+    if (cam->worldPos.x < 0) cam->worldPos.x = 0;
+    if (cam->worldPos.y < 0) cam->worldPos.y = 0;
+    if (cam->worldPos.x > (maxWorldBounds.w - cam->worldSize.w))
+        cam->worldPos.x = maxWorldBounds.w - cam->worldSize.w;
+    if (cam->worldPos.y > (maxWorldBounds.h - ((float) cam->worldSize.h / 2)))
+        cam->worldPos.y = maxWorldBounds.h - ((float) cam->worldSize.h / 2);
+    printf("WorldPos {%f, %f}\n", cam->worldPos.x, cam->worldPos.y);
+
+    Error err = refreshPixelPos(cam);
+    printf("PixelPos {%d, %d}\n", cam->pixelPos.x, cam->pixelPos.y);
 }

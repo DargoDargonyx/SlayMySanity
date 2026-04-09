@@ -1,7 +1,7 @@
 /**
  * @file render.c
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/08/2026
  * @brief Handles the logic for rendering the game.
  */
 
@@ -42,7 +42,7 @@ Error drawCurrentScene(WindowManager* wManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/08/2026
  * @brief Handles the logic for drawing the game start menu.
  *
  * @param wManager : WindowManager struct pointer
@@ -59,8 +59,7 @@ Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
     for (int i = 0; i < scene->base.btnCount; i++) {
         Button* btn = scene->base.btns[i];
         err = renderBtnSprite(wManager->renderer, btn);
-        if (err.statusNum != ESTAT_MAIN_NONE)
-            return err;
+        if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
         switch (btn->type) {
             case IMG: {
@@ -77,7 +76,6 @@ Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
                 txtDest.h = txtH;
                 SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
                                &txtDest);
-
                 break;
             }
             default:
@@ -107,8 +105,7 @@ Error drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
     for (int i = 0; i < scene->base.btnCount; i++) {
         Button* btn = scene->base.btns[i];
         err = renderBtnSprite(wManager->renderer, btn);
-        if (err.statusNum != ESTAT_MAIN_NONE)
-            return err;
+        if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
         switch (btn->type) {
             case IMG: {
@@ -125,7 +122,6 @@ Error drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
                 txtDest.h = txtH;
                 SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
                                &txtDest);
-
                 break;
             }
             default:
@@ -138,7 +134,7 @@ Error drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/09/2026
  * @brief Handles the logic for drawing the playing scene.
  *
  * @param wManager : WindowManager struct pointer
@@ -151,14 +147,12 @@ Error drawPlayScene(WindowManager* wManager, PlayScene* scene) {
 
     SDL_RenderClear(wManager->renderer);
     err = drawMap(wManager->renderer, scene->cam, scene->map);
-    if (err.statusNum != ESTAT_MAIN_NONE)
-        return err;
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         Button* btn = scene->base.btns[i];
         err = renderBtnSprite(wManager->renderer, btn);
-        if (err.statusNum != ESTAT_MAIN_NONE)
-            return err;
+        if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
         switch (btn->type) {
             case IMG: {
@@ -175,7 +169,6 @@ Error drawPlayScene(WindowManager* wManager, PlayScene* scene) {
                 txtDest.h = txtH;
                 SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
                                &txtDest);
-
                 break;
             }
             default:
@@ -183,12 +176,16 @@ Error drawPlayScene(WindowManager* wManager, PlayScene* scene) {
         }
     }
 
+    err =
+        renderPlayerSprite(wManager->renderer, scene->player, wManager->wSize);
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/09/2026
  * @brief Handles the logic for drawing a map in the playing scene.
  *
  * @param renderer : SDL_Renderer pointer
@@ -203,33 +200,28 @@ Error drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
     int tileWidth = map->tileset->tileSize.w;
     int tileHeight = map->tileset->tileSize.h;
 
-    int startCol = (int) cam->pos.x / tileWidth;
-    int endCol = (int) ((cam->pos.x + cam->size.w) / tileWidth);
-    int startRow = (int) cam->pos.y / tileHeight;
-    int endRow = (int) ((cam->pos.y + cam->size.h) / tileHeight);
+    int startCol = (int) cam->worldPos.x;
+    int endCol = (int) (cam->worldPos.x + cam->worldSize.w);
+    int startRow = (int) cam->worldPos.y;
+    int endRow = (int) (cam->worldPos.y + cam->worldSize.h);
 
     endCol += 1;
     endRow += 1;
 
-    if (startCol < 0)
-        startCol = 0;
-    if (startRow < 0)
-        startRow = 0;
-    if (endCol > map->size.w)
-        endCol = map->size.w;
-    if (endRow > map->size.h)
-        endRow = map->size.h;
+    if (startCol < 0) startCol = 0;
+    if (startRow < 0) startRow = 0;
+    if (endCol > map->size.w) endCol = map->size.w;
+    if (endRow > map->size.h) endRow = map->size.h;
 
     for (int row = startRow; row <= endRow; row++) {
         for (int col = startCol; col <= endCol; col++) {
-            Pos sPos;
-            sPos.x = col * tileWidth;
-            sPos.y = row * tileHeight;
+            Pos pixelPos;
+            pixelPos.x = col * tileWidth;
+            pixelPos.y = row * tileHeight;
             int index = (row * map->size.w) + col;
             int tileId = map->tiles[index];
-            err = drawTile(renderer, cam, map->tileset, tileId, sPos);
-            if (err.statusNum != ESTAT_MAIN_NONE)
-                return err;
+            err = drawTile(renderer, cam, map->tileset, tileId, pixelPos);
+            if (err.statusNum != ESTAT_MAIN_NONE) return err;
         }
     }
 
@@ -238,7 +230,7 @@ Error drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/09/2026
  * @brief Handles the logic for drawing a tile in the playing scene
  * when given a tileset, tileId, and position.
  *
@@ -246,12 +238,12 @@ Error drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
  * @param cam : Cam struct pointer
  * @param tileset : Tileset struct pointer
  * @param id : integer
- * @param pos : Pos struct
+ * @param pixelPos : Pos struct
  * @return An Error struct that describes whether or not the
  * button sprite was successfully rendered
  */
 Error drawTile(SDL_Renderer* renderer, Cam* cam, Tileset* tileset, int id,
-               Pos pos) {
+               Pos pixelPos) {
 
     SDL_Rect tile;
     tile.x = (id % tileset->sheetSize.w) * tileset->tileSize.w;
@@ -260,8 +252,8 @@ Error drawTile(SDL_Renderer* renderer, Cam* cam, Tileset* tileset, int id,
     tile.h = tileset->tileSize.h;
 
     SDL_Rect dst;
-    dst.x = (int) ((pos.x - cam->pos.x) * cam->zoom);
-    dst.y = (int) ((pos.y - cam->pos.y) * cam->zoom);
+    dst.x = (int) ((pixelPos.x - cam->pixelPos.x) * cam->zoom);
+    dst.y = (int) ((pixelPos.y - cam->pixelPos.y) * cam->zoom);
     dst.w = (int) (tile.w * cam->zoom);
     dst.h = (int) (tile.h * cam->zoom);
 
@@ -271,13 +263,13 @@ Error drawTile(SDL_Renderer* renderer, Cam* cam, Tileset* tileset, int id,
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/08/2026
  * @brief Handles the logic for rendering the sprite for a button.
  *
  * @param renderer : SDL_Renderer pointer
  * @param btn : Button struct pointer
  * @return An Error struct that describes whether or not the
- * button sprite was successfully rendered
+ * button sprite in question was successfully rendered
  */
 Error renderBtnSprite(SDL_Renderer* renderer, Button* btn) {
     SDL_Rect src = {0, 0, btn->rect.w, btn->rect.h};
@@ -297,4 +289,65 @@ Error renderBtnSprite(SDL_Renderer* renderer, Button* btn) {
     }
     SDL_RenderCopy(renderer, btn->bgTexture, &src, &btn->rect);
     return createError(ESTAT_MAIN_NONE, NULL);
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/08/2026
+ * @brief Handles the logic for rendering the sprite for the player.
+ *
+ * @param renderer : SDL_Renderer pointer
+ * @param player : Player struct pointer
+ * @param screenSize : Size struct
+ * @return An Error struct that describes whether or not the
+ * player sprite was successfully rendered
+ */
+Error renderPlayerSprite(SDL_Renderer* renderer, Player* player,
+                         Size screenSize) {
+
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    SDL_Rect src = {0, 0, player->aManager->textureSize.w,
+                    player->aManager->textureSize.h};
+
+    int currentSeqIdx;
+    switch (player->aManager->currentState) {
+        case PLAYER_IDLE:
+            currentSeqIdx = ANIM_PLAYER_IDLE_ORDER;
+            break;
+        case PLAYER_LEFT:
+            currentSeqIdx = ANIM_PLAYER_LEFT_ORDER;
+            break;
+        case PLAYER_RIGHT:
+            currentSeqIdx = ANIM_PLAYER_RIGHT_ORDER;
+            break;
+        case PLAYER_UP:
+            currentSeqIdx = ANIM_PLAYER_UP_ORDER;
+            break;
+        case PLAYER_DOWN:
+            currentSeqIdx = ANIM_PLAYER_DOWN_ORDER;
+            break;
+        default:
+            return createError(ESTAT_RENDER_PLAYER_SPRITE,
+                               "Unknown player animation state");
+            break;
+    }
+
+    if (player->aManager->seqCount <= currentSeqIdx) {
+        return createError(
+            ESTAT_RENDER_PLAYER_SPRITE,
+            "Could not access an animation sequence that hasn't been defined");
+    }
+
+    player->aManager->currentSeq = player->aManager->seq[currentSeqIdx];
+    err = animateSeq(player->aManager, &src);
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+
+    SDL_Rect dst;
+    dst.x = (int) ((screenSize.w / 2) - (src.w / 2));
+    dst.y = (int) ((screenSize.h / 2) - (src.h / 2));
+    dst.w = src.w;
+    dst.h = src.h;
+
+    SDL_RenderCopy(renderer, player->aManager->spriteTexture, &src, &dst);
+    return err;
 }

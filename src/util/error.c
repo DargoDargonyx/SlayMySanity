@@ -69,6 +69,12 @@ char* getErrorStatusDesc(Error* err) {
         case ESTAT_ANIM_LOAD_IMG:
             sprintf(str, "Animation Image Loading Error");
             break;
+        case ESTAT_ANIM_ANIMATE_SEQ:
+            sprintf(str, "Animation Sequence Animation Error");
+            break;
+        case ESTAT_ANIM_ITERATE_FRAME:
+            sprintf(str, "Animation Sequence Iteration Error");
+            break;
         // window
         case ESTAT_WINDOW_INIT:
             sprintf(str, "Window Initialization Error");
@@ -94,7 +100,10 @@ char* getErrorStatusDesc(Error* err) {
             sprintf(str, "Scene Drawing Error");
             break;
         case ESTAT_RENDER_BTN_SPRITE:
-            sprintf(str, "Button Rendering Error");
+            sprintf(str, "Button Sprite Rendering Error");
+            break;
+        case ESTAT_RENDER_PLAYER_SPRITE:
+            sprintf(str, "Player Sprite Rendering Error");
             break;
         // scene
         case ESTAT_SCENE_CREATE:
@@ -119,6 +128,10 @@ char* getErrorStatusDesc(Error* err) {
             break;
         case ESTAT_WIDGET_BTN_DESTROY:
             sprintf(str, "Button Destruction Error");
+            break;
+        // camera
+        case ESTAT_CAM_REFRESH:
+            sprintf(str, "Camera Refreshing Error");
             break;
         default:
             break;

@@ -10,6 +10,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <time.h>
 
 /**
  * @author DargoDargonyx
@@ -21,6 +22,7 @@
 AnimationSeq* createAnimationSeq() {
     AnimationSeq* seq = (AnimationSeq*) malloc(sizeof(AnimationSeq));
     seq->frameCount = 0;
+    seq->lastTime = 0;
     seq->frameCap = ANIM_SEQ_FRAMES_INIT_CAP;
     seq->frames =
         (AnimationFrame*) calloc(seq->frameCap, sizeof(AnimationFrame));
@@ -79,6 +81,99 @@ Error addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
     return createError(ESTAT_MAIN_NONE, NULL);
 }
 
+/**
+ * @author DargoDargonyx
+ * @date 04/08/2026
+ * @brief Handles the logic for iterating the current AnimationFrame
+ * in an AnimationSeq.
+ *
+ * @param seq : AnimationSeq struct pointer
+ * @return An Error struct that describes whether or not the
+ * current AnimationFrame in the AnimationSeq and SDL_Rect was
+ * successfully iterated
+ */
+Error iterateSeq(AnimationSeq* seq) {
+    if (!seq)
+        return createError(ESTAT_ANIM_ITERATE_FRAME,
+                           "Could not iterate the animation frame for a NULL "
+                           "AnimationSeq struct");
+    if (seq->frameCount == 0)
+        return createError(ESTAT_ANIM_ITERATE_FRAME,
+                           "Could not iterate the animation frames for an "
+                           "empty AnimationSeq struct");
+    if (seq->currentFrame.order >= seq->frameCount)
+        return createError(
+            ESTAT_ANIM_ITERATE_FRAME,
+            "Current animation frame has an order greater than the animation "
+            "frame count for the animation sequence");
+
+    if (seq->currentFrame.order == seq->frameCount - 1)
+        seq->currentFrame = seq->frames[0];
+    else seq->currentFrame = seq->frames[seq->currentFrame.order + 1];
+
+    return createError(ESTAT_MAIN_NONE, NULL);
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/08/2026
+ * @brief Handles the logic for updating the rendered frame for
+ * an AnimationSeq, and updating a src SDL_Rect to be rendered.
+ *
+ * @param aManager : AnimationManager struct pointer
+ * @param src : SDL_Rect pointer
+ * @return An Error struct that describes whether or not the
+ * AnimationSeq and SDL_Rect was successfully updated
+ */
+Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
+    if (!aManager)
+        return createError(
+            ESTAT_ANIM_ANIMATE_SEQ,
+            "Could not animate with a NULL AnimationManager struct");
+    if (!aManager->spriteTexture)
+        return createError(ESTAT_ANIM_ANIMATE_SEQ,
+                           "Could not animate with a NULL sprite texture");
+    if (aManager->seqCount == 0)
+        return createError(ESTAT_ANIM_ANIMATE_SEQ,
+                           "Could not animate without any animation sequences");
+
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    if (aManager->currentSeq->lastTime == 0) {
+        aManager->currentSeq->lastTime = clock();
+    } else {
+        clock_t now = clock();
+        double timeGap =
+            (double) (now - aManager->currentSeq->lastTime) / CLOCKS_PER_SEC;
+
+        if (timeGap >= aManager->currentSeq->currentFrame.length) {
+            err = iterateSeq(aManager->currentSeq);
+            if (err.statusNum != ESTAT_MAIN_NONE) return err;
+            aManager->currentSeq->lastTime = now;
+        }
+        if (aManager->currentSeq->currentFrame.length == 0)
+            return createError(
+                ESTAT_ANIM_ANIMATE_SEQ,
+                "Could not render an animation frame with 0 length");
+    }
+
+    src->w = aManager->currentSeq->currentFrame.size.w;
+    src->h = aManager->currentSeq->currentFrame.size.h;
+    src->x = 0;
+    src->y = aManager->currentSeq->currentFrame.order * src->h;
+
+    return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/08/2026
+ * @brief Handles the logic for creating a new AnimationManager struct.
+ *
+ * @param errContainer : ErrorContainer struct pointer
+ * @param renderer : SDL_Renderer pointer
+ * @param spritesheetPath : c-style string literal
+ * @return A pointer to a newly created AnimationManager struct
+ */
 AnimationManager* createAnimationManager(ErrorContainer* errContainer,
                                          SDL_Renderer* renderer,
                                          const char* spritesheetPath) {
@@ -95,6 +190,7 @@ AnimationManager* createAnimationManager(ErrorContainer* errContainer,
     } else {
         manager->spriteTexture =
             SDL_CreateTextureFromSurface(renderer, surface);
+        manager->textureSize = (Size){surface->w, surface->h};
         SDL_FreeSurface(surface);
     }
 

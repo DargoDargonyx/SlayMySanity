@@ -262,7 +262,7 @@ Error destroyOptionsMenuScene(Scene* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/26
+ * @date 04/08/26
  * @brief Handles the logic for creating a PlayScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -290,11 +290,51 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errContainer,
 
     // map
     scene->map = createTestMap(renderer);
-    int mapWidthPixels = scene->map->tileset->tileSize.w * scene->map->size.w;
-    int mapHeightPixels = scene->map->tileset->tileSize.h * scene->map->size.h;
-    Pos initCamPos = {(mapWidthPixels / 2) - (scene->base.size.w / 2),
-                      (mapHeightPixels / 2) - (scene->base.size.h / 2)};
-    scene->cam = createCamera(initCamPos, scene->base.size, 2);
+
+    // Player
+    const char* playerSpritesheetPath =
+        "../assets/sprites/player/player_sprite.png";
+    PosFloat initPlayerPos;
+    initPlayerPos.x = scene->map->size.w / 2.0f;
+    initPlayerPos.y = scene->map->size.h / 2.0f;
+    float initPlayerSpeed = 1.0f;
+    scene->player = createPlayer(errContainer, renderer, playerSpritesheetPath,
+                                 initPlayerPos, initPlayerSpeed);
+
+    createPlayerIdleAnimation(scene->player);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        addErrorToContainer(errContainer, err);
+        return scene;
+    }
+    createPlayerWalkLeftAnimation(scene->player);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        addErrorToContainer(errContainer, err);
+        return scene;
+    }
+    createPlayerWalkRightAnimation(scene->player);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        addErrorToContainer(errContainer, err);
+        return scene;
+    }
+    createPlayerWalkUpAnimation(scene->player);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        addErrorToContainer(errContainer, err);
+        return scene;
+    }
+    createPlayerWalkDownAnimation(scene->player);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        addErrorToContainer(errContainer, err);
+        return scene;
+    }
+
+    // Camera
+    scene->cam = createCamera(initPlayerPos, scene->base.size, 2.0f,
+                              scene->map->tileset->tileSize);
+    err = addPlayerToCamera(scene->cam, scene->player);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        addErrorToContainer(errContainer, err);
+        return scene;
+    }
 
     // Back button
     Pos disPos = {40, 40};

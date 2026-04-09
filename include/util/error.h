@@ -3,6 +3,10 @@
  * @author DargoDargonyx
  * @date 04/08/2026
  * @brief Handles the logic for error handling.
+ *
+ * @TODO Redo the error management system, there
+ * shouldn't be so many macros spreadout through
+ * the codebase
  */
 
 #ifndef ERROR_H
@@ -15,6 +19,7 @@ typedef enum {
     ENGINE,
     FONT,
     MAIN,
+    PLAYER,
     RENDER,
     SCENE,
     WIDGET,
@@ -34,6 +39,8 @@ typedef enum {
 #define ESTAT_ANIM_SEQ_ADD_FRAME 0x10
 #define ESTAT_ANIM_MANAGER_ADD_SEQ 0x11
 #define ESTAT_ANIM_LOAD_IMG 0x12
+#define ESTAT_ANIM_ANIMATE_SEQ 0x13
+#define ESTAT_ANIM_ITERATE_FRAME 0x14
 
 // window
 #define ESTAT_WINDOW_INIT 0x20
@@ -48,6 +55,7 @@ typedef enum {
 #define ESTAT_RENDER_LOAD_IMG 0x40
 #define ESTAT_RENDER_SCENE_DRAW 0x41
 #define ESTAT_RENDER_BTN_SPRITE 0x42
+#define ESTAT_RENDER_PLAYER_SPRITE 0x43
 
 // scene
 #define ESTAT_SCENE_CREATE 0x50
@@ -61,6 +69,13 @@ typedef enum {
 // widget
 #define ESTAT_WIDGET_BTN_CREATE 0x70
 #define ESTAT_WIDGET_BTN_DESTROY 0x71
+
+// player
+#define ESTAT_PLAYER_CREATE 0x80
+#define ESTAT_PLAYER_DESTROY 0x81
+
+// camera
+#define ESTAT_CAM_REFRESH 0x90
 
 typedef struct {
     ErrorType type;

@@ -10,12 +10,12 @@ LDFLAGS := $(shell sdl2-config --libs) \
            -Wl,-rpath,'$$ORIGIN/lib'
 
 SRC := $(SRC_DIR)/main.c $(SRC_DIR)/core/engine.c \
-	   $(SRC_DIR)/core/scene.c $(SRC_DIR)/graphics/camera.c \
-	   $(SRC_DIR)/graphics/render.c $(SRC_DIR)/ui/font.c \
-	   $(SRC_DIR)/ui/input.c $(SRC_DIR)/ui/widget.c \
-	   $(SRC_DIR)/util/error.c $(SRC_DIR)/util/window.c \
-	   $(SRC_DIR)/world/physics.c $(SRC_DIR)/world/map.c \
-	   $(SRC_DIR)/world/player.c
+	   $(SRC_DIR)/core/scene.c $(SRC_DIR)/graphics/animation.c \
+	   $(SRC_DIR)/graphics/camera.c $(SRC_DIR)/graphics/render.c \
+	   $(SRC_DIR)/ui/font.c $(SRC_DIR)/ui/input.c \
+	   $(SRC_DIR)/ui/widget.c $(SRC_DIR)/util/error.c \
+	   $(SRC_DIR)/util/window.c $(SRC_DIR)/world/physics.c \
+	   $(SRC_DIR)/world/map.c $(SRC_DIR)/world/player.c
 
 OBJ := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 

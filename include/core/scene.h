@@ -1,7 +1,7 @@
 /**
  * @file scene.h
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/08/2026
  * @brief Handles the logic for scenes.
  */
 
@@ -13,6 +13,7 @@
 #include "util/error.h"
 #include "util/helper.h"
 #include "world/map.h"
+#include "world/player.h"
 
 #include <SDL2/SDL.h>
 
@@ -43,6 +44,7 @@ typedef struct {
 typedef struct {
     Scene base;
     Cam* cam;
+    Player* player;
     Map* map;
 } PlayScene;
 
