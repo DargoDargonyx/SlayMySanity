@@ -101,7 +101,6 @@ void handleCameraMovement(Cam* cam, Size maxWorldBounds, float dt) {
     if (cam->player) {
         float distX = cam->player->worldPos.x - cam->worldPos.x;
         float distY = cam->player->worldPos.y - cam->worldPos.y;
-        printf("Distance {%f, %f}", distX, distY);
         if (distX < 0) {
             if (0 - distX < movement) cam->worldPos.x += distX;
             else cam->worldPos.x -= movement;
@@ -120,17 +119,12 @@ void handleCameraMovement(Cam* cam, Size maxWorldBounds, float dt) {
         }
     }
 
-    printf("PlayerPos {%f, %f}\n", cam->player->worldPos.x,
-           cam->player->worldPos.y);
-    printf("WorldPos {%f, %f}\n", cam->worldPos.x, cam->worldPos.y);
     if (cam->worldPos.x < 0) cam->worldPos.x = 0;
     if (cam->worldPos.y < 0) cam->worldPos.y = 0;
     if (cam->worldPos.x > (maxWorldBounds.w - cam->worldSize.w))
         cam->worldPos.x = maxWorldBounds.w - cam->worldSize.w;
     if (cam->worldPos.y > (maxWorldBounds.h - ((float) cam->worldSize.h / 2)))
         cam->worldPos.y = maxWorldBounds.h - ((float) cam->worldSize.h / 2);
-    printf("WorldPos {%f, %f}\n", cam->worldPos.x, cam->worldPos.y);
 
     Error err = refreshPixelPos(cam);
-    printf("PixelPos {%d, %d}\n", cam->pixelPos.x, cam->pixelPos.y);
 }

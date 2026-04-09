@@ -25,6 +25,9 @@ Player* createPlayer(ErrorContainer* errContainer, SDL_Renderer* renderer,
                      float speed);
 Error destroyPlayer(Player* self);
 
+Error calculatePlayerSize(Player* self, int frameCount);
+Error setupPlayerAnimation(Player* self);
+
 Error createPlayerIdleAnimation(Player* self);
 Error createPlayerWalkLeftAnimation(Player* self);
 Error createPlayerWalkRightAnimation(Player* self);

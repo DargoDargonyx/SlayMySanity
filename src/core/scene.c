@@ -300,28 +300,13 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errContainer,
     float initPlayerSpeed = 1.0f;
     scene->player = createPlayer(errContainer, renderer, playerSpritesheetPath,
                                  initPlayerPos, initPlayerSpeed);
+    calculatePlayerSize(scene->player, 3);
+    if (err.statusNum != ESTAT_MAIN_NONE) {
+        addErrorToContainer(errContainer, err);
+        return scene;
+    }
 
-    createPlayerIdleAnimation(scene->player);
-    if (err.statusNum != ESTAT_MAIN_NONE) {
-        addErrorToContainer(errContainer, err);
-        return scene;
-    }
-    createPlayerWalkLeftAnimation(scene->player);
-    if (err.statusNum != ESTAT_MAIN_NONE) {
-        addErrorToContainer(errContainer, err);
-        return scene;
-    }
-    createPlayerWalkRightAnimation(scene->player);
-    if (err.statusNum != ESTAT_MAIN_NONE) {
-        addErrorToContainer(errContainer, err);
-        return scene;
-    }
-    createPlayerWalkUpAnimation(scene->player);
-    if (err.statusNum != ESTAT_MAIN_NONE) {
-        addErrorToContainer(errContainer, err);
-        return scene;
-    }
-    createPlayerWalkDownAnimation(scene->player);
+    err = setupPlayerAnimation(scene->player);
     if (err.statusNum != ESTAT_MAIN_NONE) {
         addErrorToContainer(errContainer, err);
         return scene;

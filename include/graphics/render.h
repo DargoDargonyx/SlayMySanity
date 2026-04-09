@@ -24,7 +24,6 @@ Error drawTile(SDL_Renderer* renderer, Cam* cam, Tileset* tileset, int id,
                Pos pixelPos);
 
 Error renderBtnSprite(SDL_Renderer* renderer, Button* btn);
-Error renderPlayerSprite(SDL_Renderer* renderer, Player* player,
-                         Size screenSize);
+Error renderPlayerSprite(SDL_Renderer* renderer, Cam* cam, Size screenSize);
 
 #endif

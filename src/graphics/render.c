@@ -176,8 +176,7 @@ Error drawPlayScene(WindowManager* wManager, PlayScene* scene) {
         }
     }
 
-    err =
-        renderPlayerSprite(wManager->renderer, scene->player, wManager->wSize);
+    err = renderPlayerSprite(wManager->renderer, scene->cam, wManager->wSize);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
     return err;
@@ -302,15 +301,14 @@ Error renderBtnSprite(SDL_Renderer* renderer, Button* btn) {
  * @return An Error struct that describes whether or not the
  * player sprite was successfully rendered
  */
-Error renderPlayerSprite(SDL_Renderer* renderer, Player* player,
-                         Size screenSize) {
+Error renderPlayerSprite(SDL_Renderer* renderer, Cam* cam, Size screenSize) {
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    SDL_Rect src = {0, 0, player->aManager->textureSize.w,
-                    player->aManager->textureSize.h};
+    SDL_Rect src = {0, 0, cam->player->aManager->textureSize.w,
+                    cam->player->aManager->textureSize.h};
 
     int currentSeqIdx;
-    switch (player->aManager->currentState) {
+    switch (cam->player->aManager->currentState) {
         case PLAYER_IDLE:
             currentSeqIdx = ANIM_PLAYER_IDLE_ORDER;
             break;
@@ -332,22 +330,25 @@ Error renderPlayerSprite(SDL_Renderer* renderer, Player* player,
             break;
     }
 
-    if (player->aManager->seqCount <= currentSeqIdx) {
+    if (cam->player->aManager->seqCount <= currentSeqIdx) {
         return createError(
             ESTAT_RENDER_PLAYER_SPRITE,
             "Could not access an animation sequence that hasn't been defined");
     }
 
-    player->aManager->currentSeq = player->aManager->seq[currentSeqIdx];
-    err = animateSeq(player->aManager, &src);
+    cam->player->aManager->currentSeq =
+        cam->player->aManager->seq[currentSeqIdx];
+    err = animateSeq(cam->player->aManager, &src);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
+    // @TODO get rid of magic number
     SDL_Rect dst;
-    dst.x = (int) ((screenSize.w / 2) - (src.w / 2));
-    dst.y = (int) ((screenSize.h / 2) - (src.h / 2));
-    dst.w = src.w;
-    dst.h = src.h;
+    dst.x =
+        ((screenSize.w / 2) - (src.w / 2)) - 32; // magic number here for now
+    dst.y = ((screenSize.h / 2) - (src.h / 2)) - 32;
+    dst.w = (int) (src.w * cam->zoom);
+    dst.h = (int) (src.h * cam->zoom);
 
-    SDL_RenderCopy(renderer, player->aManager->spriteTexture, &src, &dst);
+    SDL_RenderCopy(renderer, cam->player->aManager->spriteTexture, &src, &dst);
     return err;
 }

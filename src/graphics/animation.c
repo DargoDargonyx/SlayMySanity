@@ -138,23 +138,17 @@ Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
                            "Could not animate without any animation sequences");
 
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    if (aManager->currentSeq->lastTime == 0) {
-        aManager->currentSeq->lastTime = clock();
-    } else {
-        clock_t now = clock();
-        double timeGap =
-            (double) (now - aManager->currentSeq->lastTime) / CLOCKS_PER_SEC;
+    Uint32 now = SDL_GetTicks();
+    double timeGap = (now - aManager->currentSeq->lastTime);
 
-        if (timeGap >= aManager->currentSeq->currentFrame.length) {
-            err = iterateSeq(aManager->currentSeq);
-            if (err.statusNum != ESTAT_MAIN_NONE) return err;
-            aManager->currentSeq->lastTime = now;
-        }
-        if (aManager->currentSeq->currentFrame.length == 0)
-            return createError(
-                ESTAT_ANIM_ANIMATE_SEQ,
-                "Could not render an animation frame with 0 length");
+    if (timeGap >= aManager->currentSeq->currentFrame.length) {
+        err = iterateSeq(aManager->currentSeq);
+        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        aManager->currentSeq->lastTime = now;
     }
+    if (aManager->currentSeq->currentFrame.length == 0)
+        return createError(ESTAT_ANIM_ANIMATE_SEQ,
+                           "Could not render an animation frame with 0 length");
 
     src->w = aManager->currentSeq->currentFrame.size.w;
     src->h = aManager->currentSeq->currentFrame.size.h;

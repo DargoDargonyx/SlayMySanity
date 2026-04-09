@@ -41,14 +41,14 @@ typedef enum {
 typedef struct {
     int type;
     int order;
-    clock_t length;
+    Uint32 length;
     Size size;
 } AnimationFrame;
 
 typedef struct {
     int frameCount;
     int frameCap;
-    clock_t lastTime;
+    Uint32 lastTime;
     AnimationFrame currentFrame;
     AnimationFrame* frames;
 } AnimationSeq;

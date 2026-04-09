@@ -82,6 +82,35 @@ Error calculatePlayerSize(Player* self, int frameCount) {
 /**
  * @author DargoDargonyx
  * @date 04/09/2026
+ * @brief Handles the logic for setting up the player animation
+ * sequences for the first time.
+ *
+ * @param self : Player struct pointer
+ * @return An Error struct that describes whether or not the
+ * animation sequences were successfully setup
+ */
+Error setupPlayerAnimation(Player* self) {
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+
+    err = createPlayerIdleAnimation(self);
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    err = createPlayerWalkLeftAnimation(self);
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    err = createPlayerWalkRightAnimation(self);
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    err = createPlayerWalkUpAnimation(self);
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    err = createPlayerWalkDownAnimation(self);
+    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+
+    self->aManager->currentSeq = self->aManager->seq[ANIM_PLAYER_IDLE_ORDER];
+
+    return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/09/2026
  * @brief Handles the logic for creating the Idle animation
  * sequence for the player.
  *
@@ -91,21 +120,25 @@ Error calculatePlayerSize(Player* self, int frameCount) {
  */
 Error createPlayerIdleAnimation(Player* self) {
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    clock_t quarterSec = CLOCKS_PER_SEC / 4;
+    Uint32 quarterSec = 250.0f;
     Size spriteSize =
         (Size){self->aManager->spriteRect.w, self->aManager->spriteRect.h};
     AnimationSeq* seq = createAnimationSeq();
 
-    AnimationFrame frame1 = (AnimationFrame){0, 0, quarterSec, spriteSize};
+    AnimationFrame frame1 =
+        (AnimationFrame){0, 0, quarterSec + 100.0f, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
-    AnimationFrame frame2 = (AnimationFrame){1, 1, quarterSec, spriteSize};
+    AnimationFrame frame2 =
+        (AnimationFrame){1, 1, quarterSec + 100.0f, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
-    AnimationFrame frame3 = (AnimationFrame){2, 2, quarterSec, spriteSize};
+    AnimationFrame frame3 =
+        (AnimationFrame){2, 2, quarterSec - 50.0f, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
+    seq->currentFrame = frame1;
     err = addSeqToAnimationManager(self->aManager, seq);
     return err;
 }
@@ -122,7 +155,7 @@ Error createPlayerIdleAnimation(Player* self) {
  */
 Error createPlayerWalkLeftAnimation(Player* self) {
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    clock_t quarterSec = CLOCKS_PER_SEC / 4;
+    Uint32 quarterSec = 250.0f;
     Size spriteSize =
         (Size){self->aManager->spriteRect.w, self->aManager->spriteRect.h};
     AnimationSeq* seq = createAnimationSeq();
@@ -137,6 +170,7 @@ Error createPlayerWalkLeftAnimation(Player* self) {
     err = addFrameToAnimationSeq(seq, frame3);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
+    seq->currentFrame = frame1;
     err = addSeqToAnimationManager(self->aManager, seq);
     return err;
 }
@@ -153,7 +187,7 @@ Error createPlayerWalkLeftAnimation(Player* self) {
  */
 Error createPlayerWalkRightAnimation(Player* self) {
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    clock_t quarterSec = CLOCKS_PER_SEC / 4;
+    Uint32 quarterSec = 250.0f;
     Size spriteSize =
         (Size){self->aManager->spriteRect.w, self->aManager->spriteRect.h};
     AnimationSeq* seq = createAnimationSeq();
@@ -168,6 +202,7 @@ Error createPlayerWalkRightAnimation(Player* self) {
     err = addFrameToAnimationSeq(seq, frame3);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
+    seq->currentFrame = frame1;
     err = addSeqToAnimationManager(self->aManager, seq);
     return err;
 }
@@ -184,7 +219,7 @@ Error createPlayerWalkRightAnimation(Player* self) {
  */
 Error createPlayerWalkUpAnimation(Player* self) {
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    clock_t quarterSec = CLOCKS_PER_SEC / 4;
+    Uint32 quarterSec = 250.0f;
     Size spriteSize =
         (Size){self->aManager->spriteRect.w, self->aManager->spriteRect.h};
     AnimationSeq* seq = createAnimationSeq();
@@ -199,6 +234,7 @@ Error createPlayerWalkUpAnimation(Player* self) {
     err = addFrameToAnimationSeq(seq, frame3);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
+    seq->currentFrame = frame1;
     err = addSeqToAnimationManager(self->aManager, seq);
     return err;
 }
@@ -215,7 +251,7 @@ Error createPlayerWalkUpAnimation(Player* self) {
  */
 Error createPlayerWalkDownAnimation(Player* self) {
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    clock_t quarterSec = CLOCKS_PER_SEC / 4;
+    Uint32 quarterSec = 250.0f;
     Size spriteSize =
         (Size){self->aManager->spriteRect.w, self->aManager->spriteRect.h};
     AnimationSeq* seq = createAnimationSeq();
@@ -230,6 +266,7 @@ Error createPlayerWalkDownAnimation(Player* self) {
     err = addFrameToAnimationSeq(seq, frame3);
     if (err.statusNum != ESTAT_MAIN_NONE) return err;
 
+    seq->currentFrame = frame1;
     err = addSeqToAnimationManager(self->aManager, seq);
     return err;
 }
