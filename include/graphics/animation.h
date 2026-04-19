@@ -1,46 +1,30 @@
 /**
  * @file animaion.h
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for animations.
  */
 
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
+#include "graphics/sprite.h"
 #include "util/error.h"
 #include "util/helper.h"
-
-#include <SDL2/SDL.h>
-#include <time.h>
 
 #define ANIM_SEQ_FRAMES_INIT_CAP 15
 #define ANIM_MANAGER_SEQ_INIT_CAP 7
 
-#define ANIM_PLAYER_IDLE_ORDER 0
-#define ANIM_PLAYER_LEFT_ORDER 1
-#define ANIM_PLAYER_RIGHT_ORDER 2
-#define ANIM_PLAYER_UP_ORDER 3
-#define ANIM_PLAYER_DOWN_ORDER 4
-
-typedef enum {
-    PLAYER_IDLE,
-    PLAYER_LEFT,
-    PLAYER_RIGHT,
-    PLAYER_UP,
-    PLAYER_DOWN
-} AnimationState;
-
-typedef enum {
-    PLAYER_FACING_LEFT,
-    PLAYER_FACING_RIGHT,
-    PLAYER_FACING_UP,
-    PLAYER_FACING_DOWN
-} FacingDirection;
+#define ANIM_PLAYER_EAST_IDLE_ORDER 0
+#define ANIM_PLAYER_WEST_IDLE_ORDER 1
+#define ANIM_PLAYER_NORTH_EAST_ORDER 2
+#define ANIM_PLAYER_NORTH_WEST_ORDER 3
+#define ANIM_PLAYER_SOUTH_EAST_ORDER 4
+#define ANIM_PLAYER_SOUTH_WEST_ORDER 5
 
 typedef struct {
-    int type;
     int order;
+    Pos spritePos;
     Uint32 length;
     Size size;
 } AnimationFrame;
@@ -48,15 +32,13 @@ typedef struct {
 typedef struct {
     int frameCount;
     int frameCap;
-    Uint32 lastTime;
-    AnimationFrame currentFrame;
+    int currentFrameIdx;
     AnimationFrame* frames;
+    Uint32 lastTime;
 } AnimationSeq;
 
 typedef struct {
-    AnimationState currentState;
-    SDL_Texture* spriteTexture;
-    Size textureSize;
+    Spritesheet* spritesheet;
     SDL_Rect spriteRect;
     int seqCount;
     int seqCap;
@@ -67,12 +49,12 @@ typedef struct {
 AnimationSeq* createAnimationSeq();
 Error destroyAnimationSeq(AnimationSeq* self);
 Error addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame);
+
 Error iterateSeq(AnimationSeq* seq);
 Error animateSeq(AnimationManager* aManager, SDL_Rect* src);
+Error switchAnimationSeq(AnimationManager* aManager, int animationOrder);
 
-AnimationManager* createAnimationManager(ErrorContainer* errContainer,
-                                         SDL_Renderer* renderer,
-                                         const char* spritesheetPath);
+AnimationManager* createAnimationManager(Spritesheet* spritesheet);
 Error destroyAnimationManager(AnimationManager* self);
 Error addSeqToAnimationManager(AnimationManager* manager, AnimationSeq* seq);
 

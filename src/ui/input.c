@@ -1,12 +1,12 @@
 /**
  * @file input.c
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for user input.
  */
 
 #include "ui/input.h"
-#include "graphics/camera.h"
+#include "graphics/animation.h"
 #include "ui/widget.h"
 #include "util/helper.h"
 #include "world/player.h"
@@ -15,40 +15,83 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
- * @brief Helper function to check whether or not a point in the scene
- * in inside of a given SDL_Rect.
- *
- * @param pos : Pos struct
- * @param rect : SDL_Rect pointer
- * @return An integer representation of a boolean for whether or not
- * the given point is inside of the SDL_Rect in question
- */
-int pointInRect(Pos pos, SDL_Rect* rect) {
-    return (pos.x >= rect->x) && (pos.x <= rect->x + rect->w) &&
-           (pos.y >= rect->y) && (pos.y <= rect->y + rect->h);
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/08/2026
- * @brief Handles the logic for player events.
+ * @date 04/18/2026
+ * @brief Handles the logic for player events when a
+ * button is pressed.
  *
  * @param player : Player struct pointer
  * @param dt : float
+ * @return An Error struct that describes whether or not
+ * the player events were handled without issue
  */
-void handlePlayerEvent(Player* player, float dt) {
+Error handlePlayerEvent(Player* player, float dt) {
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
     const Uint8* keys = SDL_GetKeyboardState(NULL);
-    float distance = 10.0f * dt * player->speed;
+    float dist = 10.0f * dt * player->speed;
 
-    if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP])
-        player->worldPos.y -= distance;
-    if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN])
-        player->worldPos.y += distance;
-    if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT])
-        player->worldPos.x -= distance;
-    if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT])
-        player->worldPos.x += distance;
+    Uint8 up = keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP];
+    Uint8 down = keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN];
+    Uint8 left = keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT];
+    Uint8 right = keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT];
+
+    if (up && right) {
+        movePlayerNorthEast(player, dist);
+    } else if (up && left) {
+        movePlayerNorthWest(player, dist);
+    } else if (down && right) {
+        movePlayerSouthEast(player, dist);
+    } else if (down && left) {
+        movePlayerSouthWest(player, dist);
+    } else {
+        if (up && down) {
+            if (player->currentAction != IDLE) {
+                player->currentAction = IDLE;
+                err = switchAnimationSeq(player->aManager,
+                                         ANIM_PLAYER_EAST_IDLE_ORDER);
+            }
+        } else if (left && right) {
+            if (player->currentAction != IDLE) {
+                player->currentAction = IDLE;
+                err = switchAnimationSeq(player->aManager,
+                                         ANIM_PLAYER_EAST_IDLE_ORDER);
+            }
+        } else if (up) {
+            movePlayerNorth(player, dist);
+        } else if (down) {
+            movePlayerSouth(player, dist);
+        } else if (left) {
+            movePlayerWest(player, dist);
+        } else if (right) {
+            movePlayerEast(player, dist);
+        } else {
+            if (player->currentAction != IDLE) {
+                player->currentAction = IDLE;
+                if (player->facingDir == NORTH ||
+                    player->facingDir == NORTH_EAST ||
+                    player->facingDir == EAST ||
+                    player->facingDir == SOUTH_EAST ||
+                    player->facingDir == SOUTH) {
+
+                    err = switchAnimationSeq(player->aManager,
+                                             ANIM_PLAYER_EAST_IDLE_ORDER);
+                    player->facingDir = SOUTH_EAST;
+                } else if (player->facingDir == NORTH_WEST ||
+                           player->facingDir == WEST ||
+                           player->facingDir == SOUTH_WEST) {
+
+                    err = switchAnimationSeq(player->aManager,
+                                             ANIM_PLAYER_WEST_IDLE_ORDER);
+                    player->facingDir = SOUTH_WEST;
+                } else {
+                    err = createError(ESTAT_PLAYER_ANIM,
+                                      "Could not animate a player with an "
+                                      "unkown facing direction");
+                }
+            }
+        }
+    }
+
+    return err;
 }
 
 /**
@@ -83,48 +126,4 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
             btn->state = BTN_HOVER;
         }
     }
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/08/2026
- * @brief Handles the logic for checking whether or not
- * the user inputted a key to move the camera.
- *
- * @param cam : Camera struct pointer
- * @param maxBounds : Size struct
- * @param dt : float
- */
-void handleCameraMovement(Cam* cam, Size maxWorldBounds, float dt) {
-    float movement = (500.0f * dt) / cam->zoom;
-
-    if (cam->player) {
-        float distX = cam->player->worldPos.x - cam->worldPos.x;
-        float distY = cam->player->worldPos.y - cam->worldPos.y;
-        if (distX < 0) {
-            if (0 - distX < movement) cam->worldPos.x += distX;
-            else cam->worldPos.x -= movement;
-        }
-        if (distX > 0) {
-            if (distX < movement) cam->worldPos.x += distX;
-            else cam->worldPos.x -= movement;
-        }
-        if (distY < 0) {
-            if (0 - distY < movement) cam->worldPos.y += distY;
-            else cam->worldPos.y -= movement;
-        }
-        if (distY > 0) {
-            if (distY < movement) cam->worldPos.y += distY;
-            else cam->worldPos.y -= movement;
-        }
-    }
-
-    if (cam->worldPos.x < 0) cam->worldPos.x = 0;
-    if (cam->worldPos.y < 0) cam->worldPos.y = 0;
-    if (cam->worldPos.x > (maxWorldBounds.w - cam->worldSize.w))
-        cam->worldPos.x = maxWorldBounds.w - cam->worldSize.w;
-    if (cam->worldPos.y > (maxWorldBounds.h - ((float) cam->worldSize.h / 2)))
-        cam->worldPos.y = maxWorldBounds.h - ((float) cam->worldSize.h / 2);
-
-    Error err = refreshPixelPos(cam);
 }

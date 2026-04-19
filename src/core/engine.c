@@ -1,7 +1,7 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -15,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/08/26
+ * @date 04/18/26
  * @brief Handles the logic for running the main game loop.
  *
  * @param wManager : WindowManager struct pointer
@@ -50,8 +50,10 @@ Error runGameLoop(WindowManager* wManager) {
 
         if (wManager->currentScene->type == PLAY) {
             PlayScene* scene = (PlayScene*) wManager->currentScene;
-            handlePlayerEvent(scene->player, dt);
-            handleCameraMovement(scene->cam, scene->map->size, dt);
+            err = handlePlayerEvent(scene->player, dt);
+            if (err.statusNum != ESTAT_MAIN_NONE) return err;
+            err = handleCameraMovement(scene->cam, scene->map->worldSize, dt);
+            if (err.statusNum != ESTAT_MAIN_NONE) return err;
         }
 
         if (wManager->errContainer->errCount > 0) {

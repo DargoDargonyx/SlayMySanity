@@ -1,11 +1,12 @@
 /**
  * @file animaion.c
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/17/2026
  * @brief Handles the logic for animations.
  */
 
 #include "graphics/animation.h"
+#include "graphics/sprite.h"
 #include "util/error.h"
 
 #include <SDL2/SDL.h>
@@ -14,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/17/2026
  * @brief Handles the logic for creating a new AnimationSeq struct.
  *
  * @return A pointer to a newly created AnimationSeq struct
@@ -22,10 +23,10 @@
 AnimationSeq* createAnimationSeq() {
     AnimationSeq* seq = (AnimationSeq*) malloc(sizeof(AnimationSeq));
     seq->frameCount = 0;
-    seq->lastTime = 0;
     seq->frameCap = ANIM_SEQ_FRAMES_INIT_CAP;
     seq->frames =
         (AnimationFrame*) calloc(seq->frameCap, sizeof(AnimationFrame));
+    seq->lastTime = 0;
 
     return seq;
 }
@@ -83,7 +84,7 @@ Error addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for iterating the current AnimationFrame
  * in an AnimationSeq.
  *
@@ -101,22 +102,21 @@ Error iterateSeq(AnimationSeq* seq) {
         return createError(ESTAT_ANIM_ITERATE_FRAME,
                            "Could not iterate the animation frames for an "
                            "empty AnimationSeq struct");
-    if (seq->currentFrame.order >= seq->frameCount)
+    if (seq->currentFrameIdx >= seq->frameCount)
         return createError(
             ESTAT_ANIM_ITERATE_FRAME,
             "Current animation frame has an order greater than the animation "
             "frame count for the animation sequence");
 
-    if (seq->currentFrame.order == seq->frameCount - 1)
-        seq->currentFrame = seq->frames[0];
-    else seq->currentFrame = seq->frames[seq->currentFrame.order + 1];
+    if (seq->currentFrameIdx == seq->frameCount - 1) seq->currentFrameIdx = 0;
+    else seq->currentFrameIdx++;
 
     return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for updating the rendered frame for
  * an AnimationSeq, and updating a src SDL_Rect to be rendered.
  *
@@ -130,9 +130,9 @@ Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
         return createError(
             ESTAT_ANIM_ANIMATE_SEQ,
             "Could not animate with a NULL AnimationManager struct");
-    if (!aManager->spriteTexture)
+    if (!aManager->spritesheet->texture)
         return createError(ESTAT_ANIM_ANIMATE_SEQ,
-                           "Could not animate with a NULL sprite texture");
+                           "Could not animate with a NULL spritesheet texture");
     if (aManager->seqCount == 0)
         return createError(ESTAT_ANIM_ANIMATE_SEQ,
                            "Could not animate without any animation sequences");
@@ -141,19 +141,22 @@ Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
     Uint32 now = SDL_GetTicks();
     double timeGap = (now - aManager->currentSeq->lastTime);
 
-    if (timeGap >= aManager->currentSeq->currentFrame.length) {
+    AnimationSeq* currentSeq = aManager->currentSeq;
+    AnimationFrame currentFrame =
+        currentSeq->frames[currentSeq->currentFrameIdx];
+    if (timeGap >= currentFrame.length) {
         err = iterateSeq(aManager->currentSeq);
         if (err.statusNum != ESTAT_MAIN_NONE) return err;
         aManager->currentSeq->lastTime = now;
     }
-    if (aManager->currentSeq->currentFrame.length == 0)
+    if (currentFrame.length == 0)
         return createError(ESTAT_ANIM_ANIMATE_SEQ,
                            "Could not render an animation frame with 0 length");
 
-    src->w = aManager->currentSeq->currentFrame.size.w;
-    src->h = aManager->currentSeq->currentFrame.size.h;
-    src->x = 0;
-    src->y = aManager->currentSeq->currentFrame.order * src->h;
+    src->w = currentFrame.size.w;
+    src->h = currentFrame.size.h;
+    src->x = currentFrame.spritePos.x * src->w;
+    src->y = currentFrame.spritePos.y * src->h;
 
     return err;
 }
@@ -161,33 +164,34 @@ Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
 /**
  * @author DargoDargonyx
  * @date 04/08/2026
+ * @brief Handles the logic for switching the current animation
+ * sequence for an AnimationManager struct.
+ *
+ * @param aManager : AnimationManager struct pointer
+ * @param animationOrder : integer
+ * @return An Error struct that describes whether or not the animation
+ * sequence was able to successfully be switched
+ */
+Error switchAnimationSeq(AnimationManager* aManager, int animationOrder) {
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    aManager->currentSeq = aManager->seq[animationOrder];
+    return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/17/2026
  * @brief Handles the logic for creating a new AnimationManager struct.
  *
- * @param errContainer : ErrorContainer struct pointer
- * @param renderer : SDL_Renderer pointer
- * @param spritesheetPath : c-style string literal
+ * @param spritesheet : Spritesheet struct pointer
  * @return A pointer to a newly created AnimationManager struct
  */
-AnimationManager* createAnimationManager(ErrorContainer* errContainer,
-                                         SDL_Renderer* renderer,
-                                         const char* spritesheetPath) {
+AnimationManager* createAnimationManager(Spritesheet* spritesheet) {
 
     AnimationManager* manager =
         (AnimationManager*) malloc(sizeof(AnimationManager));
 
-    SDL_Surface* surface = IMG_Load(spritesheetPath);
-    if (!surface) {
-        addErrorToContainer(
-            errContainer,
-            createError(ESTAT_ANIM_LOAD_IMG,
-                        "Could not load a sritesheet image file"));
-    } else {
-        manager->spriteTexture =
-            SDL_CreateTextureFromSurface(renderer, surface);
-        manager->textureSize = (Size){surface->w, surface->h};
-        SDL_FreeSurface(surface);
-    }
-
+    manager->spritesheet = spritesheet;
     manager->seqCount = 0;
     manager->seqCap = ANIM_MANAGER_SEQ_INIT_CAP;
     manager->seq =
@@ -198,7 +202,7 @@ AnimationManager* createAnimationManager(ErrorContainer* errContainer,
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/17/2026
  * @brief Handles the logic for destroying an AnimationManager struct.
  *
  * @param self : AnimationManager struct pointer
@@ -213,7 +217,7 @@ Error destroyAnimationManager(AnimationManager* self) {
     }
     free(self->seq);
 
-    SDL_DestroyTexture(self->spriteTexture);
+    destroySpritesheet(self->spritesheet);
     free(self);
     return err;
 }

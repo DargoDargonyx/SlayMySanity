@@ -1,12 +1,16 @@
 /**
  * @file error.h
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for error handling.
  *
  * @TODO Redo the error management system, there
  * shouldn't be so many macros spreadout through
- * the codebase
+ * the codebase.
+ * @TODO Implement a warning system that will print
+ * a warning message if something doesn't seem right
+ * but will otherwise continue running with what the
+ * program currently has.
  */
 
 #ifndef ERROR_H
@@ -73,9 +77,13 @@ typedef enum {
 // player
 #define ESTAT_PLAYER_CREATE 0x80
 #define ESTAT_PLAYER_DESTROY 0x81
+#define ESTAT_PLAYER_ANIM 0x82
 
 // camera
 #define ESTAT_CAM_REFRESH 0x90
+
+// sprite
+#define ESTAT_SPRITE_LOAD_IMG 0xA0
 
 typedef struct {
     ErrorType type;

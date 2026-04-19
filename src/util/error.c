@@ -1,7 +1,7 @@
 /**
  * @file error.c
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/17/2026
  * @brief Handles the logic for error handling.
  */
 
@@ -28,7 +28,7 @@ Error createError(int statusNum, const char* msg) {
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/17/2026
  * @brief Gets a quick description of an error.
  *
  * This function gets a quick description of an error
@@ -132,6 +132,19 @@ char* getErrorStatusDesc(Error* err) {
         // camera
         case ESTAT_CAM_REFRESH:
             sprintf(str, "Camera Refreshing Error");
+            break;
+        case ESTAT_SPRITE_LOAD_IMG:
+            sprintf(str, "Sprite Image File Loading Error");
+            break;
+        // player
+        case ESTAT_PLAYER_CREATE:
+            sprintf(str, "Player Creation Error");
+            break;
+        case ESTAT_PLAYER_DESTROY:
+            sprintf(str, "Player Destruction Error");
+            break;
+        case ESTAT_PLAYER_ANIM:
+            sprintf(str, "Player Animation Error");
             break;
         default:
             break;

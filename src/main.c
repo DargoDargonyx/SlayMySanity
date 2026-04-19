@@ -11,8 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEFAULT_WIN_WIDTH 800
-#define DEFAULT_WIN_HEIGHT 600
+#define DEFAULT_WIN_WIDTH 1200
+#define DEFAULT_WIN_HEIGHT 800
 #define GAME_NAME "SlayMySanity"
 
 /**

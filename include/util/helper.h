@@ -1,12 +1,15 @@
 /**
  * @file helper.h
  * @author DargoDargonyx
- * @date 04/09/2026
- * @brief Generic helper functions and structs.
+ * @date 04/18/2026
+ * @brief Generic helper functions and structs for random
+ * logic needed throughout the program.
  */
 
 #ifndef HELPER_H
 #define HELPER_H
+
+#include <SDL2/SDL.h>
 
 typedef struct {
     int x;
@@ -27,5 +30,18 @@ typedef struct {
     float w;
     float h;
 } SizeFloat;
+
+typedef enum {
+    NORTH,
+    NORTH_EAST,
+    EAST,
+    SOUTH_EAST,
+    SOUTH,
+    SOUTH_WEST,
+    WEST,
+    NORTH_WEST
+} Direction;
+
+int pointInRect(Pos pos, SDL_Rect* rect);
 
 #endif

@@ -1,7 +1,7 @@
 /**
  * @file scene.h
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for scenes.
  */
 
@@ -50,17 +50,16 @@ typedef struct {
 
 Error addBtnToScene(Scene* scene, Button* btn);
 
-StartMenuScene* createStartMenuScene(void* wManager,
-                                     ErrorContainer* errContainer,
+StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
                                      SDL_Renderer* renderer, Size size);
 Error destroyStartMenuScene(Scene* self);
 
 OptionsMenuScene* createOptionsMenuScene(void* wManager,
-                                         ErrorContainer* errContainer,
+                                         ErrorContainer* errCont,
                                          SDL_Renderer* renderer, Size size);
 Error destroyOptionsMenuScene(Scene* self);
 
-PlayScene* createPlayScene(void* wManager, ErrorContainer* errContainer,
+PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
                            SDL_Renderer* renderer, Size size);
 Error destroyPlayScene(Scene* self);
 

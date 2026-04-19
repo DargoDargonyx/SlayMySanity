@@ -1,42 +1,40 @@
 /**
  * @file camera.c
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/18/2026
  * @brief Handles the logic for the scene viewing.
  */
 
 #include "graphics/camera.h"
 #include "util/error.h"
+#include "world/physics.h"
 #include "world/player.h"
 
 #include <stdlib.h>
 
 /**
  * @author DargoDargonyx
- * @date 04/09/2026
+ * @date 04/18/2026
  * @brief Handles the logic for creating a new Cam struct.
  *
  * @param worldPos : PosFloat struct
  * @param pixelSize : Size struct
  * @param zoom : float
- * @param scale : Size struct
  * @return An Error struct that describes whether or not the
  * Cam struct was successfully created
  */
-Cam* createCamera(PosFloat worldPos, Size pixelSize, float zoom, Size scale) {
+Cam* createCamera(Coord coord, Size pixelSize, float zoom) {
 
     Cam* cam = (Cam*) malloc(sizeof(Cam));
+    cam->scale = (Size){WORLD_COORD_WIDTH, WORLD_COORD_HEIGHT};
     cam->player = NULL;
-    cam->worldPos = worldPos;
-    cam->pixelPos = (Pos){
-        cam->worldPos.x * scale.w,
-        cam->worldPos.y * scale.h,
-    };
+    cam->coord = coord;
+    cam->pixelPos =
+        (Pos){cam->coord.x * cam->scale.w, cam->coord.y * cam->scale.h};
     cam->pixelSize = pixelSize;
-    cam->worldSize = (SizeFloat){cam->pixelSize.w / (float) scale.w,
-                                 cam->pixelSize.h / (float) scale.h};
+    cam->worldSize = (SizeFloat){cam->pixelSize.w / (float) cam->scale.w,
+                                 cam->pixelSize.h / (float) cam->scale.h};
     cam->zoom = zoom;
-    cam->scale = scale;
     return cam;
 }
 
@@ -74,7 +72,7 @@ Error addPlayerToCamera(Cam* self, Player* player) {
 
 /**
  * @author DargoDargonyx
- * @date 04/09/2026
+ * @date 04/17/2026
  * @brief Handles the logic for updating the pixel position
  * of a Cam struct based on it's world position.
  *
@@ -82,32 +80,61 @@ Error addPlayerToCamera(Cam* self, Player* player) {
  * @return An Error struct that describes whether or not the
  * Cam struct was successfully updated
  */
-Error refreshPixelPos(Cam* self) {
+Error refreshCamPixelPos(Cam* self) {
     if (!self)
         return createError(
             ESTAT_CAM_REFRESH,
             "Could not refresh the pixel position for a NULL camera");
-    self->pixelPos = (Pos){(int) (self->worldPos.x * self->scale.w),
-                           (int) (self->worldPos.y * self->scale.h)};
+    self->pixelPos = (Pos){(int) (self->coord.x * self->scale.w),
+                           (int) (self->coord.y * self->scale.h)};
     return createError(ESTAT_MAIN_NONE, NULL);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/09/2026
- * @brief Handles the logic for updating the world position
- * of a Cam struct based on it's pixel position.
+ * @date 04/18/2026
+ * @brief Handles the logic for checking whether or not
+ * the camera needs to be moved.
  *
- * @param self : Cam struct pointer
- * @return An Error struct that describes whether or not the
- * Cam struct was successfully updated
+ * @param cam : Camera struct pointer
+ * @param maxBounds : SizeFloat struct
+ * @param dt : float
+ * @return An Error struct that describes whether or not there was an
+ * issue when determining camera movement
  */
-Error refreshWorldPos(Cam* self) {
-    if (!self)
-        return createError(
-            ESTAT_CAM_REFRESH,
-            "Could not refresh the world position for a NULL camera");
-    self->worldPos = (PosFloat){(float) self->pixelPos.x / self->scale.w,
-                                (float) self->pixelPos.y / self->scale.h};
-    return createError(ESTAT_MAIN_NONE, NULL);
+Error handleCameraMovement(Cam* cam, SizeFloat maxWorldBounds, float dt) {
+    float movement = (500.0f * dt) / cam->zoom;
+
+    if (cam->player) {
+        float distX = cam->player->coord.x - cam->coord.x;
+        float distY = cam->player->coord.y - cam->coord.y;
+        if (distX < 0) {
+            if (0 - distX < movement) cam->coord.x += distX;
+            else cam->coord.x -= movement;
+        }
+        if (distX > 0) {
+            if (distX < movement) cam->coord.x += distX;
+            else cam->coord.x += movement;
+        }
+        if (distY < 0) {
+            if (0 - distY < movement) cam->coord.y += distY;
+            else cam->coord.y -= movement;
+        }
+        if (distY > 0) {
+            if (distY < movement) cam->coord.y += distY;
+            else cam->coord.y += movement;
+        }
+    }
+
+    float halfX = cam->worldSize.w / 2;
+    float halfY = cam->worldSize.h / 2;
+    if (cam->coord.x < halfX) cam->coord.x = halfX;
+    if (cam->coord.y < halfY) cam->coord.y = halfY;
+    if (cam->coord.x > (maxWorldBounds.w - halfX))
+        cam->coord.x = maxWorldBounds.w - halfX;
+    if (cam->coord.y > (maxWorldBounds.h - halfY))
+        cam->coord.y = maxWorldBounds.h - halfY;
+
+    Error err = refreshCamPixelPos(cam);
+    return err;
 }

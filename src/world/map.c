@@ -1,13 +1,14 @@
 /**
  * @file map.c
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/18/2026
  * @brief Handles the logic for maps and tiles.
  */
 
 #include "world/map.h"
 #include "util/error.h"
 #include "util/helper.h"
+#include "world/physics.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -15,37 +16,25 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/18/2026
  * @brief Handles the logic for creating a Map struct.
  *
+ * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @return A pointer to the Map struct in question
  */
-Map* createTestMap(SDL_Renderer* renderer) {
+Map* createTestMap(ErrorContainer* errCont, SDL_Renderer* renderer) {
     Map* map = (Map*) malloc(sizeof(Map));
-    map->size.w = 100;
-    map->size.h = 100;
-    map->tiles = (int*) calloc(map->size.w * map->size.h, sizeof(int));
-
-    for (int y = 0; y < map->size.h; y++) {
-        for (int x = 0; x < map->size.w; x++) {
-            int index = (y * map->size.w) + x;
-            map->tiles[index] = TILE_TYPE_GRASS;
-        }
-    }
-
-    const char* spritesheetPath = "../assets/sprites/tiles/test_tiles.png";
-    Size tileSize = {TEST_TILE_W, TEST_TILE_H};
-    Size sheetSize = {TEST_TILESET_ROWS, TEST_TILESET_COLS};
-    map->tileset =
-        createTileset(renderer, spritesheetPath, tileSize, sheetSize);
+    const char* spritePath = "../assets/sprites/map/testing_map.png";
+    Error err = createMapTexture(map, renderer, spritePath);
+    if (err.statusNum != ESTAT_MAIN_NONE) addErrorToContainer(errCont, err);
 
     return map;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/18/2026
  * @brief Handles the logic for destroying a Map struct.
  *
  * @param self : Map struct pointer
@@ -54,52 +43,34 @@ Map* createTestMap(SDL_Renderer* renderer) {
  */
 Error destroyMap(Map* self) {
     Error err = createError(ESTAT_MAIN_NONE, NULL);
-    err = destroyTileset(self->tileset);
-    if (err.statusNum != ESTAT_MAIN_NONE)
-        return err;
-
-    free(self->tiles);
     free(self);
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
- * @brief Handles the logic for creating a Tileset struct.
+ * @date 04/18/2026
+ * @brief Handles the logic for creating the SDL texture for a map.
  *
+ * @param map : Map struct pointer
  * @param renderer : SDL_Renderer pointer
- * @param spritesheetPath : c-style string literal
- * @param tileSize : Size struct
- * @param sheetSize : Size struct
- * @return A pointer to the newly created Tileset struct
- */
-Tileset* createTileset(SDL_Renderer* renderer, const char* spritesheetPath,
-                       Size tileSize, Size sheetSize) {
-
-    Tileset* tileset = (Tileset*) malloc(sizeof(Tileset));
-    SDL_Surface* surface = IMG_Load(spritesheetPath);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
-    tileset->texture = texture;
-    tileset->tileSize = tileSize;
-    tileset->sheetSize = sheetSize;
-
-    return tileset;
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/04/2026
- * @brief Handles the logic for destroying a Tileset struct.
- *
- * @param self : Tileset struct pointer
+ * @param filepath : c-style string literal
  * @return An Error struct that describes whether or not the
- * Tileset struct was successfully destroyed
+ * SDL texture was successfully created for the map in question
  */
-Error destroyTileset(Tileset* self) {
-    SDL_DestroyTexture(self->texture);
-    free(self);
-    return createError(ESTAT_MAIN_NONE, NULL);
+Error createMapTexture(Map* map, SDL_Renderer* renderer, const char* filepath) {
+    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    SDL_Surface* surface = IMG_Load(filepath);
+    if (!surface) {
+        err = createError(ESTAT_SPRITE_LOAD_IMG,
+                          "Could not load the sritesheet image file");
+    } else {
+        map->texture = SDL_CreateTextureFromSurface(renderer, surface);
+        map->pixelSize.w = surface->w;
+        map->pixelSize.h = surface->h;
+        map->worldSize.w = (float) map->pixelSize.w / WORLD_COORD_WIDTH;
+        map->worldSize.h = (float) map->pixelSize.h / WORLD_COORD_HEIGHT;
+        SDL_FreeSurface(surface);
+    }
+    return err;
 }
