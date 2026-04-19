@@ -9,14 +9,12 @@ LDFLAGS := $(shell sdl2-config --libs) \
            -lSDL2_ttf -lSDL2_image -lSDL2_mixer \
            -Wl,-rpath,'$$ORIGIN/lib'
 
-SRC := $(SRC_DIR)/main.c $(SRC_DIR)/core/engine.c \
-	   $(SRC_DIR)/core/scene.c $(SRC_DIR)/graphics/animation.c \
-	   $(SRC_DIR)/graphics/camera.c $(SRC_DIR)/graphics/render.c \
-	   $(SRC_DIR)/graphics/sprite.c $(SRC_DIR)/ui/font.c \
-	   $(SRC_DIR)/ui/input.c $(SRC_DIR)/ui/widget.c \
-	   $(SRC_DIR)/util/error.c $(SRC_DIR)/util/helper.c \
-	   $(SRC_DIR)/util/window.c $(SRC_DIR)/world/physics.c \
-	   $(SRC_DIR)/world/map.c $(SRC_DIR)/world/player.c
+SRC := $(wildcard $(SRC_DIR)/*.c) \
+	   $(wildcard $(SRC_DIR)/core/*c) \
+	   $(wildcard $(SRC_DIR)/graphics/*c) \
+	   $(wildcard $(SRC_DIR)/ui/*c) \
+	   $(wildcard $(SRC_DIR)/util/*c) \
+	   $(wildcard $(SRC_DIR)/world/*c)
 
 OBJ := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 
@@ -24,7 +22,7 @@ TARGET := $(DIST_DIR)/game
 
 CFLAGS := $(BASE_CFLAGS) -O2 -DNDEBUG
 
-all: $(TARGET) copy_libs
+all: $(TARGET)
 
 $(TARGET): $(OBJ)
 	mkdir -p $(DIST_DIR)
