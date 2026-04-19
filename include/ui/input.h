@@ -1,7 +1,7 @@
 /**
  * @file input.h
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for user input.
  */
 
@@ -14,7 +14,7 @@
 
 #include <SDL2/SDL.h>
 
-Error handlePlayerEvent(Player* player, float dt);
-void handleButtonEvent(Button* btn, SDL_Event* e);
+Error* handlePlayerEvent(Player*, float);
+void handleButtonEvent(Button*, SDL_Event*);
 
 #endif

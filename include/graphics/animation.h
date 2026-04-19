@@ -1,7 +1,7 @@
 /**
  * @file animaion.h
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for animations.
  */
 
@@ -47,15 +47,15 @@ typedef struct {
 } AnimationManager;
 
 AnimationSeq* createAnimationSeq();
-Error destroyAnimationSeq(AnimationSeq* self);
-Error addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame);
+Error* destroyAnimationSeq(AnimationSeq*);
+Error* addFrameToAnimationSeq(AnimationSeq*, AnimationFrame);
 
-Error iterateSeq(AnimationSeq* seq);
-Error animateSeq(AnimationManager* aManager, SDL_Rect* src);
-Error switchAnimationSeq(AnimationManager* aManager, int animationOrder);
+Error* iterateSeq(AnimationSeq*);
+Error* animateSeq(AnimationManager*, SDL_Rect*);
+Error* switchAnimationSeq(AnimationManager*, int);
 
-AnimationManager* createAnimationManager(Spritesheet* spritesheet);
-Error destroyAnimationManager(AnimationManager* self);
-Error addSeqToAnimationManager(AnimationManager* manager, AnimationSeq* seq);
+AnimationManager* createAnimationManager(Spritesheet*);
+Error* destroyAnimationManager(AnimationManager*);
+Error* addSeqToAnimationManager(AnimationManager*, AnimationSeq*);
 
 #endif

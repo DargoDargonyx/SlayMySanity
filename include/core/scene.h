@@ -1,7 +1,7 @@
 /**
  * @file scene.h
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for scenes.
  */
 
@@ -24,7 +24,7 @@ typedef enum { START_MENU, OPTIONS_MENU, PLAY } SceneType;
 typedef struct Scene Scene;
 struct Scene {
     SceneType type;
-    Error (*destroy)(Scene* self);
+    Error* (*destroy)(Scene* self);
     Size size;
     int btnCount;
     int btnCap;
@@ -48,19 +48,17 @@ typedef struct {
     Map* map;
 } PlayScene;
 
-Error addBtnToScene(Scene* scene, Button* btn);
+Error* addBtnToScene(Scene*, Button*);
 
-StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
-                                     SDL_Renderer* renderer, Size size);
-Error destroyStartMenuScene(Scene* self);
+StartMenuScene* createStartMenuScene(void*, ErrorContainer*, SDL_Renderer*,
+                                     Size);
+Error* destroyStartMenuScene(Scene*);
 
-OptionsMenuScene* createOptionsMenuScene(void* wManager,
-                                         ErrorContainer* errCont,
-                                         SDL_Renderer* renderer, Size size);
-Error destroyOptionsMenuScene(Scene* self);
+OptionsMenuScene* createOptionsMenuScene(void*, ErrorContainer*, SDL_Renderer*,
+                                         Size);
+Error* destroyOptionsMenuScene(Scene*);
 
-PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
-                           SDL_Renderer* renderer, Size size);
-Error destroyPlayScene(Scene* self);
+PlayScene* createPlayScene(void*, ErrorContainer*, SDL_Renderer*, Size);
+Error* destroyPlayScene(Scene*);
 
 #endif

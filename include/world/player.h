@@ -1,7 +1,7 @@
 /**
  * @file player.h
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for the main player.
  */
 
@@ -26,25 +26,24 @@ typedef struct {
     Direction facingDir;
 } Player;
 
-Player* createPlayer(ErrorContainer* errContainer, SDL_Renderer* renderer,
-                     const char* spritesheetPath, Coord initCoord, float speed);
-Error destroyPlayer(Player* self);
+Player* createPlayer(ErrorContainer*, SDL_Renderer*, const char*, Coord, float);
+Error* destroyPlayer(Player*);
 
-Error movePlayerNorth(Player* self, float dist);
-Error movePlayerNorthEast(Player* self, float dist);
-Error movePlayerEast(Player* self, float dist);
-Error movePlayerSouthEast(Player* self, float dist);
-Error movePlayerSouth(Player* self, float dist);
-Error movePlayerSouthWest(Player* self, float dist);
-Error movePlayerWest(Player* self, float dist);
-Error movePlayerNorthWest(Player* self, float dist);
+Error* movePlayerNorth(Player*, float);
+Error* movePlayerNorthEast(Player*, float);
+Error* movePlayerEast(Player*, float);
+Error* movePlayerSouthEast(Player*, float);
+Error* movePlayerSouth(Player*, float);
+Error* movePlayerSouthWest(Player*, float);
+Error* movePlayerWest(Player*, float);
+Error* movePlayerNorthWest(Player*, float);
 
-Error initPlayerAnimation(Player* self);
-Error createPlayerSouthEastIdleAnim(Player* self);
-Error createPlayerSouthWestIdleAnim(Player* self);
-Error createPlayerMoveNorthEastAnim(Player* self);
-Error createPlayerMoveNorthWestAnim(Player* self);
-Error createPlayerMoveSouthEastAnim(Player* self);
-Error createPlayerMoveSouthWestAnim(Player* self);
+Error* initPlayerAnimation(Player*);
+Error* createPlayerSouthEastIdleAnim(Player*);
+Error* createPlayerSouthWestIdleAnim(Player*);
+Error* createPlayerMoveNorthEastAnim(Player*);
+Error* createPlayerMoveNorthWestAnim(Player*);
+Error* createPlayerMoveSouthEastAnim(Player*);
+Error* createPlayerMoveSouthWestAnim(Player*);
 
 #endif

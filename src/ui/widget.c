@@ -1,7 +1,7 @@
 /**
  * @file widget.c
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Handles the logic for UI widgets.
  */
 
@@ -15,21 +15,20 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating an IMG_Button struct.
  *
  * @note The position of the x and y is assumed to be the center of
  * the button and is adjust to be the top left point of the button.
  *
- * @param errContainer : ErrorContainer struct pointer
+ * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param bgImagePath : c-style string literal
  * @param pos : Pos struct
  * @return A pointer to the newly created IMG_Button struct
  */
-IMG_Button* createImgButton(ErrorContainer* errContainer,
-                            SDL_Renderer* renderer, const char* bgImagePath,
-                            Pos pos, int spriteNum) {
+IMG_Button* createImgButton(ErrorContainer* errCont, SDL_Renderer* renderer,
+                            const char* bgImagePath, Pos pos, int spriteNum) {
 
     IMG_Button* btn = (IMG_Button*) malloc(sizeof(IMG_Button));
     btn->base.type = IMG;
@@ -40,8 +39,8 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
     SDL_Surface* bgSurface = IMG_Load(bgImagePath);
     if (!bgSurface)
         addErrorToContainer(
-            errContainer, createError(ESTAT_RENDER_LOAD_IMG,
-                                      "Couldn't load button background image"));
+            errCont,
+            createError(RENDER, "Couldn't load button background image"));
 
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
@@ -59,33 +58,32 @@ IMG_Button* createImgButton(ErrorContainer* errContainer,
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/19/2026
  * @brief Handles the logic for destroying an IMG_Button struct.
  *
  * @param self : Button struct pointer
- * @return An Error struct that describes whether or not
- * the IMG_Button struct was in question successfully destroyed
+ * @return A pointer to an Error struct that describes whether
+ * or not the IMG_Button struct was in question successfully
+ * destroyed
  */
-Error destroyImgButton(Button* self) {
-    if (!self)
-        return createError(ESTAT_WIDGET_BTN_DESTROY,
-                           "Could not destroy a NULL Image Button");
+Error* destroyImgButton(Button* self) {
+    if (!self) return createError(UI, "Could not destroy a NULL Image Button");
 
     TXT_Button* btn = (TXT_Button*) self;
     SDL_DestroyTexture(btn->base.bgTexture);
     free(btn);
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating a TXT_Button struct.
  *
  * @note The position of the x and y is assumed to be the center of
  * the button and is adjust to be the top left point of the button.
  *
- * @param errContainer : ErroContainer struct pointer
+ * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param bgImagePath : c-style string literal
  * @param pos : Pos struct
@@ -93,10 +91,9 @@ Error destroyImgButton(Button* self) {
  * @param font : Font struct pointer
  * @return A pointer to the newly created TXT_Button struct
  */
-TXT_Button* createTxtButton(ErrorContainer* errContainer,
-                            SDL_Renderer* renderer, const char* bgImagePath,
-                            Pos pos, int spriteNum, const char* txt,
-                            Font* font) {
+TXT_Button* createTxtButton(ErrorContainer* errCont, SDL_Renderer* renderer,
+                            const char* bgImagePath, Pos pos, int spriteNum,
+                            const char* txt, Font* font) {
 
     TXT_Button* btn = (TXT_Button*) malloc(sizeof(TXT_Button));
     btn->base.type = TXT;
@@ -107,8 +104,8 @@ TXT_Button* createTxtButton(ErrorContainer* errContainer,
     SDL_Surface* bgSurface = IMG_Load(bgImagePath);
     if (!bgSurface)
         addErrorToContainer(
-            errContainer, createError(ESTAT_RENDER_LOAD_IMG,
-                                      "Couldn't load button background image"));
+            errCont,
+            createError(RENDER, "Couldn't load button background image"));
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     Size size;
     SDL_QueryTexture(bgTexture, NULL, NULL, &size.w, &size.h);
@@ -140,22 +137,20 @@ TXT_Button* createTxtButton(ErrorContainer* errContainer,
 
 /**
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/19/2026
  * @brief Handles the logic for destroying a TXT_Button struct.
  *
  * @param self : Button struct pointer
- * @return An Error struct that describes whether or not
- * the TXT_Button struct in question was successfully destroyed
+ * @return A pointer to an Error struct that describes whether
+ * or not the TXT_Button struct in question was successfully
+ * destroyed
  */
-Error destroyTxtButton(Button* self) {
-    if (!self)
-        return createError(ESTAT_WIDGET_BTN_DESTROY,
-                           "Could not destroy a NULL Text Button");
+Error* destroyTxtButton(Button* self) {
+    if (!self) return createError(UI, "Could not destroy a NULL Text Button");
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
     TXT_Button* btn = (TXT_Button*) self;
     SDL_DestroyTexture(btn->base.bgTexture);
     SDL_DestroyTexture(btn->txtTexture);
     free(btn);
-    return err;
+    return NULL;
 }

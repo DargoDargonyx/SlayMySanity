@@ -1,7 +1,7 @@
 /**
  * @file sprite.h
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/19/2026
  * @brief Handles the logic for sprites and spritesheets.
  */
 
@@ -22,10 +22,9 @@ typedef struct {
     int spriteCount;
 } Spritesheet;
 
-Spritesheet* createSpritesheet(ErrorContainer* errContainer,
-                               SDL_Renderer* renderer, const char* filepath,
-                               Size sheetSize, int spriteCount);
-Error destroySpritesheet(Spritesheet* self);
-Error scaleSpritesheet(Spritesheet* spritesheet, Size scaledPixelSize);
+Spritesheet* createSpritesheet(ErrorContainer*, SDL_Renderer*, const char*,
+                               Size, int);
+Error* destroySpritesheet(Spritesheet*);
+Error* scaleSpritesheet(Spritesheet*, Size);
 
 #endif

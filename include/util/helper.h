@@ -1,7 +1,7 @@
 /**
  * @file helper.h
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Generic helper functions and structs for random
  * logic needed throughout the program.
  */
@@ -42,6 +42,6 @@ typedef enum {
     NORTH_WEST
 } Direction;
 
-int pointInRect(Pos pos, SDL_Rect* rect);
+int pointInRect(Pos, SDL_Rect*);
 
 #endif

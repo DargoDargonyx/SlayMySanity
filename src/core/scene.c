@@ -1,7 +1,7 @@
 /**
  * @file scene.c
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for scenes.
  */
 
@@ -19,22 +19,21 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/08/26
+ * @date 04/19/26
  * @brief Handles the logic for adding a Button struct to a
  * StartMenuScene struct.
  *
  * @param scene : StartMenuScene struct pointer
  * @param btn : Button struct pointer
- * @return An Error struct that describes whether or not the
- * Button struct was successfully added to the StartMenuScene
+ * @return A pointer to an Error struct that describes
+ * whether or not the Button struct was successfully added
+ * to the StartMenuScene
  */
-Error addBtnToScene(Scene* scene, Button* btn) {
+Error* addBtnToScene(Scene* scene, Button* btn) {
     if (!scene)
-        return createError(ESTAT_SCENE_ADD_BTN,
-                           "Could not add a Button to a NULL scene");
+        return createError(SCENE, "Could not add a Button to a NULL scene");
     if (!btn)
-        return createError(ESTAT_SCENE_ADD_BTN,
-                           "Could not add a NULL button to a scene");
+        return createError(SCENE, "Could not add a NULL button to a scene");
 
     if (scene->btnCount == scene->btnCap) {
         scene->btnCap = (scene->btnCount + 1) * 2;
@@ -42,8 +41,7 @@ Error addBtnToScene(Scene* scene, Button* btn) {
         Button** temp = (Button**) calloc(scene->btnCap, sizeof(Button*));
         if (!temp)
             return createError(
-                ESTAT_SCENE_ADD_BTN,
-                "Could not reallocate a larger Button array field");
+                SCENE, "Could not reallocate a larger Button array field");
 
         for (int i = 0; i < scene->btnCount; i++) { temp[i] = orig[i]; }
         free(orig);
@@ -51,12 +49,12 @@ Error addBtnToScene(Scene* scene, Button* btn) {
     }
 
     scene->btns[scene->btnCount++] = btn;
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/18/26
+ * @date 04/19/26
  * @brief Handles the logic for creating a StartMenuScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -66,13 +64,12 @@ Error addBtnToScene(Scene* scene, Button* btn) {
  * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param size : Size struct
- * @return An Error struct that describes whether or not the
- * StartMenuScene struct in question was successfully created
+ * @return A pointer to the newly created StartMenuScene in question
  */
 StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
                                      SDL_Renderer* renderer, Size size) {
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
 
     StartMenuScene* scene = (StartMenuScene*) malloc(sizeof(StartMenuScene));
     scene->base.type = START_MENU;
@@ -90,8 +87,8 @@ StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
         IMG_Load("../assets/sprites/ui/start_menu/bg_img.png");
     if (!bgSurface)
         addErrorToContainer(
-            errCont, createError(ESTAT_RENDER_LOAD_IMG,
-                                 "Failed to load start menu background image"));
+            errCont,
+            createError(RENDER, "Failed to load start menu background image"));
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
     scene->bgTexture = bgTexture;
@@ -107,7 +104,7 @@ StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
     sButton->base.onClick = loadPlayScene;
     sButton->base.userData = wManager;
     err = addBtnToScene(&scene->base, (Button*) sButton);
-    if (err.statusNum != ESTAT_MAIN_NONE) addErrorToContainer(errCont, err);
+    if (err) addErrorToContainer(errCont, err);
 
     // Options Button
     const char* obImgPath = "../assets/sprites/ui/start_menu/main_button.png";
@@ -120,7 +117,7 @@ StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
     oButton->base.onClick = loadOptionsMenuScene;
     oButton->base.userData = wManager;
     err = addBtnToScene(&scene->base, (Button*) oButton);
-    if (err.statusNum != ESTAT_MAIN_NONE) addErrorToContainer(errCont, err);
+    if (err) addErrorToContainer(errCont, err);
 
     // Exit Button
     const char* ebImgPath = "../assets/sprites/ui/start_menu/main_button.png";
@@ -134,32 +131,31 @@ StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
     exitButton->base.onClick = exitGameLoop;
     exitButton->base.userData = wManager;
     err = addBtnToScene(&scene->base, (Button*) exitButton);
-    if (err.statusNum != ESTAT_MAIN_NONE) addErrorToContainer(errCont, err);
+    if (err) addErrorToContainer(errCont, err);
 
     return scene;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/03/26
+ * @date 04/19/26
  * @brief Handles the logic for destroying a StartMenuScene struct.
  *
  * @param self : Scene struct pointer
- * @return An Error struct that describes whether or not the
- * StartMenuScene struct in question was successfully destroyed
+ * @return A pointer to an Error struct that describes whether
+ * or not the StartMenuScene struct in question was successfully
+ * destroyed
  */
-Error destroyStartMenuScene(Scene* self) {
-    if (!self)
-        return createError(ESTAT_SCENE_DESTROY,
-                           "Could not destroy a NULL scene");
+Error* destroyStartMenuScene(Scene* self) {
+    if (!self) return createError(SCENE, "Could not destroy a NULL scene");
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
     StartMenuScene* scene = (StartMenuScene*) self;
     SDL_DestroyTexture(scene->bgTexture);
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
     }
 
     free(scene->base.btns);
@@ -168,7 +164,7 @@ Error destroyStartMenuScene(Scene* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/26
+ * @date 04/19/26
  * @brief Handles the logic for creating an OptionsMenuScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -178,14 +174,13 @@ Error destroyStartMenuScene(Scene* self) {
  * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param size : Size struct
- * @return An Error struct that describes whether or not the
- * OptionsMenuScene struct in question was successfully created
+ * @return A pointer to the newly created OptionsMenuScene in question
  */
 OptionsMenuScene* createOptionsMenuScene(void* wManager,
                                          ErrorContainer* errCont,
                                          SDL_Renderer* renderer, Size size) {
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
 
     OptionsMenuScene* scene =
         (OptionsMenuScene*) malloc(sizeof(OptionsMenuScene));
@@ -204,8 +199,8 @@ OptionsMenuScene* createOptionsMenuScene(void* wManager,
         IMG_Load("../assets/sprites/ui/options_menu/bg_img.png");
     if (!bgSurface)
         addErrorToContainer(
-            errCont, createError(ESTAT_RENDER_LOAD_IMG,
-                                 "Failed to load start menu background image"));
+            errCont,
+            createError(RENDER, "Failed to load start menu background image"));
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
     scene->bgTexture = bgTexture;
@@ -219,32 +214,31 @@ OptionsMenuScene* createOptionsMenuScene(void* wManager,
     rButton->base.onClick = loadStartMenuScene;
     rButton->base.userData = wManager;
     err = addBtnToScene(&scene->base, (Button*) rButton);
-    if (err.statusNum != ESTAT_MAIN_NONE) addErrorToContainer(errCont, err);
+    if (err) addErrorToContainer(errCont, err);
 
     return scene;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/04/26
+ * @date 04/19/26
  * @brief Handles the logic for destroying an OptionsMenuScene struct.
  *
  * @param self : Scene struct pointer
- * @return An Error struct that describes whether or not the
- * OptionsMenuScene struct in question was successfully destroyed
+ * @return A pointer to an Error struct that describes whether
+ * or not the OptionsMenuScene struct in question was successfully
+ * destroyed
  */
-Error destroyOptionsMenuScene(Scene* self) {
-    if (!self)
-        return createError(ESTAT_SCENE_DESTROY,
-                           "Could not destroy a NULL scene");
+Error* destroyOptionsMenuScene(Scene* self) {
+    if (!self) return createError(SCENE, "Could not destroy a NULL scene");
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
     OptionsMenuScene* scene = (OptionsMenuScene*) self;
     SDL_DestroyTexture(scene->bgTexture);
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
     }
 
     free(scene->base.btns);
@@ -253,7 +247,7 @@ Error destroyOptionsMenuScene(Scene* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/26
+ * @date 04/19/26
  * @brief Handles the logic for creating a PlayScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -263,13 +257,12 @@ Error destroyOptionsMenuScene(Scene* self) {
  * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param size : Size struct
- * @return An Error struct that describes whether or not the
- * PlayScene struct in question was successfully created
+ * @return A pointer to the newly created PlayScene in question
  */
 PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
                            SDL_Renderer* renderer, Size size) {
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
 
     PlayScene* scene = (PlayScene*) malloc(sizeof(PlayScene));
     scene->base.type = PLAY;
@@ -281,7 +274,7 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
 
     // map
     scene->map = createTestMap(errCont, renderer);
-    if (errCont->errCount > 0) return scene;
+    if (errCont->count > 0) return scene;
 
     // Player
     const char* playerSpritesheetPath =
@@ -292,10 +285,10 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
     float initPlayerSpeed = 1.0f;
     scene->player = createPlayer(errCont, renderer, playerSpritesheetPath,
                                  initPlayerCoord, initPlayerSpeed);
-    if (errCont->errCount > 0) return scene;
+    if (errCont->count > 0) return scene;
 
     err = initPlayerAnimation(scene->player);
-    if (err.statusNum != ESTAT_MAIN_NONE) {
+    if (err) {
         addErrorToContainer(errCont, err);
         return scene;
     }
@@ -303,7 +296,7 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
     // Camera
     scene->cam = createCamera(initPlayerCoord, scene->base.size, 2.0f);
     err = addPlayerToCamera(scene->cam, scene->player);
-    if (err.statusNum != ESTAT_MAIN_NONE) {
+    if (err) {
         addErrorToContainer(errCont, err);
         return scene;
     }
@@ -317,31 +310,30 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
     backButton->base.onClick = loadStartMenuScene;
     backButton->base.userData = wManager;
     err = addBtnToScene(&scene->base, (Button*) backButton);
-    if (err.statusNum != ESTAT_MAIN_NONE) addErrorToContainer(errCont, err);
+    if (err) addErrorToContainer(errCont, err);
 
     return scene;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/04/26
+ * @date 04/19/26
  * @brief Handles the logic for destroying an PlayScene struct.
  *
  * @param self : Scene struct pointer
- * @return An Error struct that describes whether or not the
- * PlayScene struct in question was successfully destroyed
+ * @return A pointer to an Error struct that describes whether
+ * or not the PlayScene struct in question was successfully
+ * destroyed
  */
-Error destroyPlayScene(Scene* self) {
-    if (!self)
-        return createError(ESTAT_SCENE_DESTROY,
-                           "Could not destroy a NULL scene");
+Error* destroyPlayScene(Scene* self) {
+    if (!self) return createError(SCENE, "Could not destroy a NULL scene");
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
     PlayScene* scene = (PlayScene*) self;
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
     }
 
     destroyCamera(scene->cam);
