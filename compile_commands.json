@@ -2,7 +2,7 @@
   {
     "file": "src/main.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/main.c",
       "-o",
@@ -22,7 +22,7 @@
   {
     "file": "src/core/engine.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/core/engine.c",
       "-o",
@@ -42,7 +42,7 @@
   {
     "file": "src/core/scene.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/core/scene.c",
       "-o",
@@ -60,9 +60,29 @@
     "output": "build/core/scene.o"
   },
   {
+    "file": "src/graphics/animation.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "src/graphics/animation.c",
+      "-o",
+      "build/graphics/animation.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/graphics/animation.o"
+  },
+  {
     "file": "src/graphics/camera.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/graphics/camera.c",
       "-o",
@@ -82,7 +102,7 @@
   {
     "file": "src/graphics/render.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/graphics/render.c",
       "-o",
@@ -100,9 +120,29 @@
     "output": "build/graphics/render.o"
   },
   {
+    "file": "src/graphics/sprite.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "src/graphics/sprite.c",
+      "-o",
+      "build/graphics/sprite.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/graphics/sprite.o"
+  },
+  {
     "file": "src/ui/font.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/ui/font.c",
       "-o",
@@ -122,7 +162,7 @@
   {
     "file": "src/ui/input.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/ui/input.c",
       "-o",
@@ -142,7 +182,7 @@
   {
     "file": "src/ui/widget.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/ui/widget.c",
       "-o",
@@ -162,7 +202,7 @@
   {
     "file": "src/util/error.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/util/error.c",
       "-o",
@@ -180,9 +220,29 @@
     "output": "build/util/error.o"
   },
   {
+    "file": "src/util/helper.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "src/util/helper.c",
+      "-o",
+      "build/util/helper.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/util/helper.o"
+  },
+  {
     "file": "src/util/window.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/util/window.c",
       "-o",
@@ -202,7 +262,7 @@
   {
     "file": "src/world/physics.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/world/physics.c",
       "-o",
@@ -222,7 +282,7 @@
   {
     "file": "src/world/map.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/world/map.c",
       "-o",
@@ -242,7 +302,7 @@
   {
     "file": "src/world/player.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-c",
       "src/world/player.c",
       "-o",
