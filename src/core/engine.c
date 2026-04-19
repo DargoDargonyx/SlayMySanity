@@ -1,7 +1,7 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -15,16 +15,16 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/18/26
+ * @date 04/19/26
  * @brief Handles the logic for running the main game loop.
  *
  * @param wManager : WindowManager struct pointer
- * @return An Error struct that describes whether or not the
- * game loop ran successfully
+ * @return A pointer to an Error struct that describes
+ * whether or not the game loop ran successfully
  */
-Error runGameLoop(WindowManager* wManager) {
+Error* runGameLoop(WindowManager* wManager) {
     SDL_Event event;
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
     float targetFrameTime = 1000.0f / TARGET_FPS;
 
     // Initializing the current scene to the start menu
@@ -51,19 +51,19 @@ Error runGameLoop(WindowManager* wManager) {
         if (wManager->currentScene->type == PLAY) {
             PlayScene* scene = (PlayScene*) wManager->currentScene;
             err = handlePlayerEvent(scene->player, dt);
-            if (err.statusNum != ESTAT_MAIN_NONE) return err;
+            if (err) return err;
             err = handleCameraMovement(scene->cam, scene->map->worldSize, dt);
-            if (err.statusNum != ESTAT_MAIN_NONE) return err;
+            if (err) return err;
         }
 
-        if (wManager->errContainer->errCount > 0) {
-            Error tmpErr = clearCurrentScene(wManager);
-            if (tmpErr.statusNum != ESTAT_MAIN_NONE) return tmpErr;
-            return wManager->errContainer->errs[0];
+        if (wManager->errCont->count > 0) {
+            Error* tmpErr = clearCurrentScene(wManager);
+            if (tmpErr) return tmpErr;
+            return wManager->errCont->errs[0];
         }
 
         err = drawCurrentScene(wManager);
-        if (err.statusNum != ESTAT_MAIN_NONE) {
+        if (err) {
             IMG_Quit();
             return err;
         }
@@ -77,7 +77,7 @@ Error runGameLoop(WindowManager* wManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Helper function to handle loading the start menu.
  *
  * @note The window manager is passed as a void pointer because
@@ -90,12 +90,12 @@ void loadStartMenuScene(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     clearCurrentScene(manager);
     manager->currentScene = (Scene*) createStartMenuScene(
-        wManager, manager->errContainer, manager->renderer, manager->wSize);
+        wManager, manager->errCont, manager->renderer, manager->wSize);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Helper function to handle loading the main options menu.
  *
  * @note The window manager is passed as a void pointer because
@@ -108,12 +108,12 @@ void loadOptionsMenuScene(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     clearCurrentScene(manager);
     manager->currentScene = (Scene*) createOptionsMenuScene(
-        wManager, manager->errContainer, manager->renderer, manager->wSize);
+        wManager, manager->errCont, manager->renderer, manager->wSize);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Helper function to handle loading the playing scene.
  *
  * @note The window manager is passed as a void pointer because
@@ -126,7 +126,7 @@ void loadPlayScene(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     clearCurrentScene(manager);
     manager->currentScene = (Scene*) createPlayScene(
-        wManager, manager->errContainer, manager->renderer, manager->wSize);
+        wManager, manager->errCont, manager->renderer, manager->wSize);
 }
 
 /**

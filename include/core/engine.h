@@ -1,7 +1,7 @@
 /**
  * @file engine.h
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -16,15 +16,15 @@
 
 #define TARGET_FPS 60
 
-Error runGameLoop(WindowManager* wManager);
+Error* runGameLoop(WindowManager*);
 
-int pointInRect(Pos pos, SDL_Rect* rect);
-void handleButtonEvent(Button* btn, SDL_Event* e);
-Button** getSceneButtons(Scene* scene);
+int pointInRect(Pos, SDL_Rect*);
+void handleButtonEvent(Button*, SDL_Event*);
+Button** getSceneButtons(Scene*);
 
-void loadStartMenuScene(void* wManager);
-void loadOptionsMenuScene(void* wManager);
-void loadPlayScene(void* wManager);
-void exitGameLoop(void* wManager);
+void loadStartMenuScene(void*);
+void loadOptionsMenuScene(void*);
+void loadPlayScene(void*);
+void exitGameLoop(void*);
 
 #endif

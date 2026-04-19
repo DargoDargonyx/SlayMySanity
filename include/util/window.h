@@ -1,7 +1,7 @@
 /**
  * @file window.h
  * @author DargoDargonyx
- * @date 04/04/2026
+ * @date 04/19/2026
  * @brief Handles the logic for the window pop up.
  */
 
@@ -23,18 +23,18 @@ typedef struct {
     Scene* currentScene;
     SDL_Window* window;
     SDL_Renderer* renderer;
-    ErrorContainer* errContainer;
+    ErrorContainer* errCont;
 } WindowManager;
 
-WindowManager* createWindowManager(const char* name, Size wSize);
-Error destroyWindowManager(WindowManager* wManager);
-Error clearCurrentScene(WindowManager* wManager);
+WindowManager* createWindowManager(const char*, Size);
+Error* destroyWindowManager(WindowManager*);
+Error* clearCurrentScene(WindowManager*);
 
-Error checkSDLInit();
-Error createWindow(WindowManager* wManager);
-Error createRenderer(WindowManager* wManager);
+Error* checkSDLInit();
+Error* createWindow(WindowManager*);
+Error* createRenderer(WindowManager*);
 
-Error initGameWindow(WindowManager* manager);
-Error runGameWindow(const char* name, Size wSize);
+Error* initGameWindow(WindowManager*);
+Error* runGameWindow(const char*, Size);
 
 #endif

@@ -1,7 +1,7 @@
 /**
  * @file map.h
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for maps and tiles.
  */
 
@@ -19,9 +19,9 @@ typedef struct {
     Size pixelSize;
 } Map;
 
-Map* createTestMap(ErrorContainer* errCont, SDL_Renderer* renderer);
-Error destroyMap(Map* self);
+Map* createTestMap(ErrorContainer*, SDL_Renderer*);
+Error* destroyMap(Map*);
 
-Error createMapTexture(Map* map, SDL_Renderer* renderer, const char* filepath);
+Error* createMapTexture(Map*, SDL_Renderer*, const char*);
 
 #endif

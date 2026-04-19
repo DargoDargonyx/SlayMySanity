@@ -1,7 +1,7 @@
 /**
  * @file render.c
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for rendering the game.
  */
 
@@ -16,14 +16,14 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Intermediary helper function to draw the current scene.
  *
  * @param wManager : WindowManager struct pointer
- * @return An Error struct that describes whether or not the
- * scene was successfully drawn
+ * @return A pointer to an Error struct that describes whether
+ * or not the scene was successfully drawn
  */
-Error drawCurrentScene(WindowManager* wManager) {
+Error* drawCurrentScene(WindowManager* wManager) {
     switch (wManager->currentScene->type) {
         case START_MENU:
             return drawStartMenuScene(wManager,
@@ -35,32 +35,30 @@ Error drawCurrentScene(WindowManager* wManager) {
         case PLAY:
             return drawPlayScene(wManager, (PlayScene*) wManager->currentScene);
         default:
-            return createError(ESTAT_RENDER_SCENE_DRAW,
-                               "Could not draw an uknown scene");
+            return createError(RENDER, "Could not draw an uknown scene");
             break;
     }
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for drawing the game start menu.
  *
  * @param wManager : WindowManager struct pointer
  * @param scene : StartMenuScene struct pointer
- * @return An Error struct that describes whether or not the
- * start menu was successfully drawn
+ * @return A pointer to an Error struct that describes whether
+ * or not the start menu was successfully drawn
  */
-Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
-
+Error* drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
+    Error* err = NULL;
     SDL_RenderClear(wManager->renderer);
     SDL_RenderCopy(wManager->renderer, scene->bgTexture, NULL, NULL);
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         Button* btn = scene->base.btns[i];
         err = renderBtnSprite(wManager->renderer, btn);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
 
         switch (btn->type) {
             case IMG: {
@@ -89,24 +87,23 @@ Error drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/19/2026
  * @brief Handles the logic for drawing the options menu.
  *
  * @param wManager : WindowManager struct pointer
  * @param scene : OptionsMenuScene struct pointer
- * @return An Error struct that describes whether or not the
- * options menu was successfully drawn
+ * @return A pointer to an Error struct that describes whether
+ * or not the options menu was successfully drawn
  */
-Error drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
-
+Error* drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
+    Error* err = NULL;
     SDL_RenderClear(wManager->renderer);
     SDL_RenderCopy(wManager->renderer, scene->bgTexture, NULL, NULL);
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         Button* btn = scene->base.btns[i];
         err = renderBtnSprite(wManager->renderer, btn);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
 
         switch (btn->type) {
             case IMG: {
@@ -135,27 +132,27 @@ Error drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for drawing the playing scene.
  *
  * @param wManager : WindowManager struct pointer
  * @param scene : PlayScene struct pointer
- * @return An Error struct that describes whether or not the
- * playing scene was successfully drawn
+ * @return A pointer to an Error struct that describes whether
+ * or not the playing scene was successfully drawn
  */
-Error drawPlayScene(WindowManager* wManager, PlayScene* scene) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
-    if (wManager->errContainer->errCount > 0)
+Error* drawPlayScene(WindowManager* wManager, PlayScene* scene) {
+    Error* err = NULL;
+    if (wManager->errContainer->count > 0)
         return wManager->errContainer->errs[0];
 
     SDL_RenderClear(wManager->renderer);
     err = drawMap(wManager->renderer, scene->cam, scene->map);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     for (int i = 0; i < scene->base.btnCount; i++) {
         Button* btn = scene->base.btns[i];
         err = renderBtnSprite(wManager->renderer, btn);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
 
         switch (btn->type) {
             case IMG: {
@@ -180,25 +177,21 @@ Error drawPlayScene(WindowManager* wManager, PlayScene* scene) {
     }
 
     err = renderPlayerSprite(wManager->renderer, scene->cam);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
-
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for drawing a map in the playing scene.
  *
  * @param renderer : SDL_Renderer pointer
  * @param cam : Cam struct pointer
  * @param map : Map struct pointer
- * @return An Error struct that describes whether or not the
- * button sprite was successfully rendered
+ * @return A pointer to an Error struct that describes whether
+ * or not the button sprite was successfully rendered
  */
-Error drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
-
+Error* drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
     int distX = (float) cam->pixelSize.w / 2;
     int distY = (float) cam->pixelSize.h / 2;
     int startX = (int) (cam->coord.x * WORLD_COORD_WIDTH) - distX;
@@ -218,20 +211,20 @@ Error drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
     src.h = cam->pixelSize.h;
 
     SDL_RenderCopy(renderer, map->texture, &src, NULL);
-    return err;
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for rendering the sprite for a button.
  *
  * @param renderer : SDL_Renderer pointer
  * @param btn : Button struct pointer
- * @return An Error struct that describes whether or not the
- * button sprite in question was successfully rendered
+ * @return A pointer to an Error struct that describes whether
+ * or not the button sprite in question was successfully rendered
  */
-Error renderBtnSprite(SDL_Renderer* renderer, Button* btn) {
+Error* renderBtnSprite(SDL_Renderer* renderer, Button* btn) {
     SDL_Rect src = {0, 0, btn->rect.w, btn->rect.h};
     switch (btn->state) {
         case BTN_IDLE:
@@ -244,26 +237,26 @@ Error renderBtnSprite(SDL_Renderer* renderer, Button* btn) {
             src.y = 2 * btn->rect.h;
             break;
         default:
-            return createError(ESTAT_RENDER_BTN_SPRITE, "Unknown button state");
+            return createError(RENDER, "Unknown button state");
             break;
     }
     SDL_RenderCopy(renderer, btn->bgTexture, &src, &btn->rect);
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/19/2026
  * @brief Handles the logic for rendering the sprite for the player.
  *
  * @param renderer : SDL_Renderer pointer
  * @param player : Player struct pointer
  * @param screenSize : Size struct
- * @return An Error struct that describes whether or not the
- * player sprite was successfully rendered
+ * @return A pointer to an Error struct that describes whether
+ * or not the player sprite was successfully rendered
  */
-Error renderPlayerSprite(SDL_Renderer* renderer, Cam* cam) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* renderPlayerSprite(SDL_Renderer* renderer, Cam* cam) {
+    Error* err = NULL;
     AnimationManager* manager = cam->player->aManager;
 
     SDL_Rect src;
@@ -273,7 +266,7 @@ Error renderPlayerSprite(SDL_Renderer* renderer, Cam* cam) {
     src.h = manager->spritesheet->spriteSize.h;
 
     err = animateSeq(manager, &src);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     float diffX = cam->coord.x - cam->player->coord.x;
     float diffY = cam->coord.y - cam->player->coord.y;

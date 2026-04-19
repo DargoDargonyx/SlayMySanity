@@ -1,7 +1,7 @@
 /**
  * @file input.c
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for user input.
  */
 
@@ -15,17 +15,17 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for player events when a
  * button is pressed.
  *
  * @param player : Player struct pointer
  * @param dt : float
- * @return An Error struct that describes whether or not
- * the player events were handled without issue
+ * @return A pointer to an Error struct that describes whether
+ * or not the player events were handled without issue
  */
-Error handlePlayerEvent(Player* player, float dt) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* handlePlayerEvent(Player* player, float dt) {
+    Error* err = NULL;
     const Uint8* keys = SDL_GetKeyboardState(NULL);
     float dist = 10.0f * dt * player->speed;
 
@@ -83,7 +83,7 @@ Error handlePlayerEvent(Player* player, float dt) {
                                              ANIM_PLAYER_WEST_IDLE_ORDER);
                     player->facingDir = SOUTH_WEST;
                 } else {
-                    err = createError(ESTAT_PLAYER_ANIM,
+                    err = createError(ANIMATION,
                                       "Could not animate a player with an "
                                       "unkown facing direction");
                 }

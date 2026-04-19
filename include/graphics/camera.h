@@ -1,7 +1,7 @@
 /**
  * @file camera.h
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for the scene viewing.
  */
 
@@ -23,11 +23,11 @@ typedef struct {
     Player* player;
 } Cam;
 
-Cam* createCamera(Coord coord, Size pixelSize, float zoom);
-Error destroyCamera(Cam* self);
-Error addPlayerToCamera(Cam* self, Player* player);
+Cam* createCamera(Coord, Size, float);
+Error* destroyCamera(Cam*);
+Error* addPlayerToCamera(Cam*, Player*);
 
-Error handleCameraMovement(Cam* cam, SizeFloat maxBounds, float dt);
-Error refreshCamPixelPos(Cam* self);
+Error* handleCameraMovement(Cam*, SizeFloat, float);
+Error* refreshCamPixelPos(Cam*);
 
 #endif

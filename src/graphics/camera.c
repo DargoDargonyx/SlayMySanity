@@ -1,7 +1,7 @@
 /**
  * @file camera.c
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for the scene viewing.
  */
 
@@ -14,14 +14,13 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating a new Cam struct.
  *
  * @param worldPos : PosFloat struct
  * @param pixelSize : Size struct
  * @param zoom : float
- * @return An Error struct that describes whether or not the
- * Cam struct was successfully created
+ * @return A pointer to the newly created Cam struct in question
  */
 Cam* createCamera(Coord coord, Size pixelSize, float zoom) {
 
@@ -40,69 +39,69 @@ Cam* createCamera(Coord coord, Size pixelSize, float zoom) {
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for destroying a Cam struct.
  *
  * @param self : Cam struct pointer
  * @return An Error struct that describes whether or not the
  * Cam struct in question was successfully destroyed
  */
-Error destroyCamera(Cam* self) {
+Error* destroyCamera(Cam* self) {
     if (self->player) destroyPlayer(self->player);
     free(self);
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for adding a Player struct
  * to a Cam struct.
  *
  * @param self : Cam struct pointer
  * @param player : Player struct pointer
- * @return An Error struct that describes whether or not the
- * Player struct was successfully added to the Camera struct
+ * @return A pointer to an Error struct that describes whether
+ * or not the Player struct was successfully added to the
+ * Camera struct
  */
-Error addPlayerToCamera(Cam* self, Player* player) {
+Error* addPlayerToCamera(Cam* self, Player* player) {
     if (self->player) destroyPlayer(self->player);
     self->player = player;
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/19/2026
  * @brief Handles the logic for updating the pixel position
  * of a Cam struct based on it's world position.
  *
  * @param self : Cam struct pointer
- * @return An Error struct that describes whether or not the
- * Cam struct was successfully updated
+ * @return A pointer to an Error struct that describes whether
+ * or not the Cam struct was successfully updated
  */
-Error refreshCamPixelPos(Cam* self) {
+Error* refreshCamPixelPos(Cam* self) {
     if (!self)
         return createError(
-            ESTAT_CAM_REFRESH,
-            "Could not refresh the pixel position for a NULL camera");
+            CAMERA, "Could not refresh the pixel position for a NULL camera");
     self->pixelPos = (Pos){(int) (self->coord.x * self->scale.w),
                            (int) (self->coord.y * self->scale.h)};
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for checking whether or not
  * the camera needs to be moved.
  *
  * @param cam : Camera struct pointer
  * @param maxBounds : SizeFloat struct
  * @param dt : float
- * @return An Error struct that describes whether or not there was an
- * issue when determining camera movement
+ * @return A pointer to an Error struct that describes whether
+ * or not there was an issue when determining camera movement
  */
-Error handleCameraMovement(Cam* cam, SizeFloat maxWorldBounds, float dt) {
+Error* handleCameraMovement(Cam* cam, SizeFloat maxWorldBounds, float dt) {
     float movement = (500.0f * dt) / cam->zoom;
 
     if (cam->player) {
@@ -135,6 +134,6 @@ Error handleCameraMovement(Cam* cam, SizeFloat maxWorldBounds, float dt) {
     if (cam->coord.y > (maxWorldBounds.h - halfY))
         cam->coord.y = maxWorldBounds.h - halfY;
 
-    Error err = refreshCamPixelPos(cam);
+    Error* err = refreshCamPixelPos(cam);
     return err;
 }

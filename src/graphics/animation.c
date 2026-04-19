@@ -1,7 +1,7 @@
 /**
  * @file animaion.c
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/19/2026
  * @brief Handles the logic for animations.
  */
 
@@ -33,34 +33,35 @@ AnimationSeq* createAnimationSeq() {
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for destroying an AnimationSeq struct.
  *
  * @param self : AnimationSeq struct pointer
- * @return An Error struct that describes whether or not the
- * AnimationSeq struct in question was successfully destroyed
+ * @return A pointer to an Error struct that describes whether
+ * or not the AnimationSeq struct in question was successfully
+ * destroyed
  */
-Error destroyAnimationSeq(AnimationSeq* self) {
+Error* destroyAnimationSeq(AnimationSeq* self) {
     free(self->frames);
     free(self);
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for destroying an AnimationSeq struct.
  *
  * @param seq : AnimationSeq struct pointer
  * @param frame : AnimationFrame struct
- * @return An Error struct that describes whether or not
- * the AnimationFrame struct was successfully added to the
- * AnimationSeq struct
+ * @return A pointer to an Error struct that describes whether
+ * or not the AnimationFrame struct was successfully added to
+ * the AnimationSeq struct
  */
-Error addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
+Error* addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
     if (!seq)
         return createError(
-            ESTAT_ANIM_SEQ_ADD_FRAME,
+            ANIMATION,
             "Could not add an Animation Frame to a NULL Animation Sequence");
 
     if (seq->frameCount == seq->frameCap) {
@@ -70,7 +71,7 @@ Error addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
             (AnimationFrame*) calloc(seq->frameCap, sizeof(AnimationFrame));
         if (!temp)
             return createError(
-                ESTAT_ANIM_SEQ_ADD_FRAME,
+                ANIMATION,
                 "Could not reallocate a larger Animation Frame array field");
 
         for (int i = 0; i < seq->frameCount; i++) { temp[i] = orig[i]; }
@@ -79,65 +80,64 @@ Error addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
     }
 
     seq->frames[seq->frameCount++] = frame;
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for iterating the current AnimationFrame
  * in an AnimationSeq.
  *
  * @param seq : AnimationSeq struct pointer
- * @return An Error struct that describes whether or not the
- * current AnimationFrame in the AnimationSeq and SDL_Rect was
- * successfully iterated
+ * @return A pointer to an Error struct that describes whether
+ * or not the current AnimationFrame in the AnimationSeq and
+ * SDL_Rect was successfully iterated
  */
-Error iterateSeq(AnimationSeq* seq) {
+Error* iterateSeq(AnimationSeq* seq) {
     if (!seq)
-        return createError(ESTAT_ANIM_ITERATE_FRAME,
+        return createError(ANIMATION,
                            "Could not iterate the animation frame for a NULL "
                            "AnimationSeq struct");
     if (seq->frameCount == 0)
-        return createError(ESTAT_ANIM_ITERATE_FRAME,
+        return createError(ANIMATION,
                            "Could not iterate the animation frames for an "
                            "empty AnimationSeq struct");
     if (seq->currentFrameIdx >= seq->frameCount)
         return createError(
-            ESTAT_ANIM_ITERATE_FRAME,
+            ANIMATION,
             "Current animation frame has an order greater than the animation "
             "frame count for the animation sequence");
 
     if (seq->currentFrameIdx == seq->frameCount - 1) seq->currentFrameIdx = 0;
     else seq->currentFrameIdx++;
 
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for updating the rendered frame for
  * an AnimationSeq, and updating a src SDL_Rect to be rendered.
  *
  * @param aManager : AnimationManager struct pointer
  * @param src : SDL_Rect pointer
- * @return An Error struct that describes whether or not the
- * AnimationSeq and SDL_Rect was successfully updated
+ * @return A pointer to an Error struct that describes whether
+ * or not the AnimationSeq and SDL_Rect was successfully updated
  */
-Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
+Error* animateSeq(AnimationManager* aManager, SDL_Rect* src) {
     if (!aManager)
         return createError(
-            ESTAT_ANIM_ANIMATE_SEQ,
-            "Could not animate with a NULL AnimationManager struct");
+            ANIMATION, "Could not animate with a NULL AnimationManager struct");
     if (!aManager->spritesheet->texture)
-        return createError(ESTAT_ANIM_ANIMATE_SEQ,
+        return createError(ANIMATION,
                            "Could not animate with a NULL spritesheet texture");
     if (aManager->seqCount == 0)
-        return createError(ESTAT_ANIM_ANIMATE_SEQ,
+        return createError(ANIMATION,
                            "Could not animate without any animation sequences");
 
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+    Error* err = NULL;
     Uint32 now = SDL_GetTicks();
     double timeGap = (now - aManager->currentSeq->lastTime);
 
@@ -146,11 +146,11 @@ Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
         currentSeq->frames[currentSeq->currentFrameIdx];
     if (timeGap >= currentFrame.length) {
         err = iterateSeq(aManager->currentSeq);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
         aManager->currentSeq->lastTime = now;
     }
     if (currentFrame.length == 0)
-        return createError(ESTAT_ANIM_ANIMATE_SEQ,
+        return createError(ANIMATION,
                            "Could not render an animation frame with 0 length");
 
     src->w = currentFrame.size.w;
@@ -163,19 +163,19 @@ Error animateSeq(AnimationManager* aManager, SDL_Rect* src) {
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for switching the current animation
  * sequence for an AnimationManager struct.
  *
  * @param aManager : AnimationManager struct pointer
  * @param animationOrder : integer
- * @return An Error struct that describes whether or not the animation
- * sequence was able to successfully be switched
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequence was able to successfully be
+ * switched
  */
-Error switchAnimationSeq(AnimationManager* aManager, int animationOrder) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* switchAnimationSeq(AnimationManager* aManager, int animationOrder) {
     aManager->currentSeq = aManager->seq[animationOrder];
-    return err;
+    return NULL;
 }
 
 /**
@@ -202,18 +202,19 @@ AnimationManager* createAnimationManager(Spritesheet* spritesheet) {
 
 /**
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/19/2026
  * @brief Handles the logic for destroying an AnimationManager struct.
  *
  * @param self : AnimationManager struct pointer
- * @return An Error struct that describes whether or not the
- * AnimationManager struct in question was successfully destroyed
+ * @return A pointer to an Error struct that describes whether
+ * or not the AnimationManager struct in question was successfully
+ * destroyed
  */
-Error destroyAnimationManager(AnimationManager* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* destroyAnimationManager(AnimationManager* self) {
+    Error* err = NULL;
     for (int i = 0; i < self->seqCount; i++) {
         err = destroyAnimationSeq(self->seq[i]);
-        if (err.statusNum != ESTAT_MAIN_NONE) return err;
+        if (err) return err;
     }
     free(self->seq);
 
@@ -224,20 +225,20 @@ Error destroyAnimationManager(AnimationManager* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for adding an AnimationSeq struct
  * to an AnimationManager struct.
  *
  * @param manager : AnimationManager struct pointer
  * @param seq : AnimationSeq struct pointer
- * @return An Error struct that describes whether or not the
- * AnimationSeq struct was successfully added to the
+ * @return A pointer to an Error struct that describes whether
+ * or not the AnimationSeq struct was successfully added to the
  * AnimationManager struct
  */
-Error addSeqToAnimationManager(AnimationManager* manager, AnimationSeq* seq) {
+Error* addSeqToAnimationManager(AnimationManager* manager, AnimationSeq* seq) {
     if (!manager)
         return createError(
-            ESTAT_ANIM_MANAGER_ADD_SEQ,
+            ANIMATION,
             "Could not add an Animation Sequence to a NULL Animation Manager");
 
     if (manager->seqCount == manager->seqCap) {
@@ -247,7 +248,7 @@ Error addSeqToAnimationManager(AnimationManager* manager, AnimationSeq* seq) {
             (AnimationSeq**) calloc(manager->seqCap, sizeof(AnimationSeq*));
         if (!temp)
             return createError(
-                ESTAT_ANIM_MANAGER_ADD_SEQ,
+                ANIMATION,
                 "Could not reallocate a larger Animation Sequence array field");
 
         for (int i = 0; i < manager->seqCount; i++) { temp[i] = orig[i]; }
@@ -256,5 +257,5 @@ Error addSeqToAnimationManager(AnimationManager* manager, AnimationSeq* seq) {
     }
 
     manager->seq[manager->seqCount++] = seq;
-    return createError(ESTAT_MAIN_NONE, NULL);
+    return NULL;
 }

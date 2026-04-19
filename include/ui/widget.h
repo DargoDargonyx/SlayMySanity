@@ -1,7 +1,7 @@
 /**
  * @file widget.h
  * @author DargoDargonyx
- * @date 04/03/2026
+ * @date 04/19/2026
  * @brief Handles the logic for UI widgets.
  */
 
@@ -14,7 +14,7 @@
 
 #include <SDL2/SDL.h>
 
-// Orderered verticallu such that,
+// Orderered vertically such that,
 // { IDLE }
 // { HOVER }
 // { PRESSED }
@@ -26,9 +26,9 @@ typedef enum { BTN_IDLE, BTN_HOVER, BTN_PRESSED } ButtonState;
 typedef struct Button Button;
 struct Button {
     ButtonType type;
-    Error (*destroy)(Button* self);
+    Error* (*destroy)(Button*);
     ButtonState state;
-    void (*onClick)(void* data);
+    void (*onClick)(void*);
     void* userData;
     SDL_Texture* bgTexture;
     SDL_Rect rect;
@@ -46,15 +46,12 @@ typedef struct {
     SDL_Rect txtRect;
 } TXT_Button;
 
-IMG_Button* createImgButton(ErrorContainer* errContainer,
-                            SDL_Renderer* renderer, const char* bgImagePath,
-                            Pos pos, int spriteNum);
-Error destroyImgButton(Button* self);
+IMG_Button* createImgButton(ErrorContainer*, SDL_Renderer*, const char*, Pos,
+                            int);
+Error* destroyImgButton(Button*);
 
-TXT_Button* createTxtButton(ErrorContainer* errContainer,
-                            SDL_Renderer* renderer, const char* bgImagePath,
-                            Pos pos, int spriteNum, const char* txt,
-                            Font* font);
-Error destroyTxtButton(Button* self);
+TXT_Button* createTxtButton(ErrorContainer*, SDL_Renderer*, const char*, Pos,
+                            int, const char*, Font*);
+Error* destroyTxtButton(Button*);
 
 #endif

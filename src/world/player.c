@@ -1,7 +1,7 @@
 /**
  * @file player.c
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/19/2026
  * @brief Handles the logic for the main player.
  */
 
@@ -16,17 +16,17 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating a Player struct.
  *
- * @param errContainer : ErrorContainer struct pointer
+ * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
  * @param spritesheetPath : c-style string literal
  * @param initCoord : Coord struct
  * @param speed : float
  * @return A pointer to a newly created Player struct
  */
-Player* createPlayer(ErrorContainer* errContainer, SDL_Renderer* renderer,
+Player* createPlayer(ErrorContainer* errCont, SDL_Renderer* renderer,
                      const char* spritesheetPath, Coord initCoord,
                      float speed) {
 
@@ -37,8 +37,8 @@ Player* createPlayer(ErrorContainer* errContainer, SDL_Renderer* renderer,
     Size spritesheetSize =
         (Size){PLAYER_SPRITESHEET_WIDTH, PLAYER_SPRITESHEET_HEIGHT};
     Spritesheet* spritesheet =
-        createSpritesheet(errContainer, renderer, spritesheetPath,
-                          spritesheetSize, PLAYER_SPRITESHEET_SPRITE_COUNT);
+        createSpritesheet(errCont, renderer, spritesheetPath, spritesheetSize,
+                          PLAYER_SPRITESHEET_SPRITE_COUNT);
     player->aManager = createAnimationManager(spritesheet);
 
     return player;
@@ -46,37 +46,36 @@ Player* createPlayer(ErrorContainer* errContainer, SDL_Renderer* renderer,
 
 /**
  * @author DargoDargonyx
- * @date 04/08/2026
+ * @date 04/19/2026
  * @brief Handles the logic for destroying a Player struct.
  *
  * @param self : Player struct pointer
- * @return An Error struct describing whether or not the Player
- * struct in question was successfully destroyed
+ * @return A pointer to an Error struct describing whether
+ * or not the Player struct in question was successfully
+ * destroyed
  */
-Error destroyPlayer(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* destroyPlayer(Player* self) {
+    Error* err = NULL;
     if (!self)
-        return createError(ESTAT_PLAYER_DESTROY,
-                           "Could not destroy a NULL Player struct");
+        return createError(PLAYER, "Could not destroy a NULL Player struct");
     err = destroyAnimationManager(self->aManager);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
-
     free(self);
+
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player NORTH.
  *
- * @param player : Player struct pointer
+ * @param self : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A pointer to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerNorth(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerNorth(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.y -= dist;
     if (self->currentAction != MOVING_NORTH) {
         if (self->currentAction != MOVING_NORTH_EAST &&
@@ -101,16 +100,16 @@ Error movePlayerNorth(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player NORTH_EAST.
  *
- * @param player : Player struct pointer
+ * @param self : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A pointer to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerNorthEast(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerNorthEast(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.y -= dist;
     self->coord.x += dist;
     if (self->currentAction != MOVING_NORTH_EAST) {
@@ -123,16 +122,16 @@ Error movePlayerNorthEast(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player EAST.
  *
- * @param player : Player struct pointer
+ * @param selfr : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A pointer to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerEast(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerEast(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.x += dist;
     if (self->currentAction != MOVING_EAST) {
         if (self->currentAction != MOVING_SOUTH_EAST)
@@ -146,16 +145,16 @@ Error movePlayerEast(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player SOUTH_EAST.
  *
- * @param player : Player struct pointer
+ * @param self : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A pointer to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerSouthEast(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerSouthEast(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.y += dist;
     self->coord.x += dist;
     if (self->currentAction != MOVING_SOUTH_EAST) {
@@ -168,16 +167,16 @@ Error movePlayerSouthEast(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player SOUTH.
  *
- * @param player : Player struct pointer
+ * @param self : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A pointer to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerSouth(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerSouth(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.y += dist;
     if (self->currentAction != MOVING_SOUTH) {
         if (self->currentAction != MOVING_SOUTH_EAST &&
@@ -202,16 +201,16 @@ Error movePlayerSouth(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player SOUTH_WEST.
  *
- * @param player : Player struct pointer
+ * @param self : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A pointer to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerSouthWest(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerSouthWest(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.y += dist;
     self->coord.x -= dist;
     if (self->currentAction != MOVING_SOUTH_WEST) {
@@ -224,16 +223,16 @@ Error movePlayerSouthWest(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player WEST.
  *
- * @param player : Player struct pointer
+ * @param self : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A poinyter to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerWest(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerWest(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.x -= dist;
     if (self->currentAction != MOVING_WEST) {
         if (self->currentAction != MOVING_SOUTH_WEST)
@@ -247,16 +246,16 @@ Error movePlayerWest(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for moving the player NORTH_WEST.
  *
- * @param player : Player struct pointer
+ * @param self : Player struct pointer
  * @param dist : float
- * @return An Error struct that describes whether or not
- * the player was successfully moved
+ * @return A pointer to an Error struct that describes whether
+ * or not the player was successfully moved
  */
-Error movePlayerNorthWest(Player* self, float dist) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* movePlayerNorthWest(Player* self, float dist) {
+    Error* err = NULL;
     self->coord.y -= dist;
     self->coord.x -= dist;
     if (self->currentAction != MOVING_NORTH_WEST) {
@@ -269,29 +268,29 @@ Error movePlayerNorthWest(Player* self, float dist) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for initializing the player
  * animation sequences.
  *
  * @param self : Player struct pointer
- * @return An Error struct that describes whether or not the
- * animation sequences were successfully initialized
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequences were successfully initialized
  */
-Error initPlayerAnimation(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* initPlayerAnimation(Player* self) {
+    Error* err = NULL;
 
     err = createPlayerSouthEastIdleAnim(self);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
     err = createPlayerSouthWestIdleAnim(self);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
     err = createPlayerMoveNorthEastAnim(self);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
     err = createPlayerMoveNorthWestAnim(self);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
     err = createPlayerMoveSouthEastAnim(self);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
     err = createPlayerMoveSouthWestAnim(self);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     self->aManager->currentSeq =
         self->aManager->seq[ANIM_PLAYER_EAST_IDLE_ORDER];
@@ -300,16 +299,16 @@ Error initPlayerAnimation(Player* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating the South/East Idle
  * animation sequence for the player.
  *
  * @param self : Player struct pointer
- * @return An Error struct that describes whether or not the
- * animation sequence was successfully created
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequence was successfully created
  */
-Error createPlayerSouthEastIdleAnim(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* createPlayerSouthEastIdleAnim(Player* self) {
+    Error* err = NULL;
     Uint32 quarterSec = 250.0f;
     Size spriteSize = self->aManager->spritesheet->spriteSize;
     AnimationSeq* seq = createAnimationSeq();
@@ -318,19 +317,19 @@ Error createPlayerSouthEastIdleAnim(Player* self) {
     AnimationFrame frame1 =
         (AnimationFrame){0, frame1Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame2Pos = (Pos){1, 1};
     AnimationFrame frame2 =
         (AnimationFrame){1, frame2Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame3Pos = (Pos){2, 1};
     AnimationFrame frame3 =
         (AnimationFrame){2, frame3Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     seq->currentFrameIdx = 0;
     err = addSeqToAnimationManager(self->aManager, seq);
@@ -339,16 +338,16 @@ Error createPlayerSouthEastIdleAnim(Player* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating the South/West Idle
  * animation sequence for the player.
  *
  * @param self : Player struct pointer
- * @return An Error struct that describes whether or not the
- * animation sequence was successfully created
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequence was successfully created
  */
-Error createPlayerSouthWestIdleAnim(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* createPlayerSouthWestIdleAnim(Player* self) {
+    Error* err = NULL;
     Uint32 quarterSec = 250.0f;
     Size spriteSize = self->aManager->spritesheet->spriteSize;
     AnimationSeq* seq = createAnimationSeq();
@@ -357,19 +356,19 @@ Error createPlayerSouthWestIdleAnim(Player* self) {
     AnimationFrame frame1 =
         (AnimationFrame){0, frame1Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame2Pos = (Pos){1, 2};
     AnimationFrame frame2 =
         (AnimationFrame){1, frame2Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame3Pos = (Pos){2, 2};
     AnimationFrame frame3 =
         (AnimationFrame){2, frame3Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     seq->currentFrameIdx = 0;
     err = addSeqToAnimationManager(self->aManager, seq);
@@ -378,16 +377,16 @@ Error createPlayerSouthWestIdleAnim(Player* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating the moving North/East
  * animation sequence for the player.
  *
  * @param self : Player struct pointer
- * @return An Error struct that describes whether or not the
- * animation sequence was successfully created
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequence was successfully created
  */
-Error createPlayerMoveNorthEastAnim(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* createPlayerMoveNorthEastAnim(Player* self) {
+    Error* err = NULL;
     Uint32 eigthSec = 125.0f;
     Size spriteSize = self->aManager->spritesheet->spriteSize;
     AnimationSeq* seq = createAnimationSeq();
@@ -396,49 +395,49 @@ Error createPlayerMoveNorthEastAnim(Player* self) {
     AnimationFrame frame1 =
         (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame2Pos = (Pos){4, 0};
     AnimationFrame frame2 =
         (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame3Pos = (Pos){5, 0};
     AnimationFrame frame3 =
         (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame4Pos = (Pos){6, 0};
     AnimationFrame frame4 =
         (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame5Pos = (Pos){7, 0};
     AnimationFrame frame5 =
         (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame6Pos = (Pos){8, 0};
     AnimationFrame frame6 =
         (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame7Pos = (Pos){9, 0};
     AnimationFrame frame7 =
         (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame8Pos = (Pos){10, 0};
     AnimationFrame frame8 =
         (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     seq->currentFrameIdx = 0;
     err = addSeqToAnimationManager(self->aManager, seq);
@@ -447,16 +446,16 @@ Error createPlayerMoveNorthEastAnim(Player* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating the moving North/West
  * animation sequence for the player.
  *
  * @param self : Player struct pointer
- * @return An Error struct that describes whether or not the
- * animation sequence was successfully created
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequence was successfully created
  */
-Error createPlayerMoveNorthWestAnim(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* createPlayerMoveNorthWestAnim(Player* self) {
+    Error* err = NULL;
     Uint32 eigthSec = 125.0f;
     Size spriteSize = self->aManager->spritesheet->spriteSize;
     AnimationSeq* seq = createAnimationSeq();
@@ -465,49 +464,49 @@ Error createPlayerMoveNorthWestAnim(Player* self) {
     AnimationFrame frame1 =
         (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame2Pos = (Pos){4, 3};
     AnimationFrame frame2 =
         (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame3Pos = (Pos){5, 3};
     AnimationFrame frame3 =
         (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame4Pos = (Pos){6, 3};
     AnimationFrame frame4 =
         (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame5Pos = (Pos){7, 3};
     AnimationFrame frame5 =
         (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame6Pos = (Pos){8, 3};
     AnimationFrame frame6 =
         (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame7Pos = (Pos){9, 3};
     AnimationFrame frame7 =
         (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame8Pos = (Pos){10, 3};
     AnimationFrame frame8 =
         (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     seq->currentFrameIdx = 0;
     err = addSeqToAnimationManager(self->aManager, seq);
@@ -516,16 +515,16 @@ Error createPlayerMoveNorthWestAnim(Player* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating the moving South/East
  * animation sequence for the player.
  *
  * @param self : Player struct pointer
- * @return An Error struct that describes whether or not the
- * animation sequence was successfully created
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequence was successfully created
  */
-Error createPlayerMoveSouthEastAnim(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* createPlayerMoveSouthEastAnim(Player* self) {
+    Error* err = NULL;
     Uint32 eigthSec = 125.0f;
     Size spriteSize = self->aManager->spritesheet->spriteSize;
     AnimationSeq* seq = createAnimationSeq();
@@ -534,49 +533,49 @@ Error createPlayerMoveSouthEastAnim(Player* self) {
     AnimationFrame frame1 =
         (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame2Pos = (Pos){4, 1};
     AnimationFrame frame2 =
         (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame3Pos = (Pos){5, 1};
     AnimationFrame frame3 =
         (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame4Pos = (Pos){6, 1};
     AnimationFrame frame4 =
         (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame5Pos = (Pos){7, 1};
     AnimationFrame frame5 =
         (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame6Pos = (Pos){8, 1};
     AnimationFrame frame6 =
         (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame7Pos = (Pos){9, 1};
     AnimationFrame frame7 =
         (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame8Pos = (Pos){10, 1};
     AnimationFrame frame8 =
         (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     seq->currentFrameIdx = 0;
     err = addSeqToAnimationManager(self->aManager, seq);
@@ -585,16 +584,16 @@ Error createPlayerMoveSouthEastAnim(Player* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/18/2026
+ * @date 04/19/2026
  * @brief Handles the logic for creating the moving South/West
  * animation sequence for the player.
  *
  * @param self : Player struct pointer
- * @return An Error struct that describes whether or not the
- * animation sequence was successfully created
+ * @return A pointer to an Error struct that describes whether
+ * or not the animation sequence was successfully created
  */
-Error createPlayerMoveSouthWestAnim(Player* self) {
-    Error err = createError(ESTAT_MAIN_NONE, NULL);
+Error* createPlayerMoveSouthWestAnim(Player* self) {
+    Error* err = NULL;
     Uint32 eigthSec = 125.0f;
     Size spriteSize = self->aManager->spritesheet->spriteSize;
     AnimationSeq* seq = createAnimationSeq();
@@ -603,49 +602,49 @@ Error createPlayerMoveSouthWestAnim(Player* self) {
     AnimationFrame frame1 =
         (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame2Pos = (Pos){4, 2};
     AnimationFrame frame2 =
         (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame3Pos = (Pos){5, 2};
     AnimationFrame frame3 =
         (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame4Pos = (Pos){6, 2};
     AnimationFrame frame4 =
         (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame5Pos = (Pos){7, 2};
     AnimationFrame frame5 =
         (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame6Pos = (Pos){8, 2};
     AnimationFrame frame6 =
         (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame7Pos = (Pos){9, 2};
     AnimationFrame frame7 =
         (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     Pos frame8Pos = (Pos){10, 2};
     AnimationFrame frame8 =
         (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
-    if (err.statusNum != ESTAT_MAIN_NONE) return err;
+    if (err) return err;
 
     seq->currentFrameIdx = 0;
     err = addSeqToAnimationManager(self->aManager, seq);
