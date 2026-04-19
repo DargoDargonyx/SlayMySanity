@@ -180,6 +180,26 @@
     "output": "build/ui/input.o"
   },
   {
+    "file": "src/ui/manager.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "src/ui/manager.c",
+      "-o",
+      "build/ui/manager.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/ui/manager.o"
+  },
+  {
     "file": "src/ui/widget.c",
     "arguments": [
       "/usr/bin/gcc",
@@ -260,26 +280,6 @@
     "output": "build/util/window.o"
   },
   {
-    "file": "src/world/physics.c",
-    "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "src/world/physics.c",
-      "-o",
-      "build/world/physics.o",
-      "-Wall",
-      "-Wextra",
-      "-Iinclude",
-      "-I/usr/include/SDL2",
-      "-D_GNU_SOURCE=1",
-      "-D_REENTRANT",
-      "-O2",
-      "-DNDEBUG"
-    ],
-    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
-    "output": "build/world/physics.o"
-  },
-  {
     "file": "src/world/map.c",
     "arguments": [
       "/usr/bin/gcc",
@@ -298,6 +298,46 @@
     ],
     "directory": "/home/dargo/DevWork/Games/SlayMySanity",
     "output": "build/world/map.o"
+  },
+  {
+    "file": "src/world/object.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "src/world/object.c",
+      "-o",
+      "build/world/object.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/world/object.o"
+  },
+  {
+    "file": "src/world/physics.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "src/world/physics.c",
+      "-o",
+      "build/world/physics.o",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-I/usr/include/SDL2",
+      "-D_GNU_SOURCE=1",
+      "-D_REENTRANT",
+      "-O2",
+      "-DNDEBUG"
+    ],
+    "directory": "/home/dargo/DevWork/Games/SlayMySanity",
+    "output": "build/world/physics.o"
   },
   {
     "file": "src/world/player.c",

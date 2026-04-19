@@ -142,8 +142,7 @@ Error* drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
  */
 Error* drawPlayScene(WindowManager* wManager, PlayScene* scene) {
     Error* err = NULL;
-    if (wManager->errContainer->count > 0)
-        return wManager->errContainer->errs[0];
+    if (wManager->errCont->count > 0) return wManager->errCont->errs[0];
 
     SDL_RenderClear(wManager->renderer);
     err = drawMap(wManager->renderer, scene->cam, scene->map);
