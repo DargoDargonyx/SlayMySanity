@@ -1,7 +1,7 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/18/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -15,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/05/26
+ * @date 04/18/26
  * @brief Handles the logic for running the main game loop.
  *
  * @param wManager : WindowManager struct pointer
@@ -32,17 +32,16 @@ Error runGameLoop(WindowManager* wManager) {
     Uint64 last = SDL_GetPerformanceCounter();
     while (wManager->running) {
         Uint64 now = SDL_GetPerformanceCounter();
-        float deltaTime = (float) (now - last) / SDL_GetPerformanceFrequency();
+        float dt = (float) (now - last) / SDL_GetPerformanceFrequency();
         last = now;
-        if (deltaTime < targetFrameTime) {
-            SDL_Delay(targetFrameTime - deltaTime);
-            deltaTime = targetFrameTime;
+        if (dt < targetFrameTime) {
+            SDL_Delay(targetFrameTime - dt);
+            dt = targetFrameTime;
         }
-        deltaTime /= 1000.0f;
+        dt /= 1000.0f;
 
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-                wManager->running = 0;
+            if (event.type == SDL_QUIT) wManager->running = 0;
 
             for (int i = 0; i < wManager->currentScene->btnCount; i++) {
                 handleButtonEvent(wManager->currentScene->btns[i], &event);
@@ -51,20 +50,15 @@ Error runGameLoop(WindowManager* wManager) {
 
         if (wManager->currentScene->type == PLAY) {
             PlayScene* scene = (PlayScene*) wManager->currentScene;
-            Pos maxBounds;
-            maxBounds.x =
-                (int) scene->map->size.w * scene->map->tileset->tileSize.w -
-                (scene->cam->size.w / scene->cam->zoom);
-            maxBounds.y =
-                (int) scene->map->size.h * scene->map->tileset->tileSize.h -
-                (scene->cam->size.h / scene->cam->zoom);
-            checkCameraMovement(scene->cam, maxBounds, deltaTime);
+            err = handlePlayerEvent(scene->player, dt);
+            if (err.statusNum != ESTAT_MAIN_NONE) return err;
+            err = handleCameraMovement(scene->cam, scene->map->worldSize, dt);
+            if (err.statusNum != ESTAT_MAIN_NONE) return err;
         }
 
         if (wManager->errContainer->errCount > 0) {
             Error tmpErr = clearCurrentScene(wManager);
-            if (tmpErr.statusNum != ESTAT_MAIN_NONE)
-                return tmpErr;
+            if (tmpErr.statusNum != ESTAT_MAIN_NONE) return tmpErr;
             return wManager->errContainer->errs[0];
         }
 
