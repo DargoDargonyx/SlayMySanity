@@ -1,7 +1,7 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/20/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -15,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/19/26
+ * @date 04/20/26
  * @brief Handles the logic for running the main game loop.
  *
  * @param wManager : WindowManager struct pointer
@@ -26,10 +26,12 @@ Error* runGameLoop(WindowManager* wManager) {
     SDL_Event event;
     Error* err = NULL;
     float targetFrameTime = 1000.0f / TARGET_FPS;
+    wManager->sceneLoader = (void*) createSceneLoader(wManager);
 
     // Initializing the current scene to the start menu
     loadStartMenuScene((void*) wManager);
     Uint64 last = SDL_GetPerformanceCounter();
+    printf("Starting the game loop...\n");
     while (wManager->running) {
         Uint64 now = SDL_GetPerformanceCounter();
         float dt = (float) (now - last) / SDL_GetPerformanceFrequency();
@@ -43,10 +45,12 @@ Error* runGameLoop(WindowManager* wManager) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) wManager->running = 0;
 
-            for (int i = 0; i < wManager->currentScene->btnCount; i++) {
-                handleButtonEvent(wManager->currentScene->btns[i], &event);
+            for (int i = 0; i < wManager->currentScene->uManager->widgetCount; i++) {
+                err = handleWidgetEvent(wManager->currentScene->uManager->widgets[i], &event);
+                if (err) return err;
             }
         }
+        if (!wManager->running) break;
 
         if (wManager->currentScene->type == PLAY) {
             PlayScene* scene = (PlayScene*) wManager->currentScene;
@@ -59,7 +63,7 @@ Error* runGameLoop(WindowManager* wManager) {
         if (wManager->errCont->count > 0) {
             Error* tmpErr = clearCurrentScene(wManager);
             if (tmpErr) return tmpErr;
-            return wManager->errCont->errs[0];
+            else return wManager->errCont->errs[0];
         }
 
         err = drawCurrentScene(wManager);
@@ -77,60 +81,6 @@ Error* runGameLoop(WindowManager* wManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Helper function to handle loading the start menu.
- *
- * @note The window manager is passed as a void pointer because
- * this function is usually called from the scene.c file where
- * window is not within scope.
- *
- * @param wManager : void pointer
- */
-void loadStartMenuScene(void* wManager) {
-    WindowManager* manager = (WindowManager*) wManager;
-    clearCurrentScene(manager);
-    manager->currentScene = (Scene*) createStartMenuScene(
-        wManager, manager->errCont, manager->renderer, manager->wSize);
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Helper function to handle loading the main options menu.
- *
- * @note The window manager is passed as a void pointer because
- * this function is usually called from the scene.c file where
- * window is not within scope.
- *
- * @param wManager : void pointer
- */
-void loadOptionsMenuScene(void* wManager) {
-    WindowManager* manager = (WindowManager*) wManager;
-    clearCurrentScene(manager);
-    manager->currentScene = (Scene*) createOptionsMenuScene(
-        wManager, manager->errCont, manager->renderer, manager->wSize);
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Helper function to handle loading the playing scene.
- *
- * @note The window manager is passed as a void pointer because
- * this function is usually called from the scene.c file where
- * window is not within scope.
- *
- * @param wManager : void pointer
- */
-void loadPlayScene(void* wManager) {
-    WindowManager* manager = (WindowManager*) wManager;
-    clearCurrentScene(manager);
-    manager->currentScene = (Scene*) createPlayScene(
-        wManager, manager->errCont, manager->renderer, manager->wSize);
-}
-
-/**
- * @author DargoDargonyx
  * @date 04/05/2026
  * @brief Helper function to handle quitting the game.
  *
@@ -142,4 +92,22 @@ void loadPlayScene(void* wManager) {
 void exitGameLoop(void* wManager) {
     WindowManager* manager = (WindowManager*) wManager;
     manager->running = 0;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/20/2026
+ * @brief Helper function to create the SceneLoader struct for the
+ * main game loop.
+ *
+ * @return A pointer to a newly created SceneLoader struct
+ */
+SceneLoader* createSceneLoader(WindowManager* wManager) {
+    SceneLoader* loader = (SceneLoader*) malloc(sizeof(SceneLoader));
+    loader->wManager = (void*) wManager;
+    loader->startMenu = loadStartMenuScene;
+    loader->optionsMenu = loadOptionsMenuScene;
+    loader->playScene = loadPlayScene;
+    loader->exit = exitGameLoop;
+    return loader;
 }

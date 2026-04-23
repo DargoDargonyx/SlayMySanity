@@ -1,7 +1,7 @@
 /**
  * @file render.h
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/21/2026
  * @brief Handles the logic for rendering the game.
  */
 
@@ -14,13 +14,13 @@
 #include "util/window.h"
 
 Error* drawCurrentScene(WindowManager*);
-Error* drawStartMenuScene(WindowManager*, StartMenuScene*);
-Error* drawOptionsMenuScene(WindowManager*, OptionsMenuScene*);
-Error* drawPlayScene(WindowManager*, PlayScene*);
+Error* drawMenuScene(SDL_Renderer*, MenuScene*);
+Error* drawPlayScene(SDL_Renderer*, PlayScene*);
+
+Error* drawWidgets(SDL_Renderer*, UIManager*);
+Error* drawButton(SDL_Renderer*, Button*);
 
 Error* drawMap(SDL_Renderer*, Cam*, Map*);
-
-Error* renderBtnSprite(SDL_Renderer*, Button*);
-Error* renderPlayerSprite(SDL_Renderer*, Cam*);
+Error* drawPlayer(SDL_Renderer*, Cam*);
 
 #endif

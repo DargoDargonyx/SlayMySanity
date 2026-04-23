@@ -98,12 +98,12 @@ const char* getErrorTypeDesc(ErrorType type) {
  */
 void printErrorMsg(Error* err) {
     const char* typeDesc = getErrorTypeDesc(err->type);
-    printf("{%s} %s", typeDesc, err->msg);
+    printf("{%s} %s\n", typeDesc, err->msg);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/20/2026
  * @brief Handles the logic for creating a new Error
  * Container struct.
  *
@@ -111,9 +111,7 @@ void printErrorMsg(Error* err) {
  * @return A pointer to the newly created ErrorContainer struct
  */
 ErrorContainer* createErrorContainer(int initCap) {
-    ErrorContainer* container =
-        (ErrorContainer*) malloc(sizeof(ErrorContainer));
-
+    ErrorContainer* container = (ErrorContainer*) malloc(sizeof(ErrorContainer));
     container->count = 0;
     container->cap = initCap;
     container->errs = (Error**) calloc(container->cap, sizeof(Error*));
@@ -130,36 +128,32 @@ ErrorContainer* createErrorContainer(int initCap) {
  * destroyed
  */
 Error* destroyErrorContainer(ErrorContainer* self) {
-    if (!self)
-        return createError(ERROR, "Could not destroy a NULL Error Container");
+    if (!self) return createError(ERROR, "Could not destroy a NULL Error Container");
 
     free(self->errs);
     free(self);
-    return createError(NONE, NULL);
+    return NULL;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/20/2026
  * @brief Handles the logic for adding an Error struct to an
  * Error Container struct.
  *
  * @param container : ErrorContainer struct pointer
- * @return An Error struct that describes whether or not the
- * Error struct was successfully added to the ErrorContainer struct.
+ * @return A pointer to an Error struct that describes whether
+ * or not the Error struct was successfully added to the
+ * ErrorContainer struct.
  */
 Error* addErrorToContainer(ErrorContainer* errCont, Error* err) {
-    if (!errCont)
-        return createError(ERROR,
-                           "Could not add an Error to a NULL Error Container");
+    if (!errCont) return createError(ERROR, "Could not add an Error to a NULL Error Container");
 
     if (errCont->count == errCont->cap) {
         errCont->cap = (errCont->count + 1) * 2;
         Error** orig = errCont->errs;
         Error** temp = (Error**) calloc(errCont->cap, sizeof(Error*));
-        if (!temp)
-            return createError(
-                ERROR, "Could not reallocate a larger Error array field");
+        if (!temp) return createError(ERROR, "Could not reallocate a larger Error array field");
 
         for (int i = 0; i < errCont->count; i++) { temp[i] = orig[i]; }
         free(orig);
@@ -167,5 +161,5 @@ Error* addErrorToContainer(ErrorContainer* errCont, Error* err) {
     }
 
     errCont->errs[errCont->count++] = err;
-    return createError(NONE, NULL);
+    return NULL;
 }

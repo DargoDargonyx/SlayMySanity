@@ -28,6 +28,7 @@ WindowManager* createWindowManager(const char* name, Size wSize) {
     wManager->wSize = wSize;
     wManager->currentScene = NULL;
     wManager->errCont = createErrorContainer(15);
+    wManager->sceneLoader = NULL;
     return wManager;
 }
 
@@ -63,8 +64,7 @@ Error* destroyWindowManager(WindowManager* wManager) {
  */
 Error* clearCurrentScene(WindowManager* wManager) {
     if (!wManager)
-        return createError(
-            WINDOW, "Could not clear the scenes from a NULL window manager");
+        return createError(WINDOW, "Could not clear the scenes from a NULL window manager");
 
     Error* err = NULL;
     if (wManager->currentScene) {
@@ -83,8 +83,7 @@ Error* clearCurrentScene(WindowManager* wManager) {
  * or not SDL was initialized properly
  */
 Error* checkSDLInit() {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-        createError(WINDOW, "Couldn't initialize SDL_VIDEO");
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) createError(WINDOW, "Couldn't initialize SDL_VIDEO");
     if (TTF_Init() != 0) createError(WINDOW, "Couldn't initialize TTF");
 
     return NULL;
@@ -101,9 +100,8 @@ Error* checkSDLInit() {
  */
 Error* createWindow(WindowManager* wManager) {
     SDL_Window* window;
-    window = SDL_CreateWindow(wManager->name, SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED, wManager->wSize.w,
-                              wManager->wSize.h, 0);
+    window = SDL_CreateWindow(wManager->name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              wManager->wSize.w, wManager->wSize.h, 0);
 
     if (!window) return createError(WINDOW, "Couldn't create SDL window");
 
@@ -122,8 +120,7 @@ Error* createWindow(WindowManager* wManager) {
  */
 Error* createRenderer(WindowManager* wManager) {
     SDL_Renderer* renderer;
-    renderer =
-        SDL_CreateRenderer(wManager->window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(wManager->window, -1, SDL_RENDERER_ACCELERATED);
 
     if (!renderer) return createError(WINDOW, "Couldn't create SDL renderer");
 

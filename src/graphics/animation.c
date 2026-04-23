@@ -24,8 +24,7 @@ AnimationSeq* createAnimationSeq() {
     AnimationSeq* seq = (AnimationSeq*) malloc(sizeof(AnimationSeq));
     seq->frameCount = 0;
     seq->frameCap = ANIM_SEQ_FRAMES_INIT_CAP;
-    seq->frames =
-        (AnimationFrame*) calloc(seq->frameCap, sizeof(AnimationFrame));
+    seq->frames = (AnimationFrame*) calloc(seq->frameCap, sizeof(AnimationFrame));
     seq->lastTime = 0;
 
     return seq;
@@ -60,19 +59,16 @@ Error* destroyAnimationSeq(AnimationSeq* self) {
  */
 Error* addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
     if (!seq)
-        return createError(
-            ANIMATION,
-            "Could not add an Animation Frame to a NULL Animation Sequence");
+        return createError(ANIMATION,
+                           "Could not add an Animation Frame to a NULL Animation Sequence");
 
     if (seq->frameCount == seq->frameCap) {
         seq->frameCap = (seq->frameCount + 1) * 2;
         AnimationFrame* orig = seq->frames;
-        AnimationFrame* temp =
-            (AnimationFrame*) calloc(seq->frameCap, sizeof(AnimationFrame));
+        AnimationFrame* temp = (AnimationFrame*) calloc(seq->frameCap, sizeof(AnimationFrame));
         if (!temp)
-            return createError(
-                ANIMATION,
-                "Could not reallocate a larger Animation Frame array field");
+            return createError(ANIMATION,
+                               "Could not reallocate a larger Animation Frame array field");
 
         for (int i = 0; i < seq->frameCount; i++) { temp[i] = orig[i]; }
         free(orig);
@@ -96,18 +92,15 @@ Error* addFrameToAnimationSeq(AnimationSeq* seq, AnimationFrame frame) {
  */
 Error* iterateSeq(AnimationSeq* seq) {
     if (!seq)
-        return createError(ANIMATION,
-                           "Could not iterate the animation frame for a NULL "
-                           "AnimationSeq struct");
+        return createError(ANIMATION, "Could not iterate the animation frame for a NULL "
+                                      "AnimationSeq struct");
     if (seq->frameCount == 0)
-        return createError(ANIMATION,
-                           "Could not iterate the animation frames for an "
-                           "empty AnimationSeq struct");
+        return createError(ANIMATION, "Could not iterate the animation frames for an "
+                                      "empty AnimationSeq struct");
     if (seq->currentFrameIdx >= seq->frameCount)
-        return createError(
-            ANIMATION,
-            "Current animation frame has an order greater than the animation "
-            "frame count for the animation sequence");
+        return createError(ANIMATION,
+                           "Current animation frame has an order greater than the animation "
+                           "frame count for the animation sequence");
 
     if (seq->currentFrameIdx == seq->frameCount - 1) seq->currentFrameIdx = 0;
     else seq->currentFrameIdx++;
@@ -128,30 +121,25 @@ Error* iterateSeq(AnimationSeq* seq) {
  */
 Error* animateSeq(AnimationManager* aManager, SDL_Rect* src) {
     if (!aManager)
-        return createError(
-            ANIMATION, "Could not animate with a NULL AnimationManager struct");
+        return createError(ANIMATION, "Could not animate with a NULL AnimationManager struct");
     if (!aManager->spritesheet->texture)
-        return createError(ANIMATION,
-                           "Could not animate with a NULL spritesheet texture");
+        return createError(ANIMATION, "Could not animate with a NULL spritesheet texture");
     if (aManager->seqCount == 0)
-        return createError(ANIMATION,
-                           "Could not animate without any animation sequences");
+        return createError(ANIMATION, "Could not animate without any animation sequences");
 
     Error* err = NULL;
     Uint32 now = SDL_GetTicks();
     double timeGap = (now - aManager->currentSeq->lastTime);
 
     AnimationSeq* currentSeq = aManager->currentSeq;
-    AnimationFrame currentFrame =
-        currentSeq->frames[currentSeq->currentFrameIdx];
+    AnimationFrame currentFrame = currentSeq->frames[currentSeq->currentFrameIdx];
     if (timeGap >= currentFrame.length) {
         err = iterateSeq(aManager->currentSeq);
         if (err) return err;
         aManager->currentSeq->lastTime = now;
     }
     if (currentFrame.length == 0)
-        return createError(ANIMATION,
-                           "Could not render an animation frame with 0 length");
+        return createError(ANIMATION, "Could not render an animation frame with 0 length");
 
     src->w = currentFrame.size.w;
     src->h = currentFrame.size.h;
@@ -188,14 +176,12 @@ Error* switchAnimationSeq(AnimationManager* aManager, int animationOrder) {
  */
 AnimationManager* createAnimationManager(Spritesheet* spritesheet) {
 
-    AnimationManager* manager =
-        (AnimationManager*) malloc(sizeof(AnimationManager));
+    AnimationManager* manager = (AnimationManager*) malloc(sizeof(AnimationManager));
 
     manager->spritesheet = spritesheet;
     manager->seqCount = 0;
     manager->seqCap = ANIM_MANAGER_SEQ_INIT_CAP;
-    manager->seq =
-        (AnimationSeq**) calloc(manager->seqCap, sizeof(AnimationSeq*));
+    manager->seq = (AnimationSeq**) calloc(manager->seqCap, sizeof(AnimationSeq*));
 
     return manager;
 }
@@ -237,19 +223,16 @@ Error* destroyAnimationManager(AnimationManager* self) {
  */
 Error* addSeqToAnimationManager(AnimationManager* manager, AnimationSeq* seq) {
     if (!manager)
-        return createError(
-            ANIMATION,
-            "Could not add an Animation Sequence to a NULL Animation Manager");
+        return createError(ANIMATION,
+                           "Could not add an Animation Sequence to a NULL Animation Manager");
 
     if (manager->seqCount == manager->seqCap) {
         manager->seqCap = (manager->seqCount + 1) * 2;
         AnimationSeq** orig = manager->seq;
-        AnimationSeq** temp =
-            (AnimationSeq**) calloc(manager->seqCap, sizeof(AnimationSeq*));
+        AnimationSeq** temp = (AnimationSeq**) calloc(manager->seqCap, sizeof(AnimationSeq*));
         if (!temp)
-            return createError(
-                ANIMATION,
-                "Could not reallocate a larger Animation Sequence array field");
+            return createError(ANIMATION,
+                               "Could not reallocate a larger Animation Sequence array field");
 
         for (int i = 0; i < manager->seqCount; i++) { temp[i] = orig[i]; }
         free(orig);

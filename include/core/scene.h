@@ -1,7 +1,7 @@
 /**
  * @file scene.h
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/20/2026
  * @brief Handles the logic for scenes.
  */
 
@@ -9,7 +9,7 @@
 #define SCENE_H
 
 #include "graphics/camera.h"
-#include "ui/widget.h"
+#include "ui/ui.h"
 #include "util/error.h"
 #include "util/helper.h"
 #include "world/map.h"
@@ -17,7 +17,7 @@
 
 #include <SDL2/SDL.h>
 
-typedef enum { START_MENU, OPTIONS_MENU, PLAY } SceneType;
+typedef enum { MENU, PLAY } SceneType;
 
 #define SCENE_BTN_INIT_CAP 15
 
@@ -25,21 +25,14 @@ typedef struct Scene Scene;
 struct Scene {
     SceneType type;
     Error* (*destroy)(Scene* self);
-    Size size;
-    int btnCount;
-    int btnCap;
-    Button** btns;
+    UIManager* uManager;
+    Size pixelSize;
 };
 
 typedef struct {
     Scene base;
     SDL_Texture* bgTexture;
-} StartMenuScene;
-
-typedef struct {
-    Scene base;
-    SDL_Texture* bgTexture;
-} OptionsMenuScene;
+} MenuScene;
 
 typedef struct {
     Scene base;
@@ -48,17 +41,16 @@ typedef struct {
     Map* map;
 } PlayScene;
 
-Error* addBtnToScene(Scene*, Button*);
+MenuScene* createMenuScene(Size);
+Error* destroyMenuScene(Scene*);
 
-StartMenuScene* createStartMenuScene(void*, ErrorContainer*, SDL_Renderer*,
-                                     Size);
-Error* destroyStartMenuScene(Scene*);
+MenuScene* initStartMenuScene(ErrorContainer*, SDL_Renderer*, Size, SceneLoader*);
+void loadStartMenuScene(void*);
+MenuScene* initOptionsMenuScene(ErrorContainer*, SDL_Renderer*, Size, SceneLoader*);
+void loadOptionsMenuScene(void*);
 
-OptionsMenuScene* createOptionsMenuScene(void*, ErrorContainer*, SDL_Renderer*,
-                                         Size);
-Error* destroyOptionsMenuScene(Scene*);
-
-PlayScene* createPlayScene(void*, ErrorContainer*, SDL_Renderer*, Size);
+PlayScene* createPlayScene(ErrorContainer*, SDL_Renderer*, Size, SceneLoader*);
 Error* destroyPlayScene(Scene*);
+void loadPlayScene(void*);
 
 #endif

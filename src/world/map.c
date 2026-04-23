@@ -58,8 +58,7 @@ Error* destroyMap(Map* self) {
  * or not the SDL texture was successfully created for the map
  * in question
  */
-Error* createMapTexture(Map* map, SDL_Renderer* renderer,
-                        const char* filepath) {
+Error* createMapTexture(Map* map, SDL_Renderer* renderer, const char* filepath) {
 
     Error* err = NULL;
     SDL_Surface* surface = IMG_Load(filepath);

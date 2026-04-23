@@ -24,6 +24,7 @@ typedef struct {
     SDL_Window* window;
     SDL_Renderer* renderer;
     ErrorContainer* errCont;
+    void* sceneLoader;
 } WindowManager;
 
 WindowManager* createWindowManager(const char*, Size);

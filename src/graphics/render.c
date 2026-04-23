@@ -1,13 +1,13 @@
 /**
  * @file render.c
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/21/2026
  * @brief Handles the logic for rendering the game.
  */
 
 #include "graphics/render.h"
 #include "core/scene.h"
-#include "ui/widget.h"
+#include "ui/ui.h"
 #include "util/error.h"
 #include "util/helper.h"
 #include "world/physics.h"
@@ -16,172 +16,171 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Intermediary helper function to draw the current scene.
+ * @date 04/21/2026
+ * @brief Handles the logic for determining the ucrrent scene and drawing
+ * it draw the current scene.
  *
  * @param wManager : WindowManager struct pointer
  * @return A pointer to an Error struct that describes whether
  * or not the scene was successfully drawn
  */
 Error* drawCurrentScene(WindowManager* wManager) {
+    Error* err = NULL;
     switch (wManager->currentScene->type) {
-        case START_MENU:
-            return drawStartMenuScene(wManager,
-                                      (StartMenuScene*) wManager->currentScene);
+        case MENU:
+            err = drawMenuScene(wManager->renderer, (MenuScene*) wManager->currentScene);
             break;
-        case OPTIONS_MENU:
-            return drawOptionsMenuScene(
-                wManager, (OptionsMenuScene*) wManager->currentScene);
         case PLAY:
-            return drawPlayScene(wManager, (PlayScene*) wManager->currentScene);
+            err = drawPlayScene(wManager->renderer, (PlayScene*) wManager->currentScene);
+            break;
         default:
-            return createError(RENDER, "Could not draw an uknown scene");
+            err = createError(RENDER, "Could not draw a scene with an unknown type");
             break;
     }
+    return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Handles the logic for drawing the game start menu.
+ * @date 04/21/2026
+ * @brief Handles the logic for drawing all the widgets inside of
+ * a UIManager struct.
  *
- * @param wManager : WindowManager struct pointer
- * @param scene : StartMenuScene struct pointer
+ * @param renderer : SDL_Renderer pointer
+ * @param uManager : UIManager struct pointer
  * @return A pointer to an Error struct that describes whether
- * or not the start menu was successfully drawn
+ * or not the button sprite in question was successfully drawn
  */
-Error* drawStartMenuScene(WindowManager* wManager, StartMenuScene* scene) {
+Error* drawWidgets(SDL_Renderer* renderer, UIManager* uManager) {
+    if (!renderer) return createError(RENDER, "Could not draw widgets for a NULL SDL_Renderer");
+    if (!uManager) return createError(RENDER, "Could not draw widgets for a NULL UIManager");
     Error* err = NULL;
-    SDL_RenderClear(wManager->renderer);
-    SDL_RenderCopy(wManager->renderer, scene->bgTexture, NULL, NULL);
-
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        Button* btn = scene->base.btns[i];
-        err = renderBtnSprite(wManager->renderer, btn);
-        if (err) return err;
-
-        switch (btn->type) {
-            case IMG: {
+    for (int i = 0; i < uManager->widgetCount; i++) {
+        Widget* widget = uManager->widgets[i];
+        switch (widget->type) {
+            case BUTTON:
+                err = drawButton(renderer, (Button*) widget);
                 break;
-            }
-            case TXT: {
-                TXT_Button* txtBtn = (TXT_Button*) btn;
-                int txtW, txtH;
-                SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
-                SDL_Rect txtDest;
-                txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
-                txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
-                txtDest.w = txtW;
-                txtDest.h = txtH;
-                SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
-                               &txtDest);
-                break;
-            }
             default:
+                err = createError(RENDER, "Could not draw a widget with an unknown type");
                 break;
         }
+        if (err) return err;
     }
+    return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/21/2026
+ * @brief Handles the logic for drawing the sprite for a button.
+ *
+ * @param renderer : SDL_Renderer pointer
+ * @param btn : Button struct pointer
+ * @return A pointer to an Error struct that describes whether
+ * or not the button sprite in question was successfully drawn
+ */
+Error* drawButton(SDL_Renderer* renderer, Button* btn) {
+    if (!renderer) return createError(RENDER, "Could not draw a button with a NULL SDL_Renderer");
+    if (!btn) return createError(RENDER, "Could not draw a NULL button");
+
+    SDL_Rect src = {0, 0, btn->rect.w, btn->rect.h};
+
+    switch (btn->state) {
+        case BTN_IDLE:
+            src.y = 0;
+            break;
+        case BTN_HOVER:
+            src.y = btn->rect.h;
+            break;
+        case BTN_PRESSED:
+            src.y = 2 * btn->rect.h;
+            break;
+        default:
+            return createError(RENDER, "Unknown button state");
+            break;
+    }
+    SDL_RenderCopy(renderer, btn->bgTexture, &src, &btn->rect);
+
+    switch (btn->type) {
+        case IMG: {
+            break;
+        }
+        case TXT: {
+            TXT_Button* txtBtn = (TXT_Button*) btn;
+            int txtW, txtH;
+            SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
+            SDL_Rect txtDest;
+            txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
+            txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
+            txtDest.w = txtW;
+            txtDest.h = txtH;
+            SDL_RenderCopy(renderer, txtBtn->txtTexture, NULL, &txtDest);
+            break;
+        }
+        default:
+            return createError(RENDER, "Could not draw a button with an unknown type");
+            break;
+    }
+
+    return NULL;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/21/2026
+ * @brief Handles the logic for drawing a Menu Scene.
+ *
+ * @param renderer : SDL_Renderer pointer
+ * @param scene : MenuScene struct pointer
+ * @return A pointer to an Error struct that describes whether
+ * or not the Menu Scene was successfully drawn
+ */
+Error* drawMenuScene(SDL_Renderer* renderer, MenuScene* scene) {
+    if (!renderer)
+        return createError(RENDER, "Could not draw a Menu Scene with a NULL SDL_Renderer");
+    if (!scene)
+        return createError(RENDER, "Could not draw a Menu Scene with a NULL StartMenuScene struct");
+    Error* err = NULL;
+    SDL_RenderClear(renderer);
+
+    SDL_RenderCopy(renderer, scene->bgTexture, NULL, NULL);
+    err = drawWidgets(renderer, scene->base.uManager);
 
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Handles the logic for drawing the options menu.
+ * @date 04/21/2026
+ * @brief Handles the logic for drawing the Playing Scene.
  *
- * @param wManager : WindowManager struct pointer
- * @param scene : OptionsMenuScene struct pointer
- * @return A pointer to an Error struct that describes whether
- * or not the options menu was successfully drawn
- */
-Error* drawOptionsMenuScene(WindowManager* wManager, OptionsMenuScene* scene) {
-    Error* err = NULL;
-    SDL_RenderClear(wManager->renderer);
-    SDL_RenderCopy(wManager->renderer, scene->bgTexture, NULL, NULL);
-
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        Button* btn = scene->base.btns[i];
-        err = renderBtnSprite(wManager->renderer, btn);
-        if (err) return err;
-
-        switch (btn->type) {
-            case IMG: {
-                break;
-            }
-            case TXT: {
-                TXT_Button* txtBtn = (TXT_Button*) btn;
-                int txtW, txtH;
-                SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
-                SDL_Rect txtDest;
-                txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
-                txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
-                txtDest.w = txtW;
-                txtDest.h = txtH;
-                SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
-                               &txtDest);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    return err;
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Handles the logic for drawing the playing scene.
- *
- * @param wManager : WindowManager struct pointer
+ * @param renderer : SDL_Renderer pointer
  * @param scene : PlayScene struct pointer
  * @return A pointer to an Error struct that describes whether
- * or not the playing scene was successfully drawn
+ * or not the Playing Scene was successfully drawn
  */
-Error* drawPlayScene(WindowManager* wManager, PlayScene* scene) {
+Error* drawPlayScene(SDL_Renderer* renderer, PlayScene* scene) {
+    if (!renderer)
+        return createError(RENDER, "Could not draw the Playing Scene with a NULL SDL_Renderer");
+    if (!scene)
+        return createError(RENDER, "Could not draw the Playing Scene with a NULL PlayScene struct");
     Error* err = NULL;
-    if (wManager->errCont->count > 0) return wManager->errCont->errs[0];
+    SDL_RenderClear(renderer);
 
-    SDL_RenderClear(wManager->renderer);
-    err = drawMap(wManager->renderer, scene->cam, scene->map);
+    err = drawMap(renderer, scene->cam, scene->map);
+    if (err) return err;
+    err = drawWidgets(renderer, scene->base.uManager);
+    if (err) return err;
+    err = drawPlayer(renderer, scene->cam);
     if (err) return err;
 
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        Button* btn = scene->base.btns[i];
-        err = renderBtnSprite(wManager->renderer, btn);
-        if (err) return err;
-
-        switch (btn->type) {
-            case IMG: {
-                break;
-            }
-            case TXT: {
-                TXT_Button* txtBtn = (TXT_Button*) btn;
-                int txtW, txtH;
-                SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
-                SDL_Rect txtDest;
-                txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
-                txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
-                txtDest.w = txtW;
-                txtDest.h = txtH;
-                SDL_RenderCopy(wManager->renderer, txtBtn->txtTexture, NULL,
-                               &txtDest);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    err = renderPlayerSprite(wManager->renderer, scene->cam);
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/21/2026
  * @brief Handles the logic for drawing a map in the playing scene.
  *
  * @param renderer : SDL_Renderer pointer
@@ -191,6 +190,10 @@ Error* drawPlayScene(WindowManager* wManager, PlayScene* scene) {
  * or not the button sprite was successfully rendered
  */
 Error* drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
+    if (!renderer) return createError(RENDER, "Could not draw a map with a NULL SDL_Renderer");
+    if (!cam) return createError(RENDER, "Could not draw a map with a NULL camera");
+    if (!map) return createError(RENDER, "Could not draw a NULL map");
+
     int distX = (float) cam->pixelSize.w / 2;
     int distY = (float) cam->pixelSize.h / 2;
     int startX = (int) (cam->coord.x * WORLD_COORD_WIDTH) - distX;
@@ -215,47 +218,20 @@ Error* drawMap(SDL_Renderer* renderer, Cam* cam, Map* map) {
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Handles the logic for rendering the sprite for a button.
+ * @date 04/21/2026
+ * @brief Handles the logic for drawing the sprite for the player.
  *
  * @param renderer : SDL_Renderer pointer
- * @param btn : Button struct pointer
+ * @param cam : Cam struct pointer
  * @return A pointer to an Error struct that describes whether
- * or not the button sprite in question was successfully rendered
+ * or not the player sprite was successfully drawn
  */
-Error* renderBtnSprite(SDL_Renderer* renderer, Button* btn) {
-    SDL_Rect src = {0, 0, btn->rect.w, btn->rect.h};
-    switch (btn->state) {
-        case BTN_IDLE:
-            src.y = 0;
-            break;
-        case BTN_HOVER:
-            src.y = btn->rect.h;
-            break;
-        case BTN_PRESSED:
-            src.y = 2 * btn->rect.h;
-            break;
-        default:
-            return createError(RENDER, "Unknown button state");
-            break;
-    }
-    SDL_RenderCopy(renderer, btn->bgTexture, &src, &btn->rect);
-    return NULL;
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/19/2026
- * @brief Handles the logic for rendering the sprite for the player.
- *
- * @param renderer : SDL_Renderer pointer
- * @param player : Player struct pointer
- * @param screenSize : Size struct
- * @return A pointer to an Error struct that describes whether
- * or not the player sprite was successfully rendered
- */
-Error* renderPlayerSprite(SDL_Renderer* renderer, Cam* cam) {
+Error* drawPlayer(SDL_Renderer* renderer, Cam* cam) {
+    if (!renderer) return createError(RENDER, "Could not draw a player with a NULL SDL_Renderer");
+    if (!cam) return createError(RENDER, "Could not draw a player with a NULL camera");
+    if (!cam->player) return createError(RENDER, "Could not draw a NULL player");
     Error* err = NULL;
+
     AnimationManager* manager = cam->player->aManager;
 
     SDL_Rect src;

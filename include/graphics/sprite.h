@@ -22,8 +22,7 @@ typedef struct {
     int spriteCount;
 } Spritesheet;
 
-Spritesheet* createSpritesheet(ErrorContainer*, SDL_Renderer*, const char*,
-                               Size, int);
+Spritesheet* createSpritesheet(ErrorContainer*, SDL_Renderer*, const char*, Size, int);
 Error* destroySpritesheet(Spritesheet*);
 Error* scaleSpritesheet(Spritesheet*, Size);
 

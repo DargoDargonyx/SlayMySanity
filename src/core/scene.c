@@ -1,14 +1,13 @@
 /**
  * @file scene.c
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/20/2026
  * @brief Handles the logic for scenes.
  */
 
 #include "core/scene.h"
-#include "core/engine.h"
 #include "graphics/camera.h"
-#include "ui/widget.h"
+#include "ui/ui.h"
 #include "util/error.h"
 #include "util/window.h"
 #include "world/map.h"
@@ -19,272 +18,225 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/19/26
- * @brief Handles the logic for adding a Button struct to a
- * StartMenuScene struct.
+ * @date 04/21/26
+ * @brief Handles the logic for creating a MenuScene struct.
  *
- * @param scene : StartMenuScene struct pointer
- * @param btn : Button struct pointer
- * @return A pointer to an Error struct that describes
- * whether or not the Button struct was successfully added
- * to the StartMenuScene
+ * @param pixelSize : Size struct
+ * @return A pointer to a newly created MenuScene struct
  */
-Error* addBtnToScene(Scene* scene, Button* btn) {
-    if (!scene)
-        return createError(SCENE, "Could not add a Button to a NULL scene");
-    if (!btn)
-        return createError(SCENE, "Could not add a NULL button to a scene");
-
-    if (scene->btnCount == scene->btnCap) {
-        scene->btnCap = (scene->btnCount + 1) * 2;
-        Button** orig = scene->btns;
-        Button** temp = (Button**) calloc(scene->btnCap, sizeof(Button*));
-        if (!temp)
-            return createError(
-                SCENE, "Could not reallocate a larger Button array field");
-
-        for (int i = 0; i < scene->btnCount; i++) { temp[i] = orig[i]; }
-        free(orig);
-        scene->btns = temp;
-    }
-
-    scene->btns[scene->btnCount++] = btn;
-    return NULL;
-}
-
-/**
- * @author DargoDargonyx
- * @date 04/19/26
- * @brief Handles the logic for creating a StartMenuScene struct.
- *
- * @note The void pointer is passed so that there are no errors for
- * overlapping includes
- *
- * @param wManager : void pointer
- * @param errCont : ErrorContainer struct pointer
- * @param renderer : SDL_Renderer pointer
- * @param size : Size struct
- * @return A pointer to the newly created StartMenuScene in question
- */
-StartMenuScene* createStartMenuScene(void* wManager, ErrorContainer* errCont,
-                                     SDL_Renderer* renderer, Size size) {
-
-    Error* err = NULL;
-
-    StartMenuScene* scene = (StartMenuScene*) malloc(sizeof(StartMenuScene));
-    scene->base.type = START_MENU;
-    scene->base.destroy = destroyStartMenuScene;
-    scene->base.btnCount = 0;
-    scene->base.btnCap = SCENE_BTN_INIT_CAP;
-    scene->base.btns = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
-
-    scene->base.size = size;
-    SDL_Color white = {255, 255, 255, 255};
-    Font font = createFont(JETBRAINS_MONO, 36, white);
-
-    // Background
-    SDL_Surface* bgSurface =
-        IMG_Load("../assets/sprites/ui/start_menu/bg_img.png");
-    if (!bgSurface)
-        addErrorToContainer(
-            errCont,
-            createError(RENDER, "Failed to load start menu background image"));
-    SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
-    SDL_FreeSurface(bgSurface);
-    scene->bgTexture = bgTexture;
-
-    // Start Button
-    const char* sbImgPath = "../assets/sprites/ui/start_menu/main_button.png";
-    const char* sbText = "Start Game";
-    int sbVertSpacing = -35;
-    Pos sbPos = {scene->base.size.w / 2,
-                 (scene->base.size.h / 2) + sbVertSpacing};
-    TXT_Button* sButton = createTxtButton(errCont, renderer, sbImgPath, sbPos,
-                                          BTN_SPRITESHEET_SIZE, sbText, &font);
-    sButton->base.onClick = loadPlayScene;
-    sButton->base.userData = wManager;
-    err = addBtnToScene(&scene->base, (Button*) sButton);
-    if (err) addErrorToContainer(errCont, err);
-
-    // Options Button
-    const char* obImgPath = "../assets/sprites/ui/start_menu/main_button.png";
-    const char* obText = "Options";
-    int obVertSpacing = 65;
-    Pos obPos = {scene->base.size.w / 2,
-                 (scene->base.size.h / 2) + obVertSpacing};
-    TXT_Button* oButton = createTxtButton(errCont, renderer, obImgPath, obPos,
-                                          BTN_SPRITESHEET_SIZE, obText, &font);
-    oButton->base.onClick = loadOptionsMenuScene;
-    oButton->base.userData = wManager;
-    err = addBtnToScene(&scene->base, (Button*) oButton);
-    if (err) addErrorToContainer(errCont, err);
-
-    // Exit Button
-    const char* ebImgPath = "../assets/sprites/ui/start_menu/main_button.png";
-    const char* ebText = "Exit";
-    int ebVertSpacing = 165;
-    Pos ebPos = {scene->base.size.w / 2,
-                 (scene->base.size.h / 2) + ebVertSpacing};
-    TXT_Button* exitButton =
-        createTxtButton(errCont, renderer, ebImgPath, ebPos,
-                        BTN_SPRITESHEET_SIZE, ebText, &font);
-    exitButton->base.onClick = exitGameLoop;
-    exitButton->base.userData = wManager;
-    err = addBtnToScene(&scene->base, (Button*) exitButton);
-    if (err) addErrorToContainer(errCont, err);
+MenuScene* createMenuScene(Size pixelSize) {
+    MenuScene* scene = (MenuScene*) malloc(sizeof(MenuScene));
+    scene->base.type = MENU;
+    scene->base.destroy = destroyMenuScene;
+    scene->base.uManager = createUIManager();
+    scene->base.pixelSize = pixelSize;
 
     return scene;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/26
- * @brief Handles the logic for destroying a StartMenuScene struct.
+ * @date 04/21/26
+ * @brief Handles the logic for destroying a MenuScene struct.
  *
  * @param self : Scene struct pointer
  * @return A pointer to an Error struct that describes whether
- * or not the StartMenuScene struct in question was successfully
+ * or not the MenuScene struct in question was successfully
  * destroyed
  */
-Error* destroyStartMenuScene(Scene* self) {
+Error* destroyMenuScene(Scene* self) {
     if (!self) return createError(SCENE, "Could not destroy a NULL scene");
 
-    Error* err = NULL;
-    StartMenuScene* scene = (StartMenuScene*) self;
+    Error* err = destroyUIManager(self->uManager);
+    MenuScene* scene = (MenuScene*) self;
     SDL_DestroyTexture(scene->bgTexture);
 
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err) return err;
-    }
-
-    free(scene->base.btns);
+    free(self);
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/26
+ * @date 04/21/26
+ * @brief Handles the logic for initializing a MenuScene struct
+ * for the Start Menu.
+ *
+ * @param errCont : ErrorContainer struct pointer
+ * @param renderer : SDL_Renderer pointer
+ * @param pixelSize : Size struct
+ * @param loader : SceneLoader struct pointer
+ * @return A pointer to the newly created StartMenuScene in question
+ */
+MenuScene* initStartMenuScene(ErrorContainer* errCont, SDL_Renderer* renderer, Size pixelSize,
+                              SceneLoader* loader) {
+
+    Error* err = NULL;
+    if (!renderer) {
+        err = createError(SCENE, "Could not initialize the Start Menu with a NULL SDL_Renderer");
+        addErrorToContainer(errCont, err);
+        return NULL;
+    } else if (!loader) {
+        err = createError(SCENE, "Could not initialize the Start Menu with a NULL SceneLoader");
+    }
+
+    MenuScene* scene = createMenuScene(pixelSize);
+    err = createStartMenuUI(scene->base.uManager, loader, renderer, scene->base.pixelSize);
+    if (err) {
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
+
+    // Background
+    SDL_Surface* bgSurface = IMG_Load("../assets/sprites/ui/start_menu/bg_img.png");
+    if (!bgSurface) {
+        err = createError(RENDER, "Could not load the background image for the Start Menu");
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
+    SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
+    SDL_FreeSurface(bgSurface);
+    scene->bgTexture = bgTexture;
+
+    return scene;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/21/2026
+ * @brief Helper function to handle loading the start menu.
+ *
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ *
+ * @param wManager : void pointer (Acts like a WindowManager struct pointer)
+ */
+void loadStartMenuScene(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    clearCurrentScene(manager);
+    manager->currentScene = (Scene*) initStartMenuScene(
+        manager->errCont, manager->renderer, manager->wSize, (SceneLoader*) manager->sceneLoader);
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/21/26
  * @brief Handles the logic for creating an OptionsMenuScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
  * overlapping includes
  *
- * @param wManager : void pointer
  * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
- * @param size : Size struct
+ * @param pixelSize : Size struct
+ * @param loader : SceneLoader struct pointer
  * @return A pointer to the newly created OptionsMenuScene in question
  */
-OptionsMenuScene* createOptionsMenuScene(void* wManager,
-                                         ErrorContainer* errCont,
-                                         SDL_Renderer* renderer, Size size) {
+MenuScene* initOptionsMenuScene(ErrorContainer* errCont, SDL_Renderer* renderer, Size pixelSize,
+                                SceneLoader* loader) {
 
     Error* err = NULL;
+    if (!renderer) {
+        err = createError(SCENE, "Could not initialize the Options Menu with a NULL SDL_Renderer");
+        addErrorToContainer(errCont, err);
+        return NULL;
+    } else if (!loader) {
+        err = createError(SCENE, "Could not initialize the Options Menu with a NULL SceneLoader");
+        addErrorToContainer(errCont, err);
+        return NULL;
+    }
 
-    OptionsMenuScene* scene =
-        (OptionsMenuScene*) malloc(sizeof(OptionsMenuScene));
-    scene->base.type = OPTIONS_MENU;
-    scene->base.destroy = destroyOptionsMenuScene;
-    scene->base.btnCount = 0;
-    scene->base.btnCap = SCENE_BTN_INIT_CAP;
-    scene->base.btns = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
-
-    scene->base.size = size;
-    SDL_Color white = {255, 255, 255, 255};
-    Font font = createFont(JETBRAINS_MONO, 36, white);
+    MenuScene* scene = createMenuScene(pixelSize);
+    err = createOptionsMenuUI(scene->base.uManager, loader, renderer, scene->base.pixelSize);
+    if (err) {
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
 
     // Background
-    SDL_Surface* bgSurface =
-        IMG_Load("../assets/sprites/ui/options_menu/bg_img.png");
-    if (!bgSurface)
-        addErrorToContainer(
-            errCont,
-            createError(RENDER, "Failed to load start menu background image"));
+    SDL_Surface* bgSurface = IMG_Load("../assets/sprites/ui/options_menu/bg_img.png");
+    if (!bgSurface) {
+        err = createError(SCENE, "Could not load the background image for the Options Menu ");
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
     scene->bgTexture = bgTexture;
-
-    // Return button
-    const char* rbImgPath = "../assets/sprites/ui/options_menu/main_button.png";
-    const char* rbText = "Return";
-    Pos rbPos = {scene->base.size.w / 2, scene->base.size.h / 2};
-    TXT_Button* rButton = createTxtButton(errCont, renderer, rbImgPath, rbPos,
-                                          BTN_SPRITESHEET_SIZE, rbText, &font);
-    rButton->base.onClick = loadStartMenuScene;
-    rButton->base.userData = wManager;
-    err = addBtnToScene(&scene->base, (Button*) rButton);
-    if (err) addErrorToContainer(errCont, err);
 
     return scene;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/26
- * @brief Handles the logic for destroying an OptionsMenuScene struct.
+ * @date 04/20/2026
+ * @brief Helper function to handle loading the main options menu.
  *
- * @param self : Scene struct pointer
- * @return A pointer to an Error struct that describes whether
- * or not the OptionsMenuScene struct in question was successfully
- * destroyed
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ *
+ * @param wManager : void pointer
  */
-Error* destroyOptionsMenuScene(Scene* self) {
-    if (!self) return createError(SCENE, "Could not destroy a NULL scene");
-
-    Error* err = NULL;
-    OptionsMenuScene* scene = (OptionsMenuScene*) self;
-    SDL_DestroyTexture(scene->bgTexture);
-
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err) return err;
-    }
-
-    free(scene->base.btns);
-    return err;
+void loadOptionsMenuScene(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    clearCurrentScene(manager);
+    manager->currentScene = (Scene*) initOptionsMenuScene(
+        manager->errCont, manager->renderer, manager->wSize, (SceneLoader*) manager->sceneLoader);
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/26
+ * @date 04/21/26
  * @brief Handles the logic for creating a PlayScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
  * overlapping includes
  *
- * @param wManager : void pointer
  * @param errCont : ErrorContainer struct pointer
  * @param renderer : SDL_Renderer pointer
- * @param size : Size struct
+ * @param pixelSize : Size struct
+ * @param loader : SceneLoader struct pointer
  * @return A pointer to the newly created PlayScene in question
  */
-PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
-                           SDL_Renderer* renderer, Size size) {
+PlayScene* createPlayScene(ErrorContainer* errCont, SDL_Renderer* renderer, Size pixelSize,
+                           SceneLoader* loader) {
 
     Error* err = NULL;
+    if (!renderer) {
+        err = createError(SCENE, "Could not create the Play Scene with a NULL SDL_Renderer");
+        addErrorToContainer(errCont, err);
+        return NULL;
+    } else if (!loader) {
+        err = createError(SCENE, "Could not create the Play Scene with a NULL SceneLoader");
+        addErrorToContainer(errCont, err);
+        return NULL;
+    }
 
     PlayScene* scene = (PlayScene*) malloc(sizeof(PlayScene));
     scene->base.type = PLAY;
     scene->base.destroy = destroyPlayScene;
-    scene->base.btnCount = 0;
-    scene->base.btnCap = SCENE_BTN_INIT_CAP;
-    scene->base.btns = (Button**) calloc(scene->base.btnCap, sizeof(Button*));
-    scene->base.size = size;
+    scene->base.uManager = createUIManager();
+    scene->base.pixelSize = pixelSize;
+
+    err = createPlaySceneUI(scene->base.uManager, loader, renderer, scene->base.pixelSize);
+    if (err) {
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
 
     // map
     scene->map = createTestMap(errCont, renderer);
     if (errCont->count > 0) return scene;
 
     // Player
-    const char* playerSpritesheetPath =
-        "../assets/sprites/player/testing_player_spritesheet.png";
+    const char* playerSpritesheetPath = "../assets/sprites/player/testing_player_spritesheet.png";
     Coord initPlayerCoord;
     initPlayerCoord.x = scene->map->worldSize.w / 2.0f;
     initPlayerCoord.y = scene->map->worldSize.h / 2.0f;
     float initPlayerSpeed = 1.0f;
-    scene->player = createPlayer(errCont, renderer, playerSpritesheetPath,
-                                 initPlayerCoord, initPlayerSpeed);
+    scene->player =
+        createPlayer(errCont, renderer, playerSpritesheetPath, initPlayerCoord, initPlayerSpeed);
     if (errCont->count > 0) return scene;
 
     err = initPlayerAnimation(scene->player);
@@ -294,30 +246,19 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
     }
 
     // Camera
-    scene->cam = createCamera(initPlayerCoord, scene->base.size, 2.0f);
+    scene->cam = createCamera(initPlayerCoord, scene->base.pixelSize, 2.0f);
     err = addPlayerToCamera(scene->cam, scene->player);
     if (err) {
         addErrorToContainer(errCont, err);
         return scene;
     }
 
-    // Back button
-    Pos disPos = {40, 40};
-    const char* backButtonImgPath =
-        "../assets/sprites/ui/play_scene/back_button.png";
-    IMG_Button* backButton = createImgButton(
-        errCont, renderer, backButtonImgPath, disPos, BTN_SPRITESHEET_SIZE);
-    backButton->base.onClick = loadStartMenuScene;
-    backButton->base.userData = wManager;
-    err = addBtnToScene(&scene->base, (Button*) backButton);
-    if (err) addErrorToContainer(errCont, err);
-
     return scene;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/19/26
+ * @date 04/20/26
  * @brief Handles the logic for destroying an PlayScene struct.
  *
  * @param self : Scene struct pointer
@@ -328,16 +269,30 @@ PlayScene* createPlayScene(void* wManager, ErrorContainer* errCont,
 Error* destroyPlayScene(Scene* self) {
     if (!self) return createError(SCENE, "Could not destroy a NULL scene");
 
-    Error* err = NULL;
+    Error* err = destroyUIManager(self->uManager);
     PlayScene* scene = (PlayScene*) self;
+    err = destroyCamera(scene->cam);
+    if (err) return err;
+    err = destroyMap(scene->map);
 
-    for (int i = 0; i < scene->base.btnCount; i++) {
-        err = scene->base.btns[i]->destroy(scene->base.btns[i]);
-        if (err) return err;
-    }
-
-    destroyCamera(scene->cam);
-    destroyMap(scene->map);
-    free(scene->base.btns);
+    free(self);
     return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/19/2026
+ * @brief Helper function to handle loading the playing scene.
+ *
+ * @note The window manager is passed as a void pointer because
+ * this function is usually called from the scene.c file where
+ * window is not within scope.
+ *
+ * @param wManager : void pointer
+ */
+void loadPlayScene(void* wManager) {
+    WindowManager* manager = (WindowManager*) wManager;
+    clearCurrentScene(manager);
+    manager->currentScene = (Scene*) createPlayScene(
+        manager->errCont, manager->renderer, manager->wSize, (SceneLoader*) manager->sceneLoader);
 }

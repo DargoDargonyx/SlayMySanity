@@ -10,6 +10,8 @@ QualifierAlignment: Left
 SpaceAfterCStyleCast: true
 
 # Spacing and Indentation
+ColumnLimit: 100
+
 SpaceBeforeParens: ControlStatements
 IndentCaseLabels: true
 BreakBeforeBraces: Attach

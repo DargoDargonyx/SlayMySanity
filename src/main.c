@@ -65,5 +65,9 @@ int main(int argc, char** argv) {
     }
 
     err = runGameWindow(GAME_NAME, wSize);
+    if (err) {
+        printErrorMsg(err);
+        return 1;
+    }
     return 0;
 }

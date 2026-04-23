@@ -1,13 +1,13 @@
 /**
  * @file input.c
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/20/2026
  * @brief Handles the logic for user input.
  */
 
 #include "ui/input.h"
 #include "graphics/animation.h"
-#include "ui/widget.h"
+#include "ui/ui.h"
 #include "util/helper.h"
 #include "world/player.h"
 
@@ -46,14 +46,12 @@ Error* handlePlayerEvent(Player* player, float dt) {
         if (up && down) {
             if (player->currentAction != IDLE) {
                 player->currentAction = IDLE;
-                err = switchAnimationSeq(player->aManager,
-                                         ANIM_PLAYER_EAST_IDLE_ORDER);
+                err = switchAnimationSeq(player->aManager, ANIM_PLAYER_EAST_IDLE_ORDER);
             }
         } else if (left && right) {
             if (player->currentAction != IDLE) {
                 player->currentAction = IDLE;
-                err = switchAnimationSeq(player->aManager,
-                                         ANIM_PLAYER_EAST_IDLE_ORDER);
+                err = switchAnimationSeq(player->aManager, ANIM_PLAYER_EAST_IDLE_ORDER);
             }
         } else if (up) {
             movePlayerNorth(player, dist);
@@ -66,26 +64,20 @@ Error* handlePlayerEvent(Player* player, float dt) {
         } else {
             if (player->currentAction != IDLE) {
                 player->currentAction = IDLE;
-                if (player->facingDir == NORTH ||
-                    player->facingDir == NORTH_EAST ||
-                    player->facingDir == EAST ||
-                    player->facingDir == SOUTH_EAST ||
+                if (player->facingDir == NORTH || player->facingDir == NORTH_EAST ||
+                    player->facingDir == EAST || player->facingDir == SOUTH_EAST ||
                     player->facingDir == SOUTH) {
 
-                    err = switchAnimationSeq(player->aManager,
-                                             ANIM_PLAYER_EAST_IDLE_ORDER);
+                    err = switchAnimationSeq(player->aManager, ANIM_PLAYER_EAST_IDLE_ORDER);
                     player->facingDir = SOUTH_EAST;
-                } else if (player->facingDir == NORTH_WEST ||
-                           player->facingDir == WEST ||
+                } else if (player->facingDir == NORTH_WEST || player->facingDir == WEST ||
                            player->facingDir == SOUTH_WEST) {
 
-                    err = switchAnimationSeq(player->aManager,
-                                             ANIM_PLAYER_WEST_IDLE_ORDER);
+                    err = switchAnimationSeq(player->aManager, ANIM_PLAYER_WEST_IDLE_ORDER);
                     player->facingDir = SOUTH_WEST;
                 } else {
-                    err = createError(ANIMATION,
-                                      "Could not animate a player with an "
-                                      "unkown facing direction");
+                    err = createError(ANIMATION, "Could not animate a player with an "
+                                                 "unkown facing direction");
                 }
             }
         }
@@ -96,29 +88,54 @@ Error* handlePlayerEvent(Player* player, float dt) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/21/2026
+ * @brief Handles the logic for widget events.
+ *
+ * @param widget : Widget struct pointer
+ * @param e : SDL_Event pointer
+ * @return A pointer to an Error struct that describes whether or not
+ * the widget event in question was successfully handled
+ */
+Error* handleWidgetEvent(Widget* widget, SDL_Event* e) {
+    if (!widget) return createError(UI, "Could not handle an action event for a NULL widget");
+    if (!e) return createError(UI, "Could not handle a NULL action even for a widget");
+    Error* err = NULL;
+
+    switch (widget->type) {
+        case BUTTON:
+            err = handleButtonEvent((Button*) widget, e);
+            if (err) return err;
+            break;
+        default:
+            err = createError(UI,
+                              "Could not handle an action event for a widget with an unknown type");
+            break;
+    }
+    return err;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/21/2026
  * @brief Handles the logic for button events.
  *
  * @param btn : Button struct pointer
  * @param e : SDL_Event pointer
+ * @return A pointer to an Error struct that describes whether or not
+ * the button event in question was successfully handled
  */
-void handleButtonEvent(Button* btn, SDL_Event* e) {
+Error* handleButtonEvent(Button* btn, SDL_Event* e) {
     Pos pos;
-
     if (e->type == SDL_MOUSEMOTION) {
         pos.x = e->motion.x;
         pos.y = e->motion.y;
         if (pointInRect(pos, &btn->rect)) btn->state = BTN_HOVER;
         else btn->state = BTN_IDLE;
-    }
-
-    if (e->type == SDL_MOUSEBUTTONDOWN) {
+    } else if (e->type == SDL_MOUSEBUTTONDOWN) {
         pos.x = e->button.x;
         pos.y = e->button.y;
         if (pointInRect(pos, &btn->rect)) btn->state = BTN_PRESSED;
-    }
-
-    if (e->type == SDL_MOUSEBUTTONUP) {
+    } else if (e->type == SDL_MOUSEBUTTONUP) {
         pos.x = e->button.x;
         pos.y = e->button.y;
         if (btn->state == BTN_PRESSED && pointInRect(pos, &btn->rect)) {
@@ -126,4 +143,5 @@ void handleButtonEvent(Button* btn, SDL_Event* e) {
             btn->state = BTN_HOVER;
         }
     }
+    return NULL;
 }

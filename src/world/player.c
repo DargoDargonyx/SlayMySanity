@@ -26,19 +26,16 @@
  * @param speed : float
  * @return A pointer to a newly created Player struct
  */
-Player* createPlayer(ErrorContainer* errCont, SDL_Renderer* renderer,
-                     const char* spritesheetPath, Coord initCoord,
-                     float speed) {
+Player* createPlayer(ErrorContainer* errCont, SDL_Renderer* renderer, const char* spritesheetPath,
+                     Coord initCoord, float speed) {
 
     Player* player = (Player*) malloc(sizeof(Player));
     player->coord = initCoord;
     player->speed = speed;
 
-    Size spritesheetSize =
-        (Size){PLAYER_SPRITESHEET_WIDTH, PLAYER_SPRITESHEET_HEIGHT};
-    Spritesheet* spritesheet =
-        createSpritesheet(errCont, renderer, spritesheetPath, spritesheetSize,
-                          PLAYER_SPRITESHEET_SPRITE_COUNT);
+    Size spritesheetSize = (Size){PLAYER_SPRITESHEET_WIDTH, PLAYER_SPRITESHEET_HEIGHT};
+    Spritesheet* spritesheet = createSpritesheet(errCont, renderer, spritesheetPath,
+                                                 spritesheetSize, PLAYER_SPRITESHEET_SPRITE_COUNT);
     player->aManager = createAnimationManager(spritesheet);
 
     return player;
@@ -56,8 +53,7 @@ Player* createPlayer(ErrorContainer* errCont, SDL_Renderer* renderer,
  */
 Error* destroyPlayer(Player* self) {
     Error* err = NULL;
-    if (!self)
-        return createError(PLAYER, "Could not destroy a NULL Player struct");
+    if (!self) return createError(PLAYER, "Could not destroy a NULL Player struct");
     err = destroyAnimationManager(self->aManager);
     free(self);
 
@@ -78,18 +74,15 @@ Error* movePlayerNorth(Player* self, float dist) {
     Error* err = NULL;
     self->coord.y -= dist;
     if (self->currentAction != MOVING_NORTH) {
-        if (self->currentAction != MOVING_NORTH_EAST &&
-            self->currentAction != MOVING_NORTH_WEST) {
+        if (self->currentAction != MOVING_NORTH_EAST && self->currentAction != MOVING_NORTH_WEST) {
 
             if (self->facingDir == WEST || self->facingDir == NORTH_WEST ||
                 self->facingDir == SOUTH_WEST) {
 
-                err = switchAnimationSeq(self->aManager,
-                                         ANIM_PLAYER_NORTH_WEST_ORDER);
+                err = switchAnimationSeq(self->aManager, ANIM_PLAYER_NORTH_WEST_ORDER);
                 self->facingDir = NORTH_WEST;
             } else {
-                err = switchAnimationSeq(self->aManager,
-                                         ANIM_PLAYER_NORTH_EAST_ORDER);
+                err = switchAnimationSeq(self->aManager, ANIM_PLAYER_NORTH_EAST_ORDER);
                 self->facingDir = NORTH_EAST;
             }
         }
@@ -135,8 +128,7 @@ Error* movePlayerEast(Player* self, float dist) {
     self->coord.x += dist;
     if (self->currentAction != MOVING_EAST) {
         if (self->currentAction != MOVING_SOUTH_EAST)
-            err = switchAnimationSeq(self->aManager,
-                                     ANIM_PLAYER_SOUTH_EAST_ORDER);
+            err = switchAnimationSeq(self->aManager, ANIM_PLAYER_SOUTH_EAST_ORDER);
         self->facingDir = EAST;
         self->currentAction = MOVING_EAST;
     }
@@ -179,18 +171,14 @@ Error* movePlayerSouth(Player* self, float dist) {
     Error* err = NULL;
     self->coord.y += dist;
     if (self->currentAction != MOVING_SOUTH) {
-        if (self->currentAction != MOVING_SOUTH_EAST &&
-            self->currentAction != MOVING_SOUTH_WEST) {
-
+        if (self->currentAction != MOVING_SOUTH_EAST && self->currentAction != MOVING_SOUTH_WEST) {
             if (self->facingDir == WEST || self->facingDir == NORTH_WEST ||
                 self->facingDir == SOUTH_WEST) {
 
-                err = switchAnimationSeq(self->aManager,
-                                         ANIM_PLAYER_SOUTH_WEST_ORDER);
+                err = switchAnimationSeq(self->aManager, ANIM_PLAYER_SOUTH_WEST_ORDER);
                 self->facingDir = SOUTH_WEST;
             } else {
-                err = switchAnimationSeq(self->aManager,
-                                         ANIM_PLAYER_SOUTH_EAST_ORDER);
+                err = switchAnimationSeq(self->aManager, ANIM_PLAYER_SOUTH_EAST_ORDER);
                 self->facingDir = SOUTH_EAST;
             }
         }
@@ -236,8 +224,7 @@ Error* movePlayerWest(Player* self, float dist) {
     self->coord.x -= dist;
     if (self->currentAction != MOVING_WEST) {
         if (self->currentAction != MOVING_SOUTH_WEST)
-            err = switchAnimationSeq(self->aManager,
-                                     ANIM_PLAYER_SOUTH_WEST_ORDER);
+            err = switchAnimationSeq(self->aManager, ANIM_PLAYER_SOUTH_WEST_ORDER);
         self->facingDir = WEST;
         self->currentAction = MOVING_WEST;
     }
@@ -292,8 +279,7 @@ Error* initPlayerAnimation(Player* self) {
     err = createPlayerMoveSouthWestAnim(self);
     if (err) return err;
 
-    self->aManager->currentSeq =
-        self->aManager->seq[ANIM_PLAYER_EAST_IDLE_ORDER];
+    self->aManager->currentSeq = self->aManager->seq[ANIM_PLAYER_EAST_IDLE_ORDER];
     return err;
 }
 
@@ -314,20 +300,17 @@ Error* createPlayerSouthEastIdleAnim(Player* self) {
     AnimationSeq* seq = createAnimationSeq();
 
     Pos frame1Pos = (Pos){0, 1};
-    AnimationFrame frame1 =
-        (AnimationFrame){0, frame1Pos, quarterSec, spriteSize};
+    AnimationFrame frame1 = (AnimationFrame){0, frame1Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
     if (err) return err;
 
     Pos frame2Pos = (Pos){1, 1};
-    AnimationFrame frame2 =
-        (AnimationFrame){1, frame2Pos, quarterSec, spriteSize};
+    AnimationFrame frame2 = (AnimationFrame){1, frame2Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
     if (err) return err;
 
     Pos frame3Pos = (Pos){2, 1};
-    AnimationFrame frame3 =
-        (AnimationFrame){2, frame3Pos, quarterSec, spriteSize};
+    AnimationFrame frame3 = (AnimationFrame){2, frame3Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
     if (err) return err;
 
@@ -353,20 +336,17 @@ Error* createPlayerSouthWestIdleAnim(Player* self) {
     AnimationSeq* seq = createAnimationSeq();
 
     Pos frame1Pos = (Pos){0, 2};
-    AnimationFrame frame1 =
-        (AnimationFrame){0, frame1Pos, quarterSec, spriteSize};
+    AnimationFrame frame1 = (AnimationFrame){0, frame1Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
     if (err) return err;
 
     Pos frame2Pos = (Pos){1, 2};
-    AnimationFrame frame2 =
-        (AnimationFrame){1, frame2Pos, quarterSec, spriteSize};
+    AnimationFrame frame2 = (AnimationFrame){1, frame2Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
     if (err) return err;
 
     Pos frame3Pos = (Pos){2, 2};
-    AnimationFrame frame3 =
-        (AnimationFrame){2, frame3Pos, quarterSec, spriteSize};
+    AnimationFrame frame3 = (AnimationFrame){2, frame3Pos, quarterSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
     if (err) return err;
 
@@ -392,50 +372,42 @@ Error* createPlayerMoveNorthEastAnim(Player* self) {
     AnimationSeq* seq = createAnimationSeq();
 
     Pos frame1Pos = (Pos){3, 0};
-    AnimationFrame frame1 =
-        (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
+    AnimationFrame frame1 = (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
     if (err) return err;
 
     Pos frame2Pos = (Pos){4, 0};
-    AnimationFrame frame2 =
-        (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
+    AnimationFrame frame2 = (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
     if (err) return err;
 
     Pos frame3Pos = (Pos){5, 0};
-    AnimationFrame frame3 =
-        (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
+    AnimationFrame frame3 = (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
     if (err) return err;
 
     Pos frame4Pos = (Pos){6, 0};
-    AnimationFrame frame4 =
-        (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
+    AnimationFrame frame4 = (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
     if (err) return err;
 
     Pos frame5Pos = (Pos){7, 0};
-    AnimationFrame frame5 =
-        (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
+    AnimationFrame frame5 = (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
     if (err) return err;
 
     Pos frame6Pos = (Pos){8, 0};
-    AnimationFrame frame6 =
-        (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
+    AnimationFrame frame6 = (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
     if (err) return err;
 
     Pos frame7Pos = (Pos){9, 0};
-    AnimationFrame frame7 =
-        (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
+    AnimationFrame frame7 = (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
     if (err) return err;
 
     Pos frame8Pos = (Pos){10, 0};
-    AnimationFrame frame8 =
-        (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
+    AnimationFrame frame8 = (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
     if (err) return err;
 
@@ -461,50 +433,42 @@ Error* createPlayerMoveNorthWestAnim(Player* self) {
     AnimationSeq* seq = createAnimationSeq();
 
     Pos frame1Pos = (Pos){3, 3};
-    AnimationFrame frame1 =
-        (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
+    AnimationFrame frame1 = (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
     if (err) return err;
 
     Pos frame2Pos = (Pos){4, 3};
-    AnimationFrame frame2 =
-        (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
+    AnimationFrame frame2 = (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
     if (err) return err;
 
     Pos frame3Pos = (Pos){5, 3};
-    AnimationFrame frame3 =
-        (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
+    AnimationFrame frame3 = (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
     if (err) return err;
 
     Pos frame4Pos = (Pos){6, 3};
-    AnimationFrame frame4 =
-        (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
+    AnimationFrame frame4 = (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
     if (err) return err;
 
     Pos frame5Pos = (Pos){7, 3};
-    AnimationFrame frame5 =
-        (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
+    AnimationFrame frame5 = (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
     if (err) return err;
 
     Pos frame6Pos = (Pos){8, 3};
-    AnimationFrame frame6 =
-        (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
+    AnimationFrame frame6 = (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
     if (err) return err;
 
     Pos frame7Pos = (Pos){9, 3};
-    AnimationFrame frame7 =
-        (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
+    AnimationFrame frame7 = (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
     if (err) return err;
 
     Pos frame8Pos = (Pos){10, 3};
-    AnimationFrame frame8 =
-        (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
+    AnimationFrame frame8 = (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
     if (err) return err;
 
@@ -530,50 +494,42 @@ Error* createPlayerMoveSouthEastAnim(Player* self) {
     AnimationSeq* seq = createAnimationSeq();
 
     Pos frame1Pos = (Pos){3, 1};
-    AnimationFrame frame1 =
-        (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
+    AnimationFrame frame1 = (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
     if (err) return err;
 
     Pos frame2Pos = (Pos){4, 1};
-    AnimationFrame frame2 =
-        (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
+    AnimationFrame frame2 = (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
     if (err) return err;
 
     Pos frame3Pos = (Pos){5, 1};
-    AnimationFrame frame3 =
-        (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
+    AnimationFrame frame3 = (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
     if (err) return err;
 
     Pos frame4Pos = (Pos){6, 1};
-    AnimationFrame frame4 =
-        (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
+    AnimationFrame frame4 = (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
     if (err) return err;
 
     Pos frame5Pos = (Pos){7, 1};
-    AnimationFrame frame5 =
-        (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
+    AnimationFrame frame5 = (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
     if (err) return err;
 
     Pos frame6Pos = (Pos){8, 1};
-    AnimationFrame frame6 =
-        (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
+    AnimationFrame frame6 = (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
     if (err) return err;
 
     Pos frame7Pos = (Pos){9, 1};
-    AnimationFrame frame7 =
-        (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
+    AnimationFrame frame7 = (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
     if (err) return err;
 
     Pos frame8Pos = (Pos){10, 1};
-    AnimationFrame frame8 =
-        (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
+    AnimationFrame frame8 = (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
     if (err) return err;
 
@@ -599,50 +555,42 @@ Error* createPlayerMoveSouthWestAnim(Player* self) {
     AnimationSeq* seq = createAnimationSeq();
 
     Pos frame1Pos = (Pos){3, 2};
-    AnimationFrame frame1 =
-        (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
+    AnimationFrame frame1 = (AnimationFrame){0, frame1Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame1);
     if (err) return err;
 
     Pos frame2Pos = (Pos){4, 2};
-    AnimationFrame frame2 =
-        (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
+    AnimationFrame frame2 = (AnimationFrame){1, frame2Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame2);
     if (err) return err;
 
     Pos frame3Pos = (Pos){5, 2};
-    AnimationFrame frame3 =
-        (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
+    AnimationFrame frame3 = (AnimationFrame){2, frame3Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame3);
     if (err) return err;
 
     Pos frame4Pos = (Pos){6, 2};
-    AnimationFrame frame4 =
-        (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
+    AnimationFrame frame4 = (AnimationFrame){3, frame4Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame4);
     if (err) return err;
 
     Pos frame5Pos = (Pos){7, 2};
-    AnimationFrame frame5 =
-        (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
+    AnimationFrame frame5 = (AnimationFrame){4, frame5Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame5);
     if (err) return err;
 
     Pos frame6Pos = (Pos){8, 2};
-    AnimationFrame frame6 =
-        (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
+    AnimationFrame frame6 = (AnimationFrame){5, frame6Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame6);
     if (err) return err;
 
     Pos frame7Pos = (Pos){9, 2};
-    AnimationFrame frame7 =
-        (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
+    AnimationFrame frame7 = (AnimationFrame){6, frame7Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame7);
     if (err) return err;
 
     Pos frame8Pos = (Pos){10, 2};
-    AnimationFrame frame8 =
-        (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
+    AnimationFrame frame8 = (AnimationFrame){7, frame8Pos, eigthSec, spriteSize};
     err = addFrameToAnimationSeq(seq, frame8);
     if (err) return err;
 

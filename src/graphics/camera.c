@@ -23,13 +23,11 @@
  * @return A pointer to the newly created Cam struct in question
  */
 Cam* createCamera(Coord coord, Size pixelSize, float zoom) {
-
     Cam* cam = (Cam*) malloc(sizeof(Cam));
     cam->scale = (Size){WORLD_COORD_WIDTH, WORLD_COORD_HEIGHT};
     cam->player = NULL;
     cam->coord = coord;
-    cam->pixelPos =
-        (Pos){cam->coord.x * cam->scale.w, cam->coord.y * cam->scale.h};
+    cam->pixelPos = (Pos){cam->coord.x * cam->scale.w, cam->coord.y * cam->scale.h};
     cam->pixelSize = pixelSize;
     cam->worldSize = (SizeFloat){cam->pixelSize.w / (float) cam->scale.w,
                                  cam->pixelSize.h / (float) cam->scale.h};
@@ -81,11 +79,9 @@ Error* addPlayerToCamera(Cam* self, Player* player) {
  * or not the Cam struct was successfully updated
  */
 Error* refreshCamPixelPos(Cam* self) {
-    if (!self)
-        return createError(
-            CAMERA, "Could not refresh the pixel position for a NULL camera");
-    self->pixelPos = (Pos){(int) (self->coord.x * self->scale.w),
-                           (int) (self->coord.y * self->scale.h)};
+    if (!self) return createError(CAMERA, "Could not refresh the pixel position for a NULL camera");
+    self->pixelPos =
+        (Pos){(int) (self->coord.x * self->scale.w), (int) (self->coord.y * self->scale.h)};
     return NULL;
 }
 
@@ -129,10 +125,8 @@ Error* handleCameraMovement(Cam* cam, SizeFloat maxWorldBounds, float dt) {
     float halfY = cam->worldSize.h / 2;
     if (cam->coord.x < halfX) cam->coord.x = halfX;
     if (cam->coord.y < halfY) cam->coord.y = halfY;
-    if (cam->coord.x > (maxWorldBounds.w - halfX))
-        cam->coord.x = maxWorldBounds.w - halfX;
-    if (cam->coord.y > (maxWorldBounds.h - halfY))
-        cam->coord.y = maxWorldBounds.h - halfY;
+    if (cam->coord.x > (maxWorldBounds.w - halfX)) cam->coord.x = maxWorldBounds.w - halfX;
+    if (cam->coord.y > (maxWorldBounds.h - halfY)) cam->coord.y = maxWorldBounds.h - halfY;
 
     Error* err = refreshCamPixelPos(cam);
     return err;
