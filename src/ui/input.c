@@ -116,7 +116,7 @@ Error* handleWidgetEvent(Widget* widget, SDL_Event* e) {
 
 /**
  * @author DargoDargonyx
- * @date 04/21/2026
+ * @date 04/24/2026
  * @brief Handles the logic for button events.
  *
  * @param btn : Button struct pointer
@@ -129,18 +129,18 @@ Error* handleButtonEvent(Button* btn, SDL_Event* e) {
     if (e->type == SDL_MOUSEMOTION) {
         pos.x = e->motion.x;
         pos.y = e->motion.y;
-        if (pointInRect(pos, &btn->rect)) btn->state = BTN_HOVER;
-        else btn->state = BTN_IDLE;
+        if (pointInRect(pos, &btn->rect)) btn->currentState = BTN_HOVER;
+        else btn->currentState = BTN_IDLE;
     } else if (e->type == SDL_MOUSEBUTTONDOWN) {
         pos.x = e->button.x;
         pos.y = e->button.y;
-        if (pointInRect(pos, &btn->rect)) btn->state = BTN_PRESSED;
+        if (pointInRect(pos, &btn->rect)) btn->currentState = BTN_PRESSED;
     } else if (e->type == SDL_MOUSEBUTTONUP) {
         pos.x = e->button.x;
         pos.y = e->button.y;
-        if (btn->state == BTN_PRESSED && pointInRect(pos, &btn->rect)) {
+        if (btn->currentState == BTN_PRESSED && pointInRect(pos, &btn->rect)) {
             if (btn->onClick) btn->onClick(btn->userData);
-            btn->state = BTN_HOVER;
+            btn->currentState = BTN_HOVER;
         }
     }
     return NULL;

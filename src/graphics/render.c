@@ -1,7 +1,7 @@
 /**
  * @file render.c
  * @author DargoDargonyx
- * @date 04/21/2026
+ * @date 04/24/2026
  * @brief Handles the logic for rendering the game.
  */
 
@@ -42,7 +42,7 @@ Error* drawCurrentScene(WindowManager* wManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/21/2026
+ * @date 04/24/2026
  * @brief Handles the logic for drawing all the widgets inside of
  * a UIManager struct.
  *
@@ -58,6 +58,9 @@ Error* drawWidgets(SDL_Renderer* renderer, UIManager* uManager) {
     for (int i = 0; i < uManager->widgetCount; i++) {
         Widget* widget = uManager->widgets[i];
         switch (widget->type) {
+            case TXT_BOX:
+                err = drawTxtBox(renderer, (TxtBox*) widget);
+                break;
             case BUTTON:
                 err = drawButton(renderer, (Button*) widget);
                 break;
@@ -72,7 +75,33 @@ Error* drawWidgets(SDL_Renderer* renderer, UIManager* uManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/21/2026
+ * @date 04/24/2026
+ * @brief Handles the logic for drawing the sprite for a text box.
+ *
+ * @param renderer : SDL_Renderer pointer
+ * @param txtBox : TxtBox struct pointer
+ * @return A pointer to an Error struct that describes whether
+ * or not the text box sprite in question was successfully drawn
+ */
+Error* drawTxtBox(SDL_Renderer* renderer, TxtBox* txtBox) {
+    if (!renderer) return createError(RENDER, "Could not draw a text box with a NULL SDL_Renderer");
+    if (!txtBox) return createError(RENDER, "Could not draw a NULL text box");
+
+    int txtW, txtH;
+    SDL_QueryTexture(txtBox->texture, NULL, NULL, &txtW, &txtH);
+    SDL_Rect txtDest;
+    txtDest.x = txtBox->outer.x + (txtBox->outer.w - txtW) / 2;
+    txtDest.y = txtBox->outer.y + (txtBox->outer.h - txtH) / 2;
+    txtDest.w = txtW;
+    txtDest.h = txtH;
+    SDL_RenderCopy(renderer, txtBox->texture, NULL, &txtDest);
+
+    return NULL;
+}
+
+/**
+ * @author DargoDargonyx
+ * @date 04/24/2026
  * @brief Handles the logic for drawing the sprite for a button.
  *
  * @param renderer : SDL_Renderer pointer
@@ -86,7 +115,7 @@ Error* drawButton(SDL_Renderer* renderer, Button* btn) {
 
     SDL_Rect src = {0, 0, btn->rect.w, btn->rect.h};
 
-    switch (btn->state) {
+    switch (btn->currentState) {
         case BTN_IDLE:
             src.y = 0;
             break;
@@ -100,41 +129,22 @@ Error* drawButton(SDL_Renderer* renderer, Button* btn) {
             return createError(RENDER, "Unknown button state");
             break;
     }
-    SDL_RenderCopy(renderer, btn->bgTexture, &src, &btn->rect);
+    SDL_RenderCopy(renderer, btn->aManager->spritesheet->texture, &src, &btn->rect);
 
-    switch (btn->type) {
-        case IMG: {
-            break;
-        }
-        case TXT: {
-            TXT_Button* txtBtn = (TXT_Button*) btn;
-            int txtW, txtH;
-            SDL_QueryTexture(txtBtn->txtTexture, NULL, NULL, &txtW, &txtH);
-            SDL_Rect txtDest;
-            txtDest.x = txtBtn->txtRect.x + (txtBtn->txtRect.w - txtW) / 2;
-            txtDest.y = txtBtn->txtRect.y + (txtBtn->txtRect.h - txtH) / 2;
-            txtDest.w = txtW;
-            txtDest.h = txtH;
-            SDL_RenderCopy(renderer, txtBtn->txtTexture, NULL, &txtDest);
-            break;
-        }
-        default:
-            return createError(RENDER, "Could not draw a button with an unknown type");
-            break;
-    }
-
-    return NULL;
+    Error* err = NULL;
+    if (btn->txtBox) err = drawTxtBox(renderer, btn->txtBox);
+    return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/21/2026
+ * @date 04/24/2026
  * @brief Handles the logic for drawing a Menu Scene.
  *
  * @param renderer : SDL_Renderer pointer
  * @param scene : MenuScene struct pointer
  * @return A pointer to an Error struct that describes whether
- * or not the Menu Scene was successfully drawn
+ * or not the Menu Scene in question was successfully drawn
  */
 Error* drawMenuScene(SDL_Renderer* renderer, MenuScene* scene) {
     if (!renderer)
@@ -145,20 +155,20 @@ Error* drawMenuScene(SDL_Renderer* renderer, MenuScene* scene) {
     SDL_RenderClear(renderer);
 
     SDL_RenderCopy(renderer, scene->bgTexture, NULL, NULL);
-    err = drawWidgets(renderer, scene->base.uManager);
+    err = drawWidgets(renderer, scene->base.uiManager);
 
     return err;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/21/2026
+ * @date 04/24/2026
  * @brief Handles the logic for drawing the Playing Scene.
  *
  * @param renderer : SDL_Renderer pointer
  * @param scene : PlayScene struct pointer
  * @return A pointer to an Error struct that describes whether
- * or not the Playing Scene was successfully drawn
+ * or not the Playing Scene in question was successfully drawn
  */
 Error* drawPlayScene(SDL_Renderer* renderer, PlayScene* scene) {
     if (!renderer)
@@ -170,7 +180,7 @@ Error* drawPlayScene(SDL_Renderer* renderer, PlayScene* scene) {
 
     err = drawMap(renderer, scene->cam, scene->map);
     if (err) return err;
-    err = drawWidgets(renderer, scene->base.uManager);
+    err = drawWidgets(renderer, scene->base.uiManager);
     if (err) return err;
     err = drawPlayer(renderer, scene->cam);
     if (err) return err;

@@ -1,12 +1,13 @@
 /**
  * @file scene.c
  * @author DargoDargonyx
- * @date 04/20/2026
+ * @date 04/24/2026
  * @brief Handles the logic for scenes.
  */
 
 #include "core/scene.h"
 #include "graphics/camera.h"
+#include "ui/font.h"
 #include "ui/ui.h"
 #include "util/error.h"
 #include "util/window.h"
@@ -18,7 +19,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/21/26
+ * @date 04/24/26
  * @brief Handles the logic for creating a MenuScene struct.
  *
  * @param pixelSize : Size struct
@@ -28,7 +29,7 @@ MenuScene* createMenuScene(Size pixelSize) {
     MenuScene* scene = (MenuScene*) malloc(sizeof(MenuScene));
     scene->base.type = MENU;
     scene->base.destroy = destroyMenuScene;
-    scene->base.uManager = createUIManager();
+    scene->base.uiManager = createUIManager();
     scene->base.pixelSize = pixelSize;
 
     return scene;
@@ -36,7 +37,7 @@ MenuScene* createMenuScene(Size pixelSize) {
 
 /**
  * @author DargoDargonyx
- * @date 04/21/26
+ * @date 04/24/26
  * @brief Handles the logic for destroying a MenuScene struct.
  *
  * @param self : Scene struct pointer
@@ -47,7 +48,8 @@ MenuScene* createMenuScene(Size pixelSize) {
 Error* destroyMenuScene(Scene* self) {
     if (!self) return createError(SCENE, "Could not destroy a NULL scene");
 
-    Error* err = destroyUIManager(self->uManager);
+    Error* err = destroyUIManager(self->uiManager);
+    if (err) return err;
     MenuScene* scene = (MenuScene*) self;
     SDL_DestroyTexture(scene->bgTexture);
 
@@ -57,7 +59,7 @@ Error* destroyMenuScene(Scene* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/21/26
+ * @date 04/24/26
  * @brief Handles the logic for initializing a MenuScene struct
  * for the Start Menu.
  *
@@ -80,7 +82,15 @@ MenuScene* initStartMenuScene(ErrorContainer* errCont, SDL_Renderer* renderer, S
     }
 
     MenuScene* scene = createMenuScene(pixelSize);
-    err = createStartMenuUI(scene->base.uManager, loader, renderer, scene->base.pixelSize);
+
+    SDL_Color white = (SDL_Color){255, 255, 255, 255};
+    err = createFont(scene->base.uiManager->fontCont, JETBRAINS_MONO, 24, white);
+    if (err) {
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
+
+    err = createStartMenuUI(scene->base.uiManager, loader, renderer, scene->base.pixelSize);
     if (err) {
         addErrorToContainer(errCont, err);
         return scene;
@@ -102,25 +112,24 @@ MenuScene* initStartMenuScene(ErrorContainer* errCont, SDL_Renderer* renderer, S
 
 /**
  * @author DargoDargonyx
- * @date 04/21/2026
+ * @date 04/24/2026
  * @brief Helper function to handle loading the start menu.
  *
- * @note The window manager is passed as a void pointer because
- * this function is usually called from the scene.c file where
- * window is not within scope.
- *
- * @param wManager : void pointer (Acts like a WindowManager struct pointer)
+ * @param data : void pointer (acts like a SceneLoader struct pointer)
  */
-void loadStartMenuScene(void* wManager) {
-    WindowManager* manager = (WindowManager*) wManager;
+void loadStartMenuScene(void* data) {
+    SceneLoader* loader = (SceneLoader*) data;
+    WindowManager* manager = (WindowManager*) loader->wManager;
+    printf("{START MENU} Initializing...\n");
+    Scene* next =
+        (Scene*) initStartMenuScene(manager->errCont, manager->renderer, manager->wSize, loader);
     clearCurrentScene(manager);
-    manager->currentScene = (Scene*) initStartMenuScene(
-        manager->errCont, manager->renderer, manager->wSize, (SceneLoader*) manager->sceneLoader);
+    manager->currentScene = next;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/21/26
+ * @date 04/24/26
  * @brief Handles the logic for creating an OptionsMenuScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -147,7 +156,15 @@ MenuScene* initOptionsMenuScene(ErrorContainer* errCont, SDL_Renderer* renderer,
     }
 
     MenuScene* scene = createMenuScene(pixelSize);
-    err = createOptionsMenuUI(scene->base.uManager, loader, renderer, scene->base.pixelSize);
+
+    SDL_Color white = (SDL_Color){255, 255, 255, 255};
+    err = createFont(scene->base.uiManager->fontCont, JETBRAINS_MONO, 24, white);
+    if (err) {
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
+
+    err = createOptionsMenuUI(scene->base.uiManager, loader, renderer, scene->base.pixelSize);
     if (err) {
         addErrorToContainer(errCont, err);
         return scene;
@@ -169,25 +186,24 @@ MenuScene* initOptionsMenuScene(ErrorContainer* errCont, SDL_Renderer* renderer,
 
 /**
  * @author DargoDargonyx
- * @date 04/20/2026
+ * @date 04/24/2026
  * @brief Helper function to handle loading the main options menu.
  *
- * @note The window manager is passed as a void pointer because
- * this function is usually called from the scene.c file where
- * window is not within scope.
- *
- * @param wManager : void pointer
+ * @param data : void pointer (acts like a SceneLoader struct pointer)
  */
-void loadOptionsMenuScene(void* wManager) {
-    WindowManager* manager = (WindowManager*) wManager;
+void loadOptionsMenuScene(void* data) {
+    SceneLoader* loader = (SceneLoader*) data;
+    WindowManager* manager = (WindowManager*) loader->wManager;
+    printf("{OPTIONS MENU} Initializing...\n");
+    Scene* next =
+        (Scene*) initOptionsMenuScene(manager->errCont, manager->renderer, manager->wSize, loader);
     clearCurrentScene(manager);
-    manager->currentScene = (Scene*) initOptionsMenuScene(
-        manager->errCont, manager->renderer, manager->wSize, (SceneLoader*) manager->sceneLoader);
+    manager->currentScene = next;
 }
 
 /**
  * @author DargoDargonyx
- * @date 04/21/26
+ * @date 04/24/26
  * @brief Handles the logic for creating a PlayScene struct.
  *
  * @note The void pointer is passed so that there are no errors for
@@ -216,10 +232,17 @@ PlayScene* createPlayScene(ErrorContainer* errCont, SDL_Renderer* renderer, Size
     PlayScene* scene = (PlayScene*) malloc(sizeof(PlayScene));
     scene->base.type = PLAY;
     scene->base.destroy = destroyPlayScene;
-    scene->base.uManager = createUIManager();
+    scene->base.uiManager = createUIManager();
     scene->base.pixelSize = pixelSize;
 
-    err = createPlaySceneUI(scene->base.uManager, loader, renderer, scene->base.pixelSize);
+    SDL_Color white = (SDL_Color){255, 255, 255, 255};
+    err = createFont(scene->base.uiManager->fontCont, JETBRAINS_MONO, 24, white);
+    if (err) {
+        addErrorToContainer(errCont, err);
+        return scene;
+    }
+
+    err = createPlaySceneUI(scene->base.uiManager, loader, renderer);
     if (err) {
         addErrorToContainer(errCont, err);
         return scene;
@@ -258,7 +281,7 @@ PlayScene* createPlayScene(ErrorContainer* errCont, SDL_Renderer* renderer, Size
 
 /**
  * @author DargoDargonyx
- * @date 04/20/26
+ * @date 04/24/26
  * @brief Handles the logic for destroying an PlayScene struct.
  *
  * @param self : Scene struct pointer
@@ -269,11 +292,12 @@ PlayScene* createPlayScene(ErrorContainer* errCont, SDL_Renderer* renderer, Size
 Error* destroyPlayScene(Scene* self) {
     if (!self) return createError(SCENE, "Could not destroy a NULL scene");
 
-    Error* err = destroyUIManager(self->uManager);
-    PlayScene* scene = (PlayScene*) self;
-    err = destroyCamera(scene->cam);
+    Error* err = destroyUIManager(self->uiManager);
     if (err) return err;
-    err = destroyMap(scene->map);
+    PlayScene* scene = (PlayScene*) self;
+    if (scene->cam) err = destroyCamera(scene->cam);
+    if (err) return err;
+    if (scene->map) err = destroyMap(scene->map);
 
     free(self);
     return err;
@@ -281,18 +305,17 @@ Error* destroyPlayScene(Scene* self) {
 
 /**
  * @author DargoDargonyx
- * @date 04/19/2026
+ * @date 04/24/2026
  * @brief Helper function to handle loading the playing scene.
  *
- * @note The window manager is passed as a void pointer because
- * this function is usually called from the scene.c file where
- * window is not within scope.
- *
- * @param wManager : void pointer
+ * @param data : void pointer (acts like a SceneLoader struct pointer)
  */
-void loadPlayScene(void* wManager) {
-    WindowManager* manager = (WindowManager*) wManager;
-    clearCurrentScene(manager);
-    manager->currentScene = (Scene*) createPlayScene(
-        manager->errCont, manager->renderer, manager->wSize, (SceneLoader*) manager->sceneLoader);
+void loadPlayScene(void* data) {
+    SceneLoader* loader = (SceneLoader*) data;
+    WindowManager* manager = (WindowManager*) loader->wManager;
+    printf("{PLAY} Initializing...\n");
+    Scene* next =
+        (Scene*) createPlayScene(manager->errCont, manager->renderer, manager->wSize, loader);
+    clearCurrentScene((WindowManager*) loader->wManager);
+    manager->currentScene = next;
 }

@@ -1,13 +1,14 @@
 /**
  * @file widget.h
  * @author DargoDargonyx
- * @date 04/20/2026
+ * @date 04/24/2026
  * @brief Handles the logic for UI widgets.
  */
 
 #ifndef UI_H
 #define UI_H
 
+#include "graphics/animation.h"
 #include "ui/font.h"
 #include "util/error.h"
 #include "util/helper.h"
@@ -15,8 +16,9 @@
 #include <SDL2/SDL.h>
 
 #define UI_MANAGER_WIDGETS_INIT_CAP 31
+#define UI_MANAGER_FONTS_INIT_CAP 7
 
-typedef enum { BUTTON } WidgetType;
+typedef enum { TXT_BOX, BUTTON } WidgetType;
 
 typedef struct Widget Widget;
 struct Widget {
@@ -25,46 +27,48 @@ struct Widget {
 };
 
 typedef struct {
+    // Errors
+    ErrorContainer* errCont;
+    // Fonts
+    FontContainer* fontCont;
+    // Widgets
     int widgetCap;
     int widgetCount;
     Widget** widgets;
-    ErrorContainer* errCont;
 } UIManager;
 
 UIManager* createUIManager();
 Error* destroyUIManager(UIManager*);
 
-// Orderered vertically such that,
+typedef enum { TXT_BOX_SOLID, TXT_BOX_FILL, TXT_BOX_MINIMAL } TxtBoxType;
+
+// Buttons orderered vertically such that,
 // { IDLE }
 // { HOVER }
 // { PRESSED }
-#define BTN_SPRITESHEET_SIZE 3
+#define BTN_SPRITESHEET_COUNT 3
+#define BTN_SPRITESHEET_WIDTH 1
+#define BTN_SPRITESHEET_HEIGHT 3
+typedef enum { BTN_IDLE, BTN_HOVER, BTN_PRESSED } BtnState;
 
-typedef enum { IMG, TXT } ButtonType;
-typedef enum { BTN_IDLE, BTN_HOVER, BTN_PRESSED } ButtonState;
-
-typedef struct Button Button;
-struct Button {
+typedef struct {
+    TxtBoxType type;
     Widget base;
-    ButtonType type;
-    ButtonState state;
+    SDL_Rect outer;
+    SDL_Rect inner;
+    const char* txt;
+    SDL_Texture* texture;
+} TxtBox;
+
+typedef struct {
+    Widget base;
+    SDL_Rect rect;
+    BtnState currentState;
+    AnimationManager* aManager;
+    TxtBox* txtBox;
     void (*onClick)(void*);
     void* userData;
-    SDL_Texture* bgTexture;
-    SDL_Rect rect;
-};
-
-typedef struct {
-    Button base;
-} IMG_Button;
-
-typedef struct {
-    Button base;
-    const char* txt;
-    Font* font;
-    SDL_Texture* txtTexture;
-    SDL_Rect txtRect;
-} TXT_Button;
+} Button;
 
 typedef struct {
     void* wManager;
@@ -74,15 +78,20 @@ typedef struct {
     void (*exit)(void*);
 } SceneLoader;
 
-IMG_Button* createImgButton(UIManager*, SDL_Renderer*, const char*, Pos, int);
-Error* destroyImgButton(Widget*);
-TXT_Button* createTxtButton(UIManager*, SDL_Renderer*, const char*, Pos, int, const char*, Font*);
-Error* destroyTxtButton(Widget*);
-
 Error* addWidgetToManager(UIManager*, Widget*);
+Error* removeWidgetFromManager(UIManager*, Widget*);
+Error* addFontToManager(UIManager*, Font*);
+Font* findFontInManager(UIManager*, FontType);
+
+TxtBox* createTxtBox(UIManager*, SDL_Renderer*, TxtBoxType, const char*, FontType, Pos, Size);
+Error* destroyTxtBox(Widget*);
+Error* padTxtBox(TxtBox*, Size);
+
+Button* createButton(Spritesheet*, Pos, TxtBox*);
+Error* destroyButton(Widget*);
 
 Error* createStartMenuUI(UIManager*, SceneLoader*, SDL_Renderer*, Size);
 Error* createOptionsMenuUI(UIManager*, SceneLoader*, SDL_Renderer*, Size);
-Error* createPlaySceneUI(UIManager*, SceneLoader*, SDL_Renderer*, Size);
+Error* createPlaySceneUI(UIManager*, SceneLoader*, SDL_Renderer*);
 
 #endif

@@ -1,7 +1,7 @@
 /**
  * @file physics.h
  * @author DargoDargonyx
- * @date 04/17/2026
+ * @date 04/23/2026
  * @brief Handles the logic for world physics.
  */
 
@@ -14,6 +14,7 @@
 #define WORLD_COORD_HEIGHT 32
 
 typedef enum {
+    // Entities
     IDLE,
     MOVING_NORTH,
     MOVING_NORTH_EAST,
@@ -22,7 +23,7 @@ typedef enum {
     MOVING_SOUTH,
     MOVING_SOUTH_WEST,
     MOVING_WEST,
-    MOVING_NORTH_WEST
+    MOVING_NORTH_WEST,
 } ActionState;
 
 // World coordinates where (0, 0) is the top left

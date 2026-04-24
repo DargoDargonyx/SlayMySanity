@@ -18,6 +18,7 @@ Error* drawMenuScene(SDL_Renderer*, MenuScene*);
 Error* drawPlayScene(SDL_Renderer*, PlayScene*);
 
 Error* drawWidgets(SDL_Renderer*, UIManager*);
+Error* drawTxtBox(SDL_Renderer*, TxtBox*);
 Error* drawButton(SDL_Renderer*, Button*);
 
 Error* drawMap(SDL_Renderer*, Cam*, Map*);

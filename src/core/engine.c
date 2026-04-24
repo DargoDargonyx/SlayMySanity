@@ -1,7 +1,7 @@
 /**
  * @file engine.c
  * @author DargoDargonyx
- * @date 04/20/2026
+ * @date 04/24/2026
  * @brief Handles the logic for the game engine.
  */
 
@@ -15,7 +15,7 @@
 
 /**
  * @author DargoDargonyx
- * @date 04/20/26
+ * @date 04/24/26
  * @brief Handles the logic for running the main game loop.
  *
  * @param wManager : WindowManager struct pointer
@@ -26,12 +26,12 @@ Error* runGameLoop(WindowManager* wManager) {
     SDL_Event event;
     Error* err = NULL;
     float targetFrameTime = 1000.0f / TARGET_FPS;
-    wManager->sceneLoader = (void*) createSceneLoader(wManager);
+    SceneLoader* sceneLoader = createSceneLoader(wManager);
 
+    printf("{ENGINE} Starting game loop\n");
     // Initializing the current scene to the start menu
-    loadStartMenuScene((void*) wManager);
+    loadStartMenuScene(sceneLoader);
     Uint64 last = SDL_GetPerformanceCounter();
-    printf("Starting the game loop...\n");
     while (wManager->running) {
         Uint64 now = SDL_GetPerformanceCounter();
         float dt = (float) (now - last) / SDL_GetPerformanceFrequency();
@@ -45,8 +45,8 @@ Error* runGameLoop(WindowManager* wManager) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) wManager->running = 0;
 
-            for (int i = 0; i < wManager->currentScene->uManager->widgetCount; i++) {
-                err = handleWidgetEvent(wManager->currentScene->uManager->widgets[i], &event);
+            for (int i = 0; i < wManager->currentScene->uiManager->widgetCount; i++) {
+                err = handleWidgetEvent(wManager->currentScene->uiManager->widgets[i], &event);
                 if (err) return err;
             }
         }
@@ -81,16 +81,15 @@ Error* runGameLoop(WindowManager* wManager) {
 
 /**
  * @author DargoDargonyx
- * @date 04/05/2026
+ * @date 04/24/2026
  * @brief Helper function to handle quitting the game.
  *
- * @note The window manager is passed as a void pointer because
- * this function is usually called from the scene.c file where
- * window is not within scope.
- * @param wManager : void pointer
+ * @param data : void pointer (acts like a SceneLoader struct pointer)
  */
-void exitGameLoop(void* wManager) {
-    WindowManager* manager = (WindowManager*) wManager;
+void exitGameLoop(void* data) {
+    printf("{ENGINE} Exiting game loop\n");
+    SceneLoader* loader = (SceneLoader*) data;
+    WindowManager* manager = (WindowManager*) loader->wManager;
     manager->running = 0;
 }
 

@@ -1,7 +1,7 @@
 /**
  * @file scene.h
  * @author DargoDargonyx
- * @date 04/20/2026
+ * @date 04/24/2026
  * @brief Handles the logic for scenes.
  */
 
@@ -25,7 +25,7 @@ typedef struct Scene Scene;
 struct Scene {
     SceneType type;
     Error* (*destroy)(Scene* self);
-    UIManager* uManager;
+    UIManager* uiManager;
     Size pixelSize;
 };
 
